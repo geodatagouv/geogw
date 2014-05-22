@@ -1,0 +1,16 @@
+{
+  "name": "geogw",
+  "version": "0.1.0-dev",
+  "description": "A gateway to reconcile Inspire and Open Data",
+  "keywords": [
+    "inspire",
+    "opendata",
+    "gateway"
+  ],
+  "author": "Jerome Desboeufs <jerome.desboeufs@gmail.com>",
+  "license": "AGPL",
+  "bugs": {
+    "url": "https://github.com/jdesboeufs/geogw/issues"
+  },
+  "homepage": "https://github.com/jdesboeufs/geogw"
+}
