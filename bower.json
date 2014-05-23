@@ -1,0 +1,26 @@
+{
+  "name": "geogw",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jdesboeufs/geogw",
+  "authors": [
+    "Jerome Desboeufs <jerome.desboeufs@gmail.com>"
+  ],
+  "description": "A gateway to reconcile Inspire and Open Data",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "inspire",
+    "opendata",
+    "gateway"
+  ],
+  "license": "AGPL",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ]
+}
