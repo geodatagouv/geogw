@@ -26,3 +26,6 @@ node_modules
 
 # Bower dependencies
 app/bower_components
+
+# Env
+.env

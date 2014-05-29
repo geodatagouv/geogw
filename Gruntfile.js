@@ -1,12 +1,12 @@
 module.exports = function(grunt) {
-    require('matchdep').filter('grunt-*').forEach(grunt.loadNpmTasks);
+    require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
     grunt.initConfig({
 
         jshint: {
             all: [
                 '*.js',
-                'lib/**/*.js',
+                'server/**/*.js',
                 'app/js/**/*.js'
             ],
             options: {
