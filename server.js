@@ -4,6 +4,8 @@ var session = require('express-session');
 var mongoose = require('./server/mongoose');
 var passport = require('./server/passport');
 var api = require('./server/api');
+var redis = require('./server/redis');
+var RedisStore = require('connect-redis')(session)
 
 var app = express();
 
@@ -12,7 +14,13 @@ app.set('views', __dirname + '/views');
 
 app.use(express.static('app'));
 app.use(cookieParser());
-app.use(session({ secret: process.env.COOKIE_SECRET, name: 'sid' }));
+
+app.use(session({
+    store: new RedisStore({ client: redis.createClient() }),
+    secret: process.env.COOKIE_SECRET,
+    name: 'sid'
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 

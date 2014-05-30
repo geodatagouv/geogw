@@ -15,6 +15,7 @@
   "homepage": "https://github.com/jdesboeufs/geogw",
   "dependencies": {
     "body-parser": "^1.2.0",
+    "connect-redis": "^2.0.0",
     "cookie-parser": "^1.1.0",
     "csw": "0.1.2",
     "express": "^4.3.0",
