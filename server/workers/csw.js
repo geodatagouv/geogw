@@ -43,15 +43,24 @@ function harvestService(service, job, done) {
     });
 
     harvester.on('end', function(err, stats) {
-        if (stats) job.log(JSON.stringify(stats));
-        service
-            .set('harvesting.state', err ? 'error' : 'idle')
-            .set('harvesting.jobId', null)
-            .set('items', stats.returned)
-            .save(function(err) {
-                if (err) return done(err);
-                done();
-            });
+        if (err) {
+            console.log(err);
+            done(err);
+            service
+                .set('harvesting.state', 'error')
+                .save(function(err) {
+                    console.log(err);
+                });
+        } else {
+            service
+                .set('harvesting.state', 'idle')
+                .set('harvesting.jobId', null)
+                .set('items', stats.returned)
+                .save(function(err) {
+                    if (err) return done(err);
+                    done();
+                });
+        }
     });
 
     harvester.on('record', function(data) {
@@ -92,7 +101,7 @@ exports.harvest = function(job, done) {
         if (!service) return done(new Error('Unable to fetch service ' + job.data.serviceId));
         if (!service.harvesting.enabled) return done(new Error('Harvesting is disabled for service ' + job.data.serviceId));
         if (service.harvesting.state !== 'queued') return done(new Error('Unconsistent state for service ' + job.data.serviceId));
-        if (service.harvesting.jobId != parseInt(job.id)) return done(new Error('Unconsistent jobId for service ' + job.data.serviceId));
+        if (service.harvesting.jobId && service.harvesting.jobId != parseInt(job.id)) return done(new Error('Unconsistent jobId for service ' + job.data.serviceId));
 
         setTimeout(function() {
             service

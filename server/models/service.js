@@ -103,23 +103,21 @@ ServiceSchema.pre('save', function(next) {
 ** Methods
 */
 ServiceSchema.methods.harvest = function(cb) {
-    if (this.harvesting.state === 'waiting' || this.harvesting.state === 'processing') return cb();
+    if (this.harvesting.state === 'queued' || this.harvesting.state === 'processing') return cb();
     if (this.harvesting.enabled === false) return cb();
 
-    var job = jobs.create('harvest', {
-        title: this.name,
-        serviceUrl: this.location,
-        serviceId: this.id,
-        protocol: this.protocol
-    });
-
     var service = this;
+    this.harvesting.state = 'queued';
 
-    job.save(function(err) {
+    this.save(function(err) {
         if (err) return cb(err);
-        service.harvesting.state = 'queued';
-        service.harvesting.jobId = job.id;
-        service.save(function(err) {
+
+        jobs.create('harvest', {
+            title: service.name,
+            serviceUrl: service.location,
+            serviceId: service.id,
+            protocol: service.protocol
+        }).save(function(err) {
             if (err) return cb(err);
             cb();
         });
