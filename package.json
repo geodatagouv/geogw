@@ -26,8 +26,6 @@
     "passport": "^0.2.0",
     "passport-oauth": "^1.0.0",
     "redis": "^0.10.3",
-    "socket.io": "^1.0.0-pre5",
-    "socket.io-redis": "^0.1.2",
     "superagent": "^0.18.0",
     "underscore.string": "^2.3.3"
   },

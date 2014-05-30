@@ -4,9 +4,6 @@ var session = require('express-session');
 var mongoose = require('./server/mongoose');
 var passport = require('./server/passport');
 var api = require('./server/api');
-// var redis = require('redis');
-// var io = require('socket.io');
-// var ioRedis = require('socket.io-redis');
 
 var app = express();
 
