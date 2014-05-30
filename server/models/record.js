@@ -59,6 +59,10 @@ var RecordSchema = new Schema({
             type: String,
             index: true
         },
+        serviceType: {
+            type: String,
+            index: true
+        },
         keywords: {
             type: [String],
             index: true

@@ -82,6 +82,7 @@ function harvestService(service, job, done) {
             'abstract',
             'type',
             'representationType',
+            'serviceType',
             'keywords',
             'onlineResources'
         ]);
