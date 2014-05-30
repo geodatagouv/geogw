@@ -13,10 +13,15 @@ function harvestService(service, job, done) {
         userAgent: 'Afigeo CSW harvester'
     });
 
-    var harvester = client.harvest({
+    var harvesterOptions = {
         mapper: 'iso19139',
-        namespace: 'xmlns(gmd=http://www.isotc211.org/2005/gmd)'
-    });
+        constraintLanguage: 'CQL_TEXT'
+    };
+
+    if (service.location.indexOf('isogeo') !== -1) harvesterOptions.namespace = 'xmlns(gmd=http://www.isotc211.org/2005/gmd)';
+    if (service.location.indexOf('geoportal/csw/discovery') !== -1) delete harvesterOptions.constraintLanguage;
+
+    var harvester = client.harvest(harvesterOptions);
 
     var total;
 
