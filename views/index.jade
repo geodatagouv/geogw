@@ -32,7 +32,7 @@ html(lang="fr", ng-app)
               td.vert: span.label.label-warning {{ service.protocol | uppercase }}
               td.vert(ng-click="toggleSelection(service)", style="cursor: pointer") {{ service.name }} <span class="badge">{{ service.items }}</span>
               td.vert: i.fa(ng-class="{ 'fa-thumbs-up': service.harvesting.state == 'idle', 'fa-refresh': service.harvesting.state == 'processing', 'fa-spin': service.harvesting.state == 'processing', 'fa-history': service.harvesting.state == 'queued', 'fa-thumbs-down': service.harvesting.state == 'error' }")
-              td.vert: a(href="#", ng-if="service.harvesting.state == 'idle'", ng-click="harvest(service)") Moissonner
+              td.vert: a(style="cursor: pointer" ng-if="service.harvesting.state == 'idle'", ng-click="harvest(service)") Moissonner
               td.vert
                 i.fa(ng-class="{ 'fa-chevron-right': isSelected(service) }")
 
