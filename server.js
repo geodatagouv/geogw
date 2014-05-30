@@ -32,6 +32,11 @@ app.get('/auth/datagouv/callback', passport.authenticate('datagouv', {
     failureRedirect: '/login'
 }));
 
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
 app.get('/', function(req, res) {
     if (!req.user) res.redirect('/auth/datagouv');
     res.render('index');
