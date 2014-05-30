@@ -58,6 +58,7 @@ html(lang="fr", ng-app)
                 label
                   input(type="checkbox", ng-model="opendata")
                   | Uniquement les données marquées Open Data
+              p(style="color:green") {{ datasetsCount | number }} résultat(s) trouvé(s)
 
           table.table
             tr(ng-repeat="dataset in datasets | orderBy:'-score'")

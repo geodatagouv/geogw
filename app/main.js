@@ -36,7 +36,8 @@ function MainController($scope, $http, $timeout) {
         $http
             .get('/services/' + $scope.selectedServices[0] + '/datasets', { params: { q: $scope.q, opendata: $scope.opendata } })
             .success(function(data) {
-                $scope.datasets = data;
+                $scope.datasets = data.results;
+                $scope.datasetsCount = data.count;
             });
     };
     $scope.hasKeywordOpenData = function(dataset) {
