@@ -1,5 +1,5 @@
 doctype html
-html(lang="fr", ng-app)
+html(lang="fr", ng-app="mainApp")
   head
     title Passerelle Inspire Open Data
     meta(name="viewport", content="width=device-width, initial-scale=1")
@@ -32,8 +32,8 @@ html(lang="fr", ng-app)
             tr(ng-repeat="service in services", ng-class="{ info: isSelected(service) }")
               td.vert: span.label.label-warning {{ service.protocol | uppercase }}
               td.vert(ng-click="toggleSelection(service)", style="cursor: pointer") {{ service.name }} <span class="badge">{{ service.items }}</span>
-              td.vert: i.fa(ng-class="{ 'fa-thumbs-up': service.harvesting.state == 'idle', 'fa-refresh': service.harvesting.state == 'processing', 'fa-spin': service.harvesting.state == 'processing', 'fa-history': service.harvesting.state == 'queued', 'fa-thumbs-down': service.harvesting.state == 'error' }")
-              td.vert: a(style="cursor: pointer" ng-if="service.harvesting.state == 'idle'", ng-click="harvest(service)") Moissonner
+              td.vert: i.fa(ng-class="{ 'fa-thumbs-up': service.harvesting.state === 'idle', 'fa-refresh': service.harvesting.state === 'processing', 'fa-spin': service.harvesting.state === 'processing', 'fa-history': service.harvesting.state === 'queued', 'fa-thumbs-down': service.harvesting.state === 'error' }")
+              td.vert: a(style="cursor: pointer" ng-if="service.harvesting.state === 'idle'", ng-click="harvest(service)") Moissonner
               td.vert
                 i.fa(ng-class="{ 'fa-chevron-right': isSelected(service) }")
 

@@ -1,4 +1,6 @@
-function MainController($scope, $http, $timeout) {
+var mainApp = angular.module('mainApp',[]);
+
+mainApp.controller('MainController', function ($scope, $http, $timeout) {
     $scope.selectedServices = [];
     $scope.harvest = function(service) {
         $http.post('/services/' + service._id + '/harvest');
@@ -32,7 +34,7 @@ function MainController($scope, $http, $timeout) {
         return $scope.selectedServices.indexOf(service._id) !== -1;
     };
     $scope.fetchDatasets = function() {
-        if ($scope.selectedServices.length == 0) return;
+        if ($scope.selectedServices.length === 0) return;
         $http
             .get('/services/' + $scope.selectedServices[0] + '/datasets', { params: { q: $scope.q, opendata: $scope.opendata } })
             .success(function(data) {
@@ -47,4 +49,4 @@ function MainController($scope, $http, $timeout) {
         $scope.fetchDatasets();
     });
     $scope.fetchServices();
-}
+});

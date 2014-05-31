@@ -5,7 +5,7 @@ var services = require('../controllers/services');
 var auth = require('./middlewares/auth');
 var datasets = require('../controllers/datasets');
 
-module.exports = function(app, passport) {
+module.exports = function(app) {
 
     // Params
     app.param('serviceId', services.service);

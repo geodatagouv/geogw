@@ -1,11 +1,10 @@
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
-var mongoose = require('./server/mongoose');
 var passport = require('./server/passport');
 var api = require('./server/api');
 var redis = require('./server/redis');
-var RedisStore = require('connect-redis')(session)
+var RedisStore = require('connect-redis')(session);
 
 var app = express();
 

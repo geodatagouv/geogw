@@ -4,7 +4,7 @@
 var users = require('../controllers/users');
 var auth = require('./middlewares/auth');
 
-module.exports = function(app, passport) {
+module.exports = function(app) {
 
     app.route('/users')
         .all(auth.ensureLoggedIn)

@@ -102,7 +102,7 @@ exports.harvest = function(job, done) {
         if (!service) return done(new Error('Unable to fetch service ' + job.data.serviceId));
         if (!service.harvesting.enabled) return done(new Error('Harvesting is disabled for service ' + job.data.serviceId));
         if (service.harvesting.state !== 'queued') return done(new Error('Unconsistent state for service ' + job.data.serviceId));
-        if (service.harvesting.jobId && service.harvesting.jobId != parseInt(job.id)) return done(new Error('Unconsistent jobId for service ' + job.data.serviceId));
+        if (service.harvesting.jobId && service.harvesting.jobId !== parseInt(job.id)) return done(new Error('Unconsistent jobId for service ' + job.data.serviceId));
 
         setTimeout(function() {
             service

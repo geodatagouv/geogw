@@ -3,7 +3,6 @@
 */
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
-var Service = mongoose.model('Service');
 
 exports.user = function(req, res, next, id) {
     User.findById(id).exec(function(err, user) {

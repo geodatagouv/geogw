@@ -2,7 +2,6 @@
 ** Module dependencies
 */
 var mongoose = require('mongoose');
-var _ = require('lodash');
 var Record = mongoose.model('Record');
 var async = require('async');
 
@@ -12,10 +11,10 @@ exports.search = function(req, res, next) {
         if (req.query.q && req.query.q.length) {
             query
                 .where({ $text: { $search: req.query.q, $language: 'french' }})
-                .select({ score: { $meta: "textScore" } })
-                .sort({ score: { $meta: "textScore" } });
+                .select({ score: { $meta: 'textScore' } })
+                .sort({ score: { $meta: 'textScore' } });
         }
-        if (req.query.opendata === "true") {
+        if (req.query.opendata === 'true') {
             query
                 .where('metadata.keywords')
                 .in(['donnée ouverte', 'données ouvertes', 'opendata']);
