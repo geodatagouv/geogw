@@ -12,16 +12,6 @@ module.exports = function(grunt) {
             options: {
 
             }
-        },
-
-        // ## //
-
-        bower: {
-            install: {
-                options: {
-                    copy: false
-                }
-            }
         }
 
     });

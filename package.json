@@ -32,7 +32,6 @@
     "underscore.string": "^2.3.3"
   },
   "devDependencies": {
-    "grunt-bower-task": "^0.3.4",
     "grunt-contrib-jshint": "^0.10.0",
     "matchdep": "^0.3.0"
   }
