@@ -84,7 +84,9 @@ function harvestService(service, job, done) {
             'representationType',
             'serviceType',
             'keywords',
-            'onlineResources'
+            'onlineResources',
+            'contacts',
+            '_contacts'
         ]);
 
         var update = { $set: { metadata: metadata }};

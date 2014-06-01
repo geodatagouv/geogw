@@ -23,6 +23,27 @@ var OnlineResourceSchema = new Schema({
 });
 
 /*
+** Contact schema
+*/
+var ContactSchema = new Schema({
+    organizationName: {
+        type: String
+    },
+    individualName: {
+        type: String
+    },
+    positionName: {
+        type: String
+    },
+    email: {
+        type: String
+    },
+    role: {
+        type: String
+    }
+});
+
+/*
 ** Record schema
 */
 var RecordSchema = new Schema({
@@ -69,6 +90,12 @@ var RecordSchema = new Schema({
         },
         onlineResources: {
             type: [OnlineResourceSchema]
+        },
+        contact: {
+            type: [ContactSchema]
+        },
+        _contacts: {
+            type: [ContactSchema]
         },
         provider: {
             name: {
