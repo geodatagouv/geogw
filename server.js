@@ -1,6 +1,7 @@
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+require('./server/mongoose'); // Must be called before passport. FIXME
 var passport = require('./server/passport');
 var api = require('./server/api');
 var redis = require('./server/redis');
