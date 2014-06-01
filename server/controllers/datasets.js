@@ -9,10 +9,7 @@ exports.search = function(req, res, next) {
     function buildQuery() {
         var query = Record.find().where('metadata.type').in(['dataset', 'series']);
         if (req.query.q && req.query.q.length) {
-            query
-                .where({ $text: { $search: req.query.q, $language: 'french' }})
-                .select({ score: { $meta: 'textScore' } })
-                .sort({ score: { $meta: 'textScore' } });
+            query.where({ $text: { $search: req.query.q, $language: 'french' }});
         }
         if (req.query.opendata === 'true') {
             query
@@ -25,7 +22,11 @@ exports.search = function(req, res, next) {
 
     async.parallel({
         results: function(callback) {
-            buildQuery().limit(20).exec(callback);
+            buildQuery()
+                .select({ score: { $meta: 'textScore' } })
+                .sort({ score: { $meta: 'textScore' } })
+                .limit(20)
+                .exec(callback);
         },
         count: function(callback) {
             buildQuery().count().exec(callback);
