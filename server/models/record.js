@@ -91,7 +91,7 @@ var RecordSchema = new Schema({
         onlineResources: {
             type: [OnlineResourceSchema]
         },
-        contact: {
+        contacts: {
             type: [ContactSchema]
         },
         _contacts: {
