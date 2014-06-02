@@ -7,7 +7,7 @@ var auth = require('./middlewares/auth');
 module.exports = function(app) {
 
     app.route('/users')
-        .all(auth.ensureLoggedIn)
+        .all(auth.isAdmin)
         .get(users.list);
 
     app.route('/subscriptions/:serviceId')

@@ -39,7 +39,11 @@ var UserSchema = new Schema({
     subscriptions: [{
         type: Schema.Types.ObjectId,
         ref: 'Service'
-    }]
+    }],
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
 });
 
 UserSchema.pre('save', function(next) {
