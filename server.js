@@ -24,7 +24,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(api);
+app.use('/api', api);
 
 app.get('/auth/datagouv', passport.authenticate('datagouv'));
 app.get('/auth/datagouv/callback', passport.authenticate('datagouv', { 

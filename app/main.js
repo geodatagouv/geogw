@@ -3,10 +3,10 @@ var mainApp = angular.module('mainApp',[]);
 mainApp.controller('MainController', function ($scope, $http, $timeout) {
     $scope.selectedServices = [];
     $scope.harvest = function(service) {
-        $http.post('/services/' + service._id + '/harvest');
+        $http.post('/api/services/' + service._id + '/harvest');
     };
     $scope.fetchServices = function() {
-        $http.get('/services').success(function(services) {
+        $http.get('/api/services').success(function(services) {
             $scope.services = services;
             if (!$scope.selectedServices.length && services.length) $scope.toggleSelection(services[0]);
             $timeout($scope.fetchServices, 2000);
@@ -16,7 +16,7 @@ mainApp.controller('MainController', function ($scope, $http, $timeout) {
         $scope.newService = { protocol: 'csw' };
     };
     $scope.saveNewService = function() {
-        $http.post('/services', $scope.newService).success(function() {
+        $http.post('/api/services', $scope.newService).success(function() {
             delete $scope.newService;
         });
     };
@@ -36,7 +36,7 @@ mainApp.controller('MainController', function ($scope, $http, $timeout) {
     $scope.fetchDatasets = function() {
         if ($scope.selectedServices.length === 0) return;
         $http
-            .get('/services/' + $scope.selectedServices[0] + '/datasets', { params: { q: $scope.q, opendata: $scope.opendata } })
+            .get('/api/services/' + $scope.selectedServices[0] + '/datasets', { params: { q: $scope.q, opendata: $scope.opendata } })
             .success(function(data) {
                 $scope.datasets = data.results;
                 $scope.datasetsCount = data.count;
