@@ -6,8 +6,16 @@ var passport = require('./server/passport');
 var api = require('./server/api');
 var redis = require('./server/redis');
 var RedisStore = require('connect-redis')(session);
+var morgan = require('morgan');
 
 var app = express();
+
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', true);
+    app.use(morgan());
+} else {
+    app.use(morgan('dev'));
+}
 
 app.set('view engine', 'jade');
 app.set('views', __dirname + '/views');
