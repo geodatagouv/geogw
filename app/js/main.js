@@ -1,4 +1,16 @@
-var mainApp = angular.module('mainApp', ['ngRoute']);
+angular.module('customFilters', []).filter('prune', function () {
+    return function (value, max) {
+        if (!value) return '';
+
+        max = parseInt(max, 10);
+        if (!max) return value;
+        if (value.length <= max) return value;
+
+        return _.str.prune(value, max)
+    };
+});
+
+var mainApp = angular.module('mainApp', ['ngRoute', 'customFilters']);
 
 mainApp.config(function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);

@@ -21,14 +21,10 @@
     <table class="table">
       <tr ng-repeat="dataset in datasets | orderBy:'-score'">
         <td class="vert"><i ng-class="{ 'fa-file-o': dataset.metadata.type === 'dataset', 'fa-database': dataset.metadata.type === 'series' }" class="fa"></i></td>
-        <td style="cursor: pointer" ng-if="!dataset.$expanded" ng-click="dataset.$expanded = true" class="vert">{{ dataset.metadata.title }}</td>
-        <td style="cursor: pointer" ng-if="dataset.$expanded" ng-click="dataset.$expanded = false" class="vert">
+        <td class="vert">
           <h5>{{ dataset.metadata.title }}</h5>
-          <p>{{ dataset.metadata.abstract }}</p>
+          <p>{{ dataset.metadata.abstract | prune:500 }}</p>
           <p><span ng-repeat="keyword in dataset.metadata.keywords"><span class="label label-info">{{ keyword }}</span> </span></p>
-          <div ng-if="dataset.metadata.onlineResources.length">
-            <div ng-repeat="resource in dataset.metadata.onlineResources"><a title="{{ resource.protocol }}" href="{{ resource.link }}">{{ resource.name || resource.link }}</a></div>
-          </div>
         </td>
         <td class="vert"><span ng-if="hasKeywordOpenData(dataset)"><i style="color: green" class="fa fa-flag"></i></span></td>
       </tr>
