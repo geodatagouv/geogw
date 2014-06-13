@@ -5,11 +5,11 @@ html(lang="fr", ng-app="mainApp")
     meta(name="viewport", content="width=device-width, initial-scale=1")
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css")
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css")
-    link(rel="stylesheet", href="/main.css")
+    link(rel="stylesheet", href="/js/main.css")
     script(src="//code.angularjs.org/1.3.0-beta.9/angular.min.js")
     script(src="//code.angularjs.org/1.3.0-beta.9/angular-route.min.js")
     script(src="//code.angularjs.org/1.3.0-beta.9/i18n/angular-locale_fr-fr.js")
-    script(src="/main.js")
+    script(src="/js/main.js")
 
   body
     nav.navbar.navbar-default.navbar-static-top(role="navigation")
@@ -22,62 +22,4 @@ html(lang="fr", ng-app="mainApp")
           ul.nav.navbar-nav
             li: a(href="/logout") Déconnexion
 
-    .container-fluid(ng-controller="MainController")
-
-      .row
-        .col-lg-5
-          h3 Services
-          hr
-
-          table.table.table-hover
-            tr(ng-repeat="service in services", ng-class="{ info: isSelected(service) }")
-              td.vert: span.label.label-warning {{ service.protocol | uppercase }}
-              td.vert(ng-click="toggleSelection(service)", style="cursor: pointer") {{ service.name }} <span class="badge">{{ service.items }}</span>
-              td.vert: i.fa(ng-class="{ 'fa-thumbs-up': service.harvesting.state === 'idle', 'fa-refresh': service.harvesting.state === 'processing', 'fa-spin': service.harvesting.state === 'processing', 'fa-history': service.harvesting.state === 'queued', 'fa-thumbs-down': service.harvesting.state === 'error' }")
-              td.vert: a(style="cursor: pointer" ng-if="service.harvesting.state === 'idle'", ng-click="harvest(service)") Moissonner
-              td.vert
-                i.fa(ng-class="{ 'fa-chevron-right': isSelected(service) }")
-
-          button.btn.btn-primary(ng-click="initNewService()", ng-if="!newService") <i class="fa fa-plus"></i> Ajouter un nouveau service
-
-
-          .panel.panel-default(ng-if="newService")
-            .panel-body
-              .form-group
-                label Adresse du service
-                input.form-control(type="text", ng-model="newService.location", placeholder="http://monserviceogc.monterritoire.fr/ows")
-              .form-group
-                label Nom du service
-                input.form-control(type="text", ng-model="newService.name", placeholder="Service CSW du canton de ...")
-              button.btn.btn-primary(ng-click="saveNewService()") Valider
-
-        .col-lg-7
-          h3 Données
-          .panel.panel-default
-            .panel-body
-              input.form-control(type="search", placeholder="Rechercher...", ng-model="q")
-              .checkbox
-                label
-                  input(type="checkbox", ng-model="opendata")
-                  | Uniquement les données marquées Open Data
-              p(style="color:green") {{ datasetsCount | number }} résultat(s) trouvé(s)
-
-          table.table
-            tr(ng-repeat="dataset in datasets | orderBy:'-score'")
-              td.vert
-                i.fa(ng-class="{ 'fa-file-o': dataset.metadata.type === 'dataset', 'fa-database': dataset.metadata.type === 'series' }")
-              td.vert(style="cursor: pointer", ng-if="!dataset.$expanded", ng-click="dataset.$expanded = true") {{ dataset.metadata.title }}
-              td.vert(style="cursor: pointer", ng-if="dataset.$expanded", ng-click="dataset.$expanded = false")
-                h5 {{ dataset.metadata.title }}
-                p {{ dataset.metadata.abstract }}
-                p
-                  span(ng-repeat="keyword in dataset.metadata.keywords")
-                    span.label.label-info {{ keyword }}
-                    | 
-                div(ng-if="dataset.metadata.onlineResources.length")
-                  div(ng-repeat="resource in dataset.metadata.onlineResources")
-                    a(title="{{ resource.protocol }}" href="{{ resource.link }}") {{ resource.name || resource.link }}
-              td.vert
-                span(ng-if="hasKeywordOpenData(dataset)")
-                  i.fa.fa-flag(style="color: green")
-          
+    .container-fluid(ng-view)

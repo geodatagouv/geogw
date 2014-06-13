@@ -1,0 +1,42 @@
+<ol class="breadcrumb">
+  <li>Accueil</li>
+  <li><a href="/services">Services</a></li>
+  <li class="active">{{ service.name }}</li>
+</ol>
+
+<div class="row">
+
+  <div class="col-lg-8">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <input type="search" placeholder="Rechercher..." ng-model="q" class="form-control">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="opendata">Uniquement les données marquées Open Data
+          </label>
+        </div>
+        <p style="color:green">{{ datasetsCount | number }} résultat(s) trouvé(s)</p>
+      </div>
+    </div>
+    <table class="table">
+      <tr ng-repeat="dataset in datasets | orderBy:'-score'">
+        <td class="vert"><i ng-class="{ 'fa-file-o': dataset.metadata.type === 'dataset', 'fa-database': dataset.metadata.type === 'series' }" class="fa"></i></td>
+        <td style="cursor: pointer" ng-if="!dataset.$expanded" ng-click="dataset.$expanded = true" class="vert">{{ dataset.metadata.title }}</td>
+        <td style="cursor: pointer" ng-if="dataset.$expanded" ng-click="dataset.$expanded = false" class="vert">
+          <h5>{{ dataset.metadata.title }}</h5>
+          <p>{{ dataset.metadata.abstract }}</p>
+          <p><span ng-repeat="keyword in dataset.metadata.keywords"><span class="label label-info">{{ keyword }}</span> </span></p>
+          <div ng-if="dataset.metadata.onlineResources.length">
+            <div ng-repeat="resource in dataset.metadata.onlineResources"><a title="{{ resource.protocol }}" href="{{ resource.link }}">{{ resource.name || resource.link }}</a></div>
+          </div>
+        </td>
+        <td class="vert"><span ng-if="hasKeywordOpenData(dataset)"><i style="color: green" class="fa fa-flag"></i></span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="well">Fonctionnalités à venir</div>
+  </div>
+
+</div>

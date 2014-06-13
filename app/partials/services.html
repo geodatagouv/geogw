@@ -1,0 +1,38 @@
+<ol class="breadcrumb">
+  <li>Accueil</li>
+  <li class="active">Services</li>
+</ol>
+
+<table class="table table-hover">
+  <tr ng-repeat="service in services">
+    <td class="vert"><span class="label label-warning">{{ service.protocol | uppercase }}</span></td>
+    <td class="vert">
+        <a href="/services/{{ service._id }}/datasets">{{ service.name }}</a>
+        <span class="badge">{{ service.items }}</span>
+    </td>
+    <td class="vert">
+        <i ng-class="{ 'fa-thumbs-up': service.harvesting.state === 'idle', 'fa-refresh': service.harvesting.state === 'processing', 'fa-spin': service.harvesting.state === 'processing', 'fa-history': service.harvesting.state === 'queued', 'fa-thumbs-down': service.harvesting.state === 'error' }" class="fa"></i>
+    </td>
+    <td class="vert">
+        <a style="cursor: pointer" ng-if="service.harvesting.state === 'idle'" ng-click="harvest(service)">Moissonner</a>
+    </td>
+  </tr>
+</table>
+
+<button ng-click="initNewService()" ng-if="!newService" class="btn btn-primary">
+    <i class="fa fa-plus"></i> Ajouter un nouveau service
+</button>
+
+<div ng-if="newService" class="panel panel-default">
+  <div class="panel-body">
+    <div class="form-group">
+      <label>Adresse du service</label>
+      <input type="text" ng-model="newService.location" placeholder="http://monserviceogc.monterritoire.fr/ows" class="form-control">
+    </div>
+    <div class="form-group">
+      <label>Nom du service</label>
+      <input type="text" ng-model="newService.name" placeholder="Service CSW du canton de ..." class="form-control">
+    </div>
+    <button ng-click="saveNewService()" class="btn btn-primary">Valider</button>
+  </div>
+</div>

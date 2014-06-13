@@ -45,7 +45,7 @@ app.get('/logout', function(req, res){
   res.redirect('/');
 });
 
-app.get('/', function(req, res) {
+app.get('*', function(req, res) {
     if (!req.user) res.redirect('/auth/datagouv');
     res.render('index');
 });

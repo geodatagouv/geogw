@@ -1,7 +1,22 @@
-var mainApp = angular.module('mainApp',[]);
+var mainApp = angular.module('mainApp', ['ngRoute']);
 
-mainApp.controller('MainController', function ($scope, $http, $timeout) {
-    $scope.selectedServices = [];
+mainApp.config(function($routeProvider, $locationProvider) {
+    $locationProvider.html5Mode(true);
+    $routeProvider
+        .when('/services', {
+            templateUrl: '/partials/services.html',
+            controller: 'ServicesCtrl'
+        })
+        .when('/services/:serviceId/datasets', {
+            templateUrl: '/partials/datasets.html',
+            controller: 'ServiceDatasetsCtrl'
+        })
+        .otherwise({
+            redirectTo: '/services'
+        });
+});
+
+mainApp.controller('ServicesCtrl', function($scope, $http, $timeout) {
     $scope.harvest = function(service) {
         $http.post('/api/services/' + service._id + '/harvest');
     };
@@ -10,7 +25,7 @@ mainApp.controller('MainController', function ($scope, $http, $timeout) {
             $scope.services = services;
             if (!$scope.selectedServices.length && services.length) $scope.toggleSelection(services[0]);
             $timeout($scope.fetchServices, 2000);
-        });    
+        });
     };
     $scope.initNewService = function() {
         $scope.newService = { protocol: 'csw' };
@@ -20,23 +35,16 @@ mainApp.controller('MainController', function ($scope, $http, $timeout) {
             delete $scope.newService;
         });
     };
-    $scope.toggleSelection = function(service) {
-        // var index = $scope.selectedServices.indexOf(service._id);
-        // if (index === -1) {
-        //     $scope.selectedServices.push(service._id);
-        // } else {
-        //     $scope.selectedServices.splice(index, 1);
-        // }
-        $scope.selectedServices = [service._id];
-        $scope.fetchDatasets();
-    };
-    $scope.isSelected = function(service) {
-        return $scope.selectedServices.indexOf(service._id) !== -1;
-    };
+    $scope.fetchServices();
+});
+
+mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams) {
+    $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
+        $scope.service = data;
+    });
     $scope.fetchDatasets = function() {
-        if ($scope.selectedServices.length === 0) return;
         $http
-            .get('/api/services/' + $scope.selectedServices[0] + '/datasets', { params: { q: $scope.q, opendata: $scope.opendata } })
+            .get('/api/services/' + $routeParams.serviceId + '/datasets', { params: { q: $scope.q, opendata: $scope.opendata } })
             .success(function(data) {
                 $scope.datasets = data.results;
                 $scope.datasetsCount = data.count;
@@ -48,5 +56,5 @@ mainApp.controller('MainController', function ($scope, $http, $timeout) {
     $scope.$watchGroup(['q', 'opendata'], function() {
         $scope.fetchDatasets();
     });
-    $scope.fetchServices();
+    $scope.fetchDatasets();
 });
