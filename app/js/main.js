@@ -41,19 +41,45 @@ mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams)
     $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
         $scope.service = data;
     });
+
+    var offset = $routeParams.offset || 0;
+
     $scope.fetchDatasets = function() {
         $http
-            .get('/api/services/' + $routeParams.serviceId + '/datasets', { params: { q: $scope.q, opendata: $scope.opendata } })
+            .get('/api/services/' + $routeParams.serviceId + '/datasets', { params: {
+                offset: offset,
+                q: $scope.q,
+                opendata: $scope.opendata
+            } })
             .success(function(data) {
                 $scope.datasets = data.results;
                 $scope.datasetsCount = data.count;
+
+                delete $scope.previousLink;
+                delete $scope.nextLink;
+
+                if (data.offset + data.results.length < data.count) {
+                    $scope.nextLink = '?offset=' + (data.offset + 20);
+                }
+                if (data.offset > 0) {
+                    $scope.previousLink = '?offset=' + (data.offset - 20);
+                }
             });
     };
+
     $scope.hasKeywordOpenData = function(dataset) {
         return dataset.metadata.keywords && (dataset.metadata.keywords.indexOf('données ouvertes') >= 0 || dataset.metadata.keywords.indexOf('donnée ouverte') >= 0 || dataset.metadata.keywords.indexOf('opendata') >= 0);
     };
-    $scope.$watchGroup(['q', 'opendata'], function() {
-        $scope.fetchDatasets();
-    });
+
+    function searchIfUpdated(newValue, oldValue) {
+        if (newValue !== oldValue) {
+            offset = 0;
+            $scope.fetchDatasets();
+        }
+    }
+
+    $scope.$watch('q', searchIfUpdated);
+    $scope.$watch('opendata', searchIfUpdated);
+
     $scope.fetchDatasets();
 });

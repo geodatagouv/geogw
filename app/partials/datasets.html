@@ -33,6 +33,10 @@
         <td class="vert"><span ng-if="hasKeywordOpenData(dataset)"><i style="color: green" class="fa fa-flag"></i></span></td>
       </tr>
     </table>
+    <ul class="pager">
+      <li class="previous" ng-if="previousLink"><a href="{{ previousLink }}">&larr; Précédent</a></li>
+      <li class="next" ng-if="nextLink"><a href="{{ nextLink }}">Suivant &rarr;</a></li>
+    </ul>
   </div>
 
   <div class="col-lg-4">
