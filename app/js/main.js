@@ -23,7 +23,6 @@ mainApp.controller('ServicesCtrl', function($scope, $http, $timeout) {
     $scope.fetchServices = function() {
         $http.get('/api/services').success(function(services) {
             $scope.services = services;
-            if (!$scope.selectedServices.length && services.length) $scope.toggleSelection(services[0]);
             $timeout($scope.fetchServices, 2000);
         });
     };
