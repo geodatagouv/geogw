@@ -101,6 +101,24 @@ mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams)
 });
 
 mainApp.controller('DatasetCtrl', function($scope, $http, $routeParams) {
+    $scope.datasetTypes = {
+        series: 'Série de données',
+        dataset: 'Jeu de données'
+    };
+    $scope.contactTypes = {
+        resourceProvider: 'Fournisseur',
+        custodian: 'Gestionnaire',
+        owner: 'Propriétaire',
+        user: 'Utilisateur',
+        distributor: 'Distributeur',
+        originator: 'Commanditaire',
+        pointOfContact: 'Point de contact',
+        principalInvestigator: 'Maître d\'oeuvre',
+        processor: 'Intégrateur',
+        publisher: 'Éditeur',
+        autor: 'Auteur',
+        author: 'Auteur'
+    };
     $http.get('/api/datasets/' + $routeParams.datasetId).success(function(data) {
         $scope.dataset = data;
     });

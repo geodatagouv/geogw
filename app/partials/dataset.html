@@ -8,7 +8,33 @@
 <div class="row">
 
   <div class="col-lg-8">
-    <h3>{{ dataset.metadata.title }}</h3>
+    <h1>{{ dataset.metadata.title }}</h1>
+    <p>Type : <strong>{{ datasetTypes[dataset.metadata.type] }}</strong></p>
+    <p>{{ dataset.metadata.abstract }}</p>
+    <hr>
+
+    <div class="row">
+      <div class="col-lg-7">
+        <h3><i class="fa fa-briefcase"></i> Organisations associées</h3>
+        <div class="panel panel-default" ng-repeat="contact in dataset.metadata.contacts.concat(dataset.metadata._contacts)">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ contactTypes[contact.role || 'pointOfContact'] }}</h3>
+          </div>
+          <div class="panel-body">
+            <div ng-if="contact.organizationName"><strong>{{ contact.organizationName }}</strong></div>
+            <div ng-if="contact.positionName">{{ contact.positionName }}</div>
+            <div ng-if="contact.individualName">{{ contact.individualName }}</div>
+            <div ng-if="contact.email"><i class="fa fa-envelope-o"></i> <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <h3><i class="fa fa-tags"></i> Mots-clés</h3>
+        <div><span ng-repeat="keyword in dataset.metadata.keywords"><span class="label label-info">{{ keyword }}</span> </span></div>
+        <h3><i class="fa fa-download"></i> Ressources</h3>
+        <div ng-repeat="resource in dataset.metadata.onlineResources"><a title="{{ resource.protocol }}" href="{{ resource.link }}">{{ resource.name || resource.link }}</a></div>
+      </div>
+    </div>
   </div>
 
   <div class="col-lg-4">
