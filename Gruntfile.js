@@ -20,7 +20,8 @@ module.exports = function(grunt) {
                     browser: true,
                     devel: true,
                     globals: {
-                        angular: true
+                        angular: true,
+                        _: true
                     }
                 }
             },

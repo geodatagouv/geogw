@@ -6,7 +6,7 @@ angular.module('customFilters', []).filter('prune', function () {
         if (!max) return value;
         if (value.length <= max) return value;
 
-        return _.str.prune(value, max)
+        return _.str.prune(value, max);
     };
 });
 
