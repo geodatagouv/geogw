@@ -23,6 +23,10 @@ mainApp.config(function($routeProvider, $locationProvider) {
             templateUrl: '/partials/datasets.html',
             controller: 'ServiceDatasetsCtrl'
         })
+        .when('/services/:serviceId/datasets/:datasetId', {
+            templateUrl: '/partials/dataset.html',
+            controller: 'DatasetCtrl'
+        })
         .otherwise({
             redirectTo: '/services'
         });
@@ -94,4 +98,13 @@ mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams)
     $scope.$watch('opendata', searchIfUpdated);
 
     $scope.fetchDatasets();
+});
+
+mainApp.controller('DatasetCtrl', function($scope, $http, $routeParams) {
+    $http.get('/api/datasets/' + $routeParams.datasetId).success(function(data) {
+        $scope.dataset = data;
+    });
+    $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
+        $scope.service = data;
+    });
 });

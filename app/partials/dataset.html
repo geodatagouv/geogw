@@ -1,0 +1,18 @@
+<ol class="breadcrumb">
+  <li>Accueil</li>
+  <li><a href="/services">Services</a></li>
+  <li><a href="/services/{{ service._id }}/datasets">{{ service.name }}</a></li>
+  <li class="active">{{ dataset.metadata.title }}</li>
+</ol>
+
+<div class="row">
+
+  <div class="col-lg-8">
+    <h3>{{ dataset.metadata.title }}</h3>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="well">Fonctionnalités à venir</div>
+  </div>
+
+</div>

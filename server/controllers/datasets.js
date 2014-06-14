@@ -6,6 +6,27 @@ var Record = mongoose.model('Record');
 var async = require('async');
 var _ = require('lodash');
 
+/*
+** Middlewares
+*/
+exports.dataset = function(req, res, next, id) {
+    Record
+        .findById(id)
+        .exec(function(err, dataset) {
+            if (err) return next(err);
+            if (!dataset) return res.send(404);
+            req.dataset = dataset;
+            next();
+        });
+};
+
+/*
+** Actions
+*/
+exports.show = function(req, res) {
+    res.send(req.dataset);
+};
+
 exports.search = function(req, res, next) {
     var q, limit, offset, opendata;
     if (req.query.q && _.isString(req.query.q) && req.query.q.length) q = req.query.q;

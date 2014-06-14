@@ -22,7 +22,7 @@
       <tr ng-repeat="dataset in datasets | orderBy:'-score'">
         <td class="vert"><i ng-class="{ 'fa-file-o': dataset.metadata.type === 'dataset', 'fa-database': dataset.metadata.type === 'series' }" class="fa"></i></td>
         <td class="vert">
-          <h5>{{ dataset.metadata.title }}</h5>
+          <h5><a href="/services/{{ service._id }}/datasets/{{ dataset._id }}">{{ dataset.metadata.title }}</a></h5>
           <p>{{ dataset.metadata.abstract | prune:500 }}</p>
           <p>
             <span ng-repeat="contact in dataset.metadata._contacts"><span class="label label-danger">{{ contact.organizationName }}</span> </span>
