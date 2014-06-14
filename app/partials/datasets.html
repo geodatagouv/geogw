@@ -24,7 +24,11 @@
         <td class="vert">
           <h5>{{ dataset.metadata.title }}</h5>
           <p>{{ dataset.metadata.abstract | prune:500 }}</p>
-          <p><span ng-repeat="keyword in dataset.metadata.keywords"><span class="label label-info">{{ keyword }}</span> </span></p>
+          <p>
+            <span ng-repeat="contact in dataset.metadata._contacts"><span class="label label-danger">{{ contact.organizationName }}</span> </span>
+            <span ng-repeat="contact in dataset.metadata.contacts"><span class="label label-warning">{{ contact.organizationName }}</span> </span>
+            <span ng-repeat="keyword in dataset.metadata.keywords"><span class="label label-info">{{ keyword }}</span> </span>
+          </p>
         </td>
         <td class="vert"><span ng-if="hasKeywordOpenData(dataset)"><i style="color: green" class="fa fa-flag"></i></span></td>
       </tr>
