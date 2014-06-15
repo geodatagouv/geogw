@@ -4,25 +4,22 @@
 </ol>
 
 <table class="table table-hover">
-  <tr>
-    <th>Protocole</th>
-    <th>Nom du service</th>
-    <th>Nombre d'entrées</th>
-    <th>État</th>
-    <th ng-if="session.loggedIn"></th>
-  </tr>
   <tr ng-repeat="service in services">
-    <td class="vert"><span class="label label-warning">{{ service.protocol | uppercase }}</span></td>
+    <td class="vert" style="width:70px"><span class="label label-warning">{{ service.protocol | uppercase }}</span></td>
     <td class="vert">
       <a href="/services/{{ service._id }}/datasets">{{ service.name }}</a>
-      <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 600px"><em>{{ service.location }}</em></div>
+      <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 500px"><em>{{ service.location }}</em></div>
     </td>
-    <td class="vert">{{ service.items | number }}</td>
-    <td class="vert">
-      <span style="color: green" ng-if="service.harvesting.state === 'idle'">OK</span>
-      <span style="color: purple" ng-if="service.harvesting.state === 'queued'">En attente</span>
-      <span style="color: orange" ng-if="service.harvesting.state === 'processing'">En cours</span>
-      <span style="color: red" ng-if="service.harvesting.state === 'error'">Erreur</span>
+    <td class="vert" style="width:30px">
+      <i ng-class="{ 'fa-refresh': service.harvesting.state === 'processing', 'fa-spin': service.harvesting.state === 'processing', 'fa-history': service.harvesting.state === 'queued' }" class="fa"></i>
+    </div>
+    <td class="vert" style="font-size: small; width: 260px">
+      Entrées : {{ service.items | number }}<br>
+      État du moissonnage :
+        <span style="color: green" ng-if="service.harvesting.state === 'idle'">OK</span>
+        <span style="color: purple" ng-if="service.harvesting.state === 'queued'">En attente</span>
+        <span style="color: orange" ng-if="service.harvesting.state === 'processing'">En cours</span>
+        <span style="color: red" ng-if="service.harvesting.state === 'error'">Erreur</span>
     </td>
     <td class="vert" ng-if="session.loggedIn">
         <a style="cursor: pointer" ng-if="service.harvesting.state === 'idle'" ng-click="harvest(service)">Moissonner</a>
