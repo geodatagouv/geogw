@@ -27,6 +27,16 @@ exports.show = function(req, res) {
     res.send(req.dataset);
 };
 
+exports.findByIdentifier = function(req, res, next) {
+    Record
+        .find({ identifier: req.params.identifier })
+        .populate('parentCatalog')
+        .exec(function(err, datasets) {
+            if (err) return next(err);
+            res.send(datasets);
+        });
+};
+
 exports.search = function(req, res, next) {
     var q, limit, offset, opendata;
     if (req.query.q && _.isString(req.query.q) && req.query.q.length) q = req.query.q;

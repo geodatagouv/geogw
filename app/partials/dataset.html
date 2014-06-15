@@ -38,7 +38,17 @@
   </div>
 
   <div class="col-lg-4">
-    <div class="well">Fonctionnalités à venir</div>
+    <div class="well">
+      <p ng-if="sameIdentifierDatasets.length === 0">Ce jeu de données n'est disponible que dans ce catalogue.</p>
+      <div ng-if="sameIdentifierDatasets.length > 0">
+        <p>Ce jeu de données est aussi disponible dans les catalogues suivantes :</p>
+        <ul>
+          <li ng-repeat="altDataset in sameIdentifierDatasets">
+            <a href="/services/{{ altDataset.parentCatalog._id }}/datasets/{{ altDataset._id }}">{{ altDataset.parentCatalog.name }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 
 </div>

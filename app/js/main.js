@@ -121,8 +121,11 @@ mainApp.controller('DatasetCtrl', function($scope, $http, $routeParams) {
         autor: 'Auteur',
         author: 'Auteur'
     };
-    $http.get('/api/datasets/' + $routeParams.datasetId).success(function(data) {
-        $scope.dataset = data;
+    $http.get('/api/datasets/' + $routeParams.datasetId).success(function(dataset) {
+        $scope.dataset = dataset;
+        $http.get('/api/datasets/by-identifier/' + dataset.identifier).success(function(otherDatasets) {
+            $scope.sameIdentifierDatasets = _.reject(otherDatasets, { _id: dataset._id });
+        });
     });
     $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
         $scope.service = data;

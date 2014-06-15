@@ -14,4 +14,8 @@ module.exports = function(app) {
         .all(auth.ensureLoggedIn)
         .get(datasets.show);
 
+    app.route('/datasets/by-identifier/:identifier')
+        .all(auth.ensureLoggedIn)
+        .get(datasets.findByIdentifier);
+
 };
