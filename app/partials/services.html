@@ -13,13 +13,17 @@
     <td class="vert" style="width:30px">
       <i ng-class="{ 'fa-refresh': service.harvesting.state === 'processing', 'fa-spin': service.harvesting.state === 'processing', 'fa-history': service.harvesting.state === 'queued' }" class="fa"></i>
     </div>
-    <td class="vert" style="font-size: small; width: 260px">
-      Entrées : {{ service.items | number }}<br>
-      État du moissonnage :
+    <td class="vert" style="font-size: 85%; width: 280px">
+      <div ng-if="service.items">Entrées : <strong>{{ service.items | number }}</strong></div>
+      </div>
+        État du moissonnage :
         <span style="color: green" ng-if="service.harvesting.state === 'idle'">OK</span>
         <span style="color: purple" ng-if="service.harvesting.state === 'queued'">En attente</span>
         <span style="color: orange" ng-if="service.harvesting.state === 'processing'">En cours</span>
         <span style="color: red" ng-if="service.harvesting.state === 'error'">Erreur</span>
+      </div>
+      <div ng-if="service.harvesting.lastDuration">Dernière durée : <em>{{ service.harvesting.lastDuration | duration }}</em></div>
+      <div ng-if="service.harvesting.lastSuccessful">Dernièr succès : <em>{{ service.harvesting.lastSuccessful | timeago }}</em></div>
     </td>
     <td class="vert" ng-if="session.loggedIn">
         <a style="cursor: pointer" ng-if="service.harvesting.state === 'idle'" ng-click="harvest(service)">Moissonner</a>

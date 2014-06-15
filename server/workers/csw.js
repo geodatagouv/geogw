@@ -21,6 +21,8 @@ function harvestService(service, job, done) {
     if (service.location.indexOf('isogeo') !== -1) harvesterOptions.namespace = 'xmlns(gmd=http://www.isotc211.org/2005/gmd)';
     if (service.location.indexOf('geoportal/csw/discovery') !== -1) delete harvesterOptions.constraintLanguage;
 
+    var startTime = Date.now();
+
     var harvester = client.harvest(harvesterOptions);
 
     var total;
@@ -43,6 +45,8 @@ function harvestService(service, job, done) {
     });
 
     harvester.on('end', function(err, stats) {
+        var endTime = Date.now();
+
         if (err) {
             console.log(err);
             done(err);
@@ -55,6 +59,8 @@ function harvestService(service, job, done) {
             service
                 .set('harvesting.state', 'idle')
                 .set('harvesting.jobId', null)
+                .set('harvesting.lastDuration', endTime - startTime)
+                .set('harvesting.lastSuccessful', endTime)
                 .set('items', stats.returned)
                 .save(function(err) {
                     if (err) return done(err);

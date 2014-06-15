@@ -67,6 +67,12 @@ var ServiceSchema = new Schema({
             type: String,
             default: 'idle',
             enum: HARVESTING_STATES
+        },
+        lastDuration: {
+            type: Number
+        },
+        lastSuccessful: {
+            type: Date
         }
     },
     items: {
