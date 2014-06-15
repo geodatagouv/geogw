@@ -1,7 +1,6 @@
 /*
 ** Module dependencies
 */
-var auth = require('./middlewares/auth');
 var datasets = require('../controllers/datasets');
 
 module.exports = function(app) {
