@@ -16,7 +16,10 @@
     <td class="vert"><a href="/services/{{ service._id }}/datasets">{{ service.name }}</a></td>
     <td class="vert">{{ service.items | number }}</td>
     <td class="vert">
-        <i ng-class="{ 'fa-thumbs-up': service.harvesting.state === 'idle', 'fa-refresh': service.harvesting.state === 'processing', 'fa-spin': service.harvesting.state === 'processing', 'fa-history': service.harvesting.state === 'queued', 'fa-thumbs-down': service.harvesting.state === 'error' }" class="fa"></i>
+      <span style="color: green" ng-if="service.harvesting.state === 'idle'">OK</span>
+      <span style="color: purple" ng-if="service.harvesting.state === 'queued'">En attente</span>
+      <span style="color: orange" ng-if="service.harvesting.state === 'processing'">En cours</span>
+      <span style="color: red" ng-if="service.harvesting.state === 'error'">Erreur</span>
     </td>
     <td class="vert" ng-if="session.loggedIn">
         <a style="cursor: pointer" ng-if="service.harvesting.state === 'idle'" ng-click="harvest(service)">Moissonner</a>
