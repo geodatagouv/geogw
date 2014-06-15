@@ -1,4 +1,20 @@
-angular.module('customFilters', []).filter('prune', function () {
+var customFilters = angular.module('customFilters', []);
+
+customFilters.filter('duration', function () {
+    return function (value) {
+        if (!value) return '';
+        return moment.duration(value).humanize();
+    };
+});
+
+customFilters.filter('timeago', function () {
+    return function (value) {
+        if (!value) return '';
+        return moment(value).fromNow();
+    };
+});
+
+customFilters.filter('prune', function () {
     return function (value, max) {
         if (!value) return '';
 
