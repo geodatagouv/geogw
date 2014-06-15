@@ -6,6 +6,14 @@ html(lang="fr", ng-app="mainApp")
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css")
     link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css")
     link(rel="stylesheet", href="/css/main.css")
+
+    if user
+      script.
+        var session = { user: !{JSON.stringify(user)}, loggedIn: true };
+    else
+      script.
+        var session = { loggedIn: false };
+
     script(src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js")
     script(src="//cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min.js")
     script(src="//code.angularjs.org/1.3.0-beta.11/angular.min.js")
@@ -21,6 +29,9 @@ html(lang="fr", ng-app="mainApp")
           
         .navbar-right
           ul.nav.navbar-nav
-            li: a(href="/logout") Déconnexion
+            if user
+              li: a(href="/logout", target="_self") Déconnexion
+            else
+              li: a(href="/auth/datagouv", target="_self") Connexion
 
     .container-fluid(ng-view)

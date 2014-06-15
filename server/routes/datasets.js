@@ -11,11 +11,9 @@ module.exports = function(app) {
 
     // Routes
     app.route('/datasets/:datasetId')
-        .all(auth.ensureLoggedIn)
         .get(datasets.show);
 
     app.route('/datasets/by-identifier/:identifier')
-        .all(auth.ensureLoggedIn)
         .get(datasets.findByIdentifier);
 
 };

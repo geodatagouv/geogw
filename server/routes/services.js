@@ -12,24 +12,19 @@ module.exports = function(app) {
 
     // Routes
     app.route('/services')
-        .all(auth.ensureLoggedIn)
         .get(services.list)
-        .post(services.create);
+        .post(auth.ensureLoggedIn, services.create);
 
     app.route('/services/search')
-        .all(auth.ensureLoggedIn)
         .get(services.search);
 
     app.route('/services/:serviceId')
-        .all(auth.ensureLoggedIn)
         .get(services.show);
 
     app.route('/services/:serviceId/harvest')
-        .all(auth.ensureLoggedIn)
-        .post(services.harvest);
+        .post(auth.ensureLoggedIn, services.harvest);
 
     app.route('/services/:serviceId/datasets')
-        .all(auth.ensureLoggedIn)
         .get(datasets.search);
 
 };

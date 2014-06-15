@@ -33,6 +33,7 @@ mainApp.config(function($routeProvider, $locationProvider) {
 });
 
 mainApp.controller('ServicesCtrl', function($scope, $http, $timeout) {
+    $scope.session = session;
     $scope.harvest = function(service) {
         $http.post('/api/services/' + service._id + '/harvest');
     };

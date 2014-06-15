@@ -21,7 +21,8 @@ module.exports = function(grunt) {
                     devel: true,
                     globals: {
                         angular: true,
-                        _: true
+                        _: true,
+                        session: true
                     }
                 }
             },
