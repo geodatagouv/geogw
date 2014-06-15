@@ -15,7 +15,10 @@
             <input type="checkbox" ng-model="opendata">Uniquement les données marquées Open Data
           </label>
         </div>
-        <p style="color:green">{{ datasetsCount | number }} résultat(s) trouvé(s)</p>
+        <p style="color:green">
+          {{ datasetsCount | number }} résultat(s) trouvé(s)
+          <span ng-if="datasetsCount"> - Résultats {{ firstResultPos | number }} à {{ lastResultPos | number }}</span>
+        </p>
       </div>
     </div>
     <table class="table">

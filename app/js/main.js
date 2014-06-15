@@ -70,6 +70,8 @@ mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams)
             .success(function(data) {
                 $scope.datasets = data.results;
                 $scope.datasetsCount = data.count;
+                $scope.firstResultPos = data.offset + 1;
+                $scope.lastResultPos = data.offset + data.results.length;
 
                 delete $scope.previousLink;
                 delete $scope.nextLink;
