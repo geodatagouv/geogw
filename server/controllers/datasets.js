@@ -6,6 +6,17 @@ var Record = mongoose.model('Record');
 var async = require('async');
 var _ = require('lodash');
 
+var OPENDATA_KEYWORDS = [
+    'donnée ouverte',
+    'données ouvertes',
+    'opendata',
+    'open data',
+    'Open Data',
+    'OpenData',
+    'data gouv',
+    'etalab'
+];
+
 /*
 ** Middlewares
 */
@@ -49,7 +60,7 @@ exports.search = function(req, res, next) {
     function buildQuery() {
         var query = Record.find().where('metadata.type').in(['dataset', 'series']);
         if (q) query.where({ $text: { $search: q, $language: 'french' }});
-        if (opendata) query.where('metadata.keywords').in(['donnée ouverte', 'données ouvertes', 'opendata']);
+        if (opendata) query.where('metadata.keywords').in(OPENDATA_KEYWORDS);
         if (req.service) query.where('parentCatalog', req.service.id);
         return query;
     }
