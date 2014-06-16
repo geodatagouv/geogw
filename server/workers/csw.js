@@ -4,6 +4,7 @@ var mongoose = require('../mongoose');
 var Record = mongoose.model('Record');
 var Service = mongoose.model('Service');
 var util = require('util');
+var moment = require('moment');
 
 function harvestService(service, job, done) {
     var client = csw(service.location, {
@@ -92,8 +93,11 @@ function harvestService(service, job, done) {
             'keywords',
             'onlineResources',
             'contacts',
-            '_contacts'
+            '_contacts',
+            '_updated'
         ]);
+
+        if (metadata._updated) metadata._updated = moment(metadata._updated).toDate();
 
         var update = { $set: { metadata: metadata }};
 

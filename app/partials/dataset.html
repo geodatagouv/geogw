@@ -9,7 +9,14 @@
 
   <div class="col-lg-8">
     <h1>{{ dataset.metadata.title }}</h1>
-    <p>Type : <strong>{{ datasetTypes[dataset.metadata.type] }}</strong></p>
+    <p>
+      Type : <strong>{{ datasetTypes[dataset.metadata.type] }}</strong> -
+      Dernière mise à jour : <em>{{ dataset.metadata._updated | timeago }}</em>
+    </p>
+    <div class="alert alert-warning" ng-if="moreRecent">
+      <div>Une version plus récente existe sur le catalogue <strong>{{ moreRecent.parentCatalog.name }}</strong>.</div>
+      <div><a href="/services/{{ moreRecent.parentCatalog._id }}/datasets/{{ moreRecent._id }}">Cliquez ici pour y accéder</a></div>
+    </div>
     <p>{{ dataset.metadata.abstract }}</p>
     <hr>
 
@@ -44,7 +51,8 @@
         <p>Ce jeu de données est aussi disponible dans les catalogues suivantes :</p>
         <ul>
           <li ng-repeat="altDataset in sameIdentifierDatasets">
-            <a href="/services/{{ altDataset.parentCatalog._id }}/datasets/{{ altDataset._id }}">{{ altDataset.parentCatalog.name }}</a>
+            <a href="/services/{{ altDataset.parentCatalog._id }}/datasets/{{ altDataset._id }}">{{ altDataset.parentCatalog.name }}</a><br>
+            <span style="font-size: 85%"><em>(dernière mise à jour {{ altDataset.metadata._updated | timeago }})</em></span>
           </li>
         </ul>
       </div>

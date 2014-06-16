@@ -97,6 +97,9 @@ var RecordSchema = new Schema({
         _contacts: {
             type: [ContactSchema]
         },
+        _updated: {
+            type: Date
+        },
         provider: {
             name: {
                 type: String
