@@ -23,7 +23,7 @@
         <span style="color: red" ng-if="service.harvesting.state === 'error'">Erreur</span>
       </div>
       <div ng-if="service.harvesting.lastDuration">Dernière durée : <em>{{ service.harvesting.lastDuration | duration }}</em></div>
-      <div ng-if="service.harvesting.lastSuccessful">Dernièr succès : <em>{{ service.harvesting.lastSuccessful | timeago }}</em></div>
+      <div ng-if="service.harvesting.lastSuccessful">Dernier succès : <em>{{ service.harvesting.lastSuccessful | timeago }}</em></div>
     </td>
     <td class="vert" ng-if="session.loggedIn">
         <a style="cursor: pointer" ng-if="service.harvesting.state === 'idle'" ng-click="harvest(service)">Moissonner</a>
