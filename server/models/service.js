@@ -11,7 +11,7 @@ var Schema = mongoose.Schema;
 /*
 ** Supported protocols
 */
-var SUPPORTED_PROTOCOLS = ['csw'];
+var SUPPORTED_PROTOCOLS = ['csw', 'wfs'];
 
 /*
 ** Harvesting states
