@@ -33,6 +33,7 @@
     "passport": "^0.2.0",
     "passport-oauth": "^1.0.0",
     "redis": "^0.10.3",
+    "ssl-root-cas": "^1.1.4",
     "superagent": "^0.18.0",
     "underscore.string": "^2.3.3"
   },
