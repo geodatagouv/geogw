@@ -6,7 +6,6 @@ var Service = mongoose.model('Service');
 var ServiceSync = mongoose.model('ServiceSync');
 var moment = require('moment');
 var debug = require('debug')('harvest-csw');
-var async = require('async');
 
 function processOnlineResource(resource) {
     if (!resource.link) return;
@@ -82,24 +81,9 @@ function harvestService(serviceSync, job, done) {
 
     harvester.on('end', function(err, stats) {
         if (err) {
-            serviceSync.set({
-                status: 'failed',
-                finished: Date.now()
-            }).save(done);
+            serviceSync.toggleError(done);
         } else {
-            async.parallel([
-                function(cb) {
-                    serviceSync.set({
-                        itemsFound: stats.returned,
-                        status: 'successful',
-                        finished: Date.now()
-                    }).save(cb);
-                },
-                function(cb) {
-                    serviceSync.service.set('lastSuccessfulSync', serviceSync._id).save(cb);
-                }
-            ], done)
- 
+            serviceSync.toggleSuccessful(stats.returned, done);
         }
     });
 
@@ -119,20 +103,8 @@ function harvestService(serviceSync, job, done) {
 }
 
 exports.harvest = function(job, done) {
-    ServiceSync
-        .findById(job.data.serviceSyncId)
-        .populate('service')
-        .exec(function(err, serviceSync) {
-            if (err) return done(err);
-            if (!serviceSync) return done(new Error('Unable to fetch serviceSync ' + job.data.serviceSyncId));
-
-            serviceSync.set({
-                status: 'processing',
-                started: Date.now(),
-                jobId: job.id
-            }).save(function(err) {
-                if (err) return done(err);
-                harvestService(serviceSync, job, done);
-            });
-        });
+    ServiceSync.findByIdAndProcess(job.data.serviceSyncId, job.id, function(err, serviceSync) {
+        if (err) return done(err);
+        harvestService(serviceSync, job, done);
+    });
 };

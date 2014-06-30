@@ -2,6 +2,7 @@
 ** Module dependencies
 */
 var mongoose = require('mongoose');
+var async = require('async');
 var Schema = mongoose.Schema;
 var Job = require('../kue').Job;
 
@@ -30,6 +31,52 @@ ServiceSyncSchema.methods = {
             if (err) return done(err);
             job.remove(done);
         });
+    },
+
+    toggleSuccessful: function(itemsFound, done) {
+        var serviceSync = this;
+        async.parallel([
+            function(cb) {
+                serviceSync.set({
+                    itemsFound: itemsFound,
+                    status: 'successful',
+                    finished: Date.now()
+                }).save(cb);
+            },
+            function(cb) {
+                serviceSync.service.set('lastSuccessfulSync', serviceSync._id).save(cb);
+            }
+        ], done);
+    },
+
+    toogleError: function(done) {
+        this.set({
+            status: 'failed',
+            finished: Date.now()
+        }).save(done);
+    }
+
+};
+
+/*
+** Static methods
+*/
+ServiceSyncSchema.statics = {
+
+    findByIdAndProcess: function(id, jobId, done) {
+        this
+            .findById(id)
+            .populate('service')
+            .exec(function(err, serviceSync) {
+                if (err) return done(err);
+                if (!serviceSync) return done(new Error('Unable to fetch serviceSync ' + id));
+
+                serviceSync.set({
+                    status: 'processing',
+                    started: Date.now(),
+                    jobId: job.id
+                }).save(done);
+            });
     }
 
 };
