@@ -54,6 +54,7 @@ mainApp.controller('ServicesCtrl', function($scope, $http, $timeout) {
         return service.syncEnabled && (!service.lastSync || service.lastSync.status === 'successful');
     };
     $scope.syncService = function(service) {
+        if (!service.lastSync) service.lastSync = {};
         service.lastSync.status = 'queued';
         $http.post('/api/services/' + service._id + '/sync');
     };
