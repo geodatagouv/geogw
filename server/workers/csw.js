@@ -83,7 +83,7 @@ function harvestService(serviceSync, job, done) {
     harvester.on('end', function(err, stats) {
         if (err) {
             serviceSync.set({
-                status: 'error',
+                status: 'failed',
                 finished: Date.now()
             }).save(done);
         } else {
