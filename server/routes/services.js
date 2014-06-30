@@ -15,14 +15,11 @@ module.exports = function(app) {
         .get(services.list)
         .post(auth.ensureLoggedIn, services.create);
 
-    app.route('/services/search')
-        .get(services.search);
-
     app.route('/services/:serviceId')
         .get(services.show);
 
-    app.route('/services/:serviceId/harvest')
-        .post(auth.ensureLoggedIn, services.harvest);
+    app.route('/services/:serviceId/sync')
+        .post(auth.ensureLoggedIn, services.sync);
 
     app.route('/services/:serviceId/datasets')
         .get(datasets.search);

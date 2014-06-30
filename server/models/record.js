@@ -52,18 +52,10 @@ var RecordSchema = new Schema({
         ref: 'Service',
         index: true
     },
+    lastSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
     identifier: {
         type: String,
         index: true
-    },
-    license: {
-        type: String,
-        index: true
-    },
-    datagouv: {
-        id: {
-            type: String
-        }
     },
     metadata: {
         title: {
@@ -99,15 +91,6 @@ var RecordSchema = new Schema({
         },
         _updated: {
             type: Date
-        },
-        provider: {
-            name: {
-                type: String
-            },
-            slug: {
-                type: String,
-                index: true
-            }
         }
     }
 });

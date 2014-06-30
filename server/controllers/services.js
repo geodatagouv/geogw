@@ -12,6 +12,8 @@ exports.service = function(req, res, next, id) {
     Service
         .findById(id)
         .populate('addedBy', 'fullName')
+        .populate('lastSync')
+        .populate('lastSuccessfulSync')
         .exec(function(err, service) {
             if (err) return next(err);
             if (!service) return res.send(404);
@@ -27,6 +29,8 @@ exports.list = function(req, res, next) {
     Service
         .find()
         .populate('addedBy', 'fullName')
+        .populate('lastSync')
+        .populate('lastSuccessfulSync')
         .exec(function(err, services) {
             if (err) return next(err);
             res.json(services);
@@ -49,17 +53,9 @@ exports.show = function(req, res) {
 };
 
 
-exports.harvest = function(req, res, next) {
-    req.service.harvest(function(err) {
+exports.sync = function(req, res, next) {
+    req.service.createSync(function(err) {
         if (err) return next(err);
         res.send(req.service);
-    });
-};
-
-exports.search = function(req, res, next) {
-    if (!req.query.location) return res.send(400);
-    Service.findByLocation(req.query.location).exec(function(err, services) {
-        if (err) return next(err);
-        res.json(services);
     });
 };

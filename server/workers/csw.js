@@ -3,15 +3,24 @@ var csw = require('csw');
 var mongoose = require('../mongoose');
 var Record = mongoose.model('Record');
 var Service = mongoose.model('Service');
-var util = require('util');
+var ServiceSync = mongoose.model('ServiceSync');
 var moment = require('moment');
+var debug = require('debug')('harvest-csw');
+var async = require('async');
 
-function processRecord(record, service) {
+function processOnlineResource(resource) {
+    if (!resource.link) return;
+    return resource;
+}
+
+function processRecord(record, serviceSync) {
+    debug('processing record %s', record.title || record.name || record.fileIdentifier);
     var query = {
         identifier: record.fileIdentifier,
-        parentCatalog: service.id
+        parentCatalog: serviceSync.service._id
     };
 
+    // Direct copy
     var metadata = _.pick(record, [
         'title',
         'abstract',
@@ -19,23 +28,23 @@ function processRecord(record, service) {
         'representationType',
         'serviceType',
         'keywords',
-        'onlineResources',
         'contacts',
         '_contacts',
         '_updated'
     ]);
 
     if (metadata._updated) metadata._updated = moment(metadata._updated).toDate();
+    if (record.onlineResources) metadata.onlineResources = _.compact(record.onlineResources.map(processOnlineResource));
 
-    var update = { $set: { metadata: metadata }};
+    var update = { $set: { metadata: metadata, lastSync: serviceSync._id }};
 
     Record.findOneAndUpdate(query, update, { upsert: true }, function(err) {
         if (err) console.log(err);
     });
 }
 
-function harvestService(service, job, done) {
-    var client = csw(service.location, {
+function harvestService(serviceSync, job, done) {
+    var client = csw(serviceSync.service.location, {
         maxSockets: job.data.maxSockets || 5,
         keepAlive: true,
         retry: job.data.maxRetry || 3,
@@ -47,10 +56,8 @@ function harvestService(service, job, done) {
         constraintLanguage: 'CQL_TEXT'
     };
 
-    if (service.location.indexOf('isogeo') !== -1) harvesterOptions.namespace = 'xmlns(gmd=http://www.isotc211.org/2005/gmd)';
-    if (service.location.indexOf('geoportal/csw/discovery') !== -1) delete harvesterOptions.constraintLanguage;
-
-    var startTime = Date.now();
+    if (serviceSync.service.location.indexOf('isogeo') !== -1) harvesterOptions.namespace = 'xmlns(gmd=http://www.isotc211.org/2005/gmd)';
+    if (serviceSync.service.location.indexOf('geoportal/csw/discovery') !== -1) delete harvesterOptions.constraintLanguage;
 
     var harvester = client.harvest(harvesterOptions);
 
@@ -58,7 +65,7 @@ function harvestService(service, job, done) {
 
     harvester.on('error', function(err) {
         job.log(JSON.stringify(err));
-        console.log(util.inspect(err, { showHidden: true, depth: null }));
+        console.trace(err);
     });
 
     harvester.on('start', function(stats) {
@@ -74,27 +81,25 @@ function harvestService(service, job, done) {
     });
 
     harvester.on('end', function(err, stats) {
-        var endTime = Date.now();
-
         if (err) {
-            console.log(err);
-            done(err);
-            service
-                .set('harvesting.state', 'error')
-                .save(function(err) {
-                    console.log(err);
-                });
+            serviceSync.set({
+                status: 'error',
+                finished: Date.now()
+            }).save(done);
         } else {
-            service
-                .set('harvesting.state', 'idle')
-                .set('harvesting.jobId', null)
-                .set('harvesting.lastDuration', endTime - startTime)
-                .set('harvesting.lastSuccessful', endTime)
-                .set('items', stats.returned)
-                .save(function(err) {
-                    if (err) return done(err);
-                    done();
-                });
+            async.parallel([
+                function(cb) {
+                    serviceSync.set({
+                        itemsFound: stats.returned,
+                        status: 'successful',
+                        finished: Date.now()
+                    }).save(cb);
+                },
+                function(cb) {
+                    serviceSync.service.set('lastSuccessfulSync', serviceSync._id).save(cb);
+                }
+            ], done)
+ 
         }
     });
 
@@ -107,26 +112,27 @@ function harvestService(service, job, done) {
             return;
         }
 
-        processRecord(record, service);
-        
+        process.nextTick(function() {
+            processRecord(record, serviceSync);
+        });
     });
 }
 
 exports.harvest = function(job, done) {
-    Service.findById(job.data.serviceId, function(err, service) {
-        if (err) return done(err);
-        if (!service) return done(new Error('Unable to fetch service ' + job.data.serviceId));
-        if (!service.harvesting.enabled) return done(new Error('Harvesting is disabled for service ' + job.data.serviceId));
-        if (service.harvesting.state !== 'queued') return done(new Error('Unconsistent state for service ' + job.data.serviceId));
-        if (service.harvesting.jobId && service.harvesting.jobId !== parseInt(job.id)) return done(new Error('Unconsistent jobId for service ' + job.data.serviceId));
+    ServiceSync
+        .findById(job.data.serviceSyncId)
+        .populate('service')
+        .exec(function(err, serviceSync) {
+            if (err) return done(err);
+            if (!serviceSync) return done(new Error('Unable to fetch serviceSync ' + job.data.serviceSyncId));
 
-        setTimeout(function() {
-            service
-                .set('harvesting.state', 'processing')
-                .save(function(err) {
-                    if (err) return done(err);
-                    harvestService(service, job, done);
-                });
-        }, 2000);
-    });
+            serviceSync.set({
+                status: 'processing',
+                started: Date.now(),
+                jobId: job.id
+            }).save(function(err) {
+                if (err) return done(err);
+                harvestService(serviceSync, job, done);
+            });
+        });
 };

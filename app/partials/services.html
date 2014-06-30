@@ -11,22 +11,21 @@
       <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 500px"><em>{{ service.location }}</em></div>
     </td>
     <td class="vert" style="width:30px">
-      <i ng-class="{ 'fa-refresh': service.harvesting.state === 'processing', 'fa-spin': service.harvesting.state === 'processing', 'fa-history': service.harvesting.state === 'queued' }" class="fa"></i>
+      <i ng-if="service.lastSync" ng-class="{ 'fa-refresh': service.lastSync.status === 'processing', 'fa-spin': service.lastSync.status === 'processing', 'fa-history': service.lastSync.status === 'queued' }" class="fa"></i>
     </div>
     <td class="vert" style="font-size: 85%; width: 280px">
-      <div ng-if="service.items">Entrées : <strong>{{ service.items | number }}</strong></div>
+      <div ng-if="service.lastSuccessfulSync.itemsFound">Entrées : <strong>{{ service.lastSync.itemsFound | number }}</strong></div>
+      <div ng-if="service.lastSync">
+        État de la synchronisation :
+        <span style="color: green" ng-show="service.lastSync.status === 'successful'">OK</span>
+        <span style="color: purple" ng-show="service.lastSync.status === 'queued'">En attente</span>
+        <span style="color: orange" ng-show="service.lastSync.status === 'processing'">En cours</span>
+        <span style="color: red" ng-show="service.lastSync.status === 'failed'">Erreur</span>
       </div>
-        État du moissonnage :
-        <span style="color: green" ng-if="service.harvesting.state === 'idle'">OK</span>
-        <span style="color: purple" ng-if="service.harvesting.state === 'queued'">En attente</span>
-        <span style="color: orange" ng-if="service.harvesting.state === 'processing'">En cours</span>
-        <span style="color: red" ng-if="service.harvesting.state === 'error'">Erreur</span>
-      </div>
-      <div ng-if="service.harvesting.lastDuration">Dernière durée : <em>{{ service.harvesting.lastDuration | duration }}</em></div>
-      <div ng-if="service.harvesting.lastSuccessful">Dernier succès : <em>{{ service.harvesting.lastSuccessful | timeago }}</em></div>
+      <div ng-if="service.lastSuccessfulSync.started">Dernier succès : <em>{{ service.lastSync.started | timeago }}</em></div>
     </td>
     <td class="vert" ng-if="session.loggedIn">
-        <a style="cursor: pointer" ng-if="service.harvesting.state === 'idle'" ng-click="harvest(service)">Moissonner</a>
+        <a style="cursor: pointer" ng-show="canBeSynced(service)" ng-click="syncService(service)">Synchroniser</a>
     </td>
   </tr>
 </table>

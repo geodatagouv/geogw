@@ -50,9 +50,12 @@ mainApp.config(function($routeProvider, $locationProvider) {
 
 mainApp.controller('ServicesCtrl', function($scope, $http, $timeout) {
     $scope.session = session;
-    $scope.harvest = function(service) {
-        service.harvesting.state = 'queued';
-        $http.post('/api/services/' + service._id + '/harvest');
+    $scope.canBeSynced = function(service) {
+        return service.syncEnabled && (!service.lastSync || service.lastSync.status === 'successful');
+    };
+    $scope.syncService = function(service) {
+        service.lastSync.status = 'queued';
+        $http.post('/api/services/' + service._id + '/sync');
     };
     $scope.fetchServices = function() {
         $http.get('/api/services').success(function(services) {
