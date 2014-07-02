@@ -76,7 +76,6 @@ ServiceSchema.methods.createSync = function(done) {
             });
         },
         function(serviceSync, cb) {
-            console.log('create job');
             jobs.create('service-sync', {
                 title: service.name,
                 serviceUrl: service.location,

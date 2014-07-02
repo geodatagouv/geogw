@@ -74,7 +74,7 @@ ServiceSyncSchema.statics = {
                 serviceSync.set({
                     status: 'processing',
                     started: Date.now(),
-                    jobId: job.id
+                    jobId: jobId
                 }).save(done);
             });
     }
