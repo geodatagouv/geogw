@@ -8,11 +8,12 @@ var _s = require('underscore.string');
 var async = require('async');
 var Schema = mongoose.Schema;
 var csw = require('./serviceTypes/csw');
+var wfs = require('./serviceTypes/wfs');
 
 /*
 ** Supported protocols
 */
-var supportedProtocols = { csw: csw };
+var supportedProtocols = { csw: csw, wfs: wfs };
 
 /*
 ** Service schema
