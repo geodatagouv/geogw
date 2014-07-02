@@ -13,6 +13,8 @@ exports.normalize = function(location, options) {
     options = options || {};
     _.defaults(options, normalizeDefaultOptions);
 
+    var l = location;
+
     // Protocol
     if (!l.protocol) l.protocol = options.defaultProtocol;
     if (!(l.protocol in options.supportedProtocols)) throw new Error('Protocol not supported.');

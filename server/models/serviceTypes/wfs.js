@@ -24,4 +24,5 @@ exports.parseLocation = function(location) {
     var l = url.normalize(url.parse(location, true), { removeKeys: QUERYSTRING_BLACKLIST });
     result.location = url.format(_.pick(l, 'protocol', 'hostname', 'port', 'pathname'));
     result.locationOptions = { query: l.query };
+    return result;
 };
