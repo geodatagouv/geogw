@@ -20,7 +20,7 @@ var supportedProtocols = { csw: csw, wfs: wfs };
 */
 var ServiceSchema = new Schema({
     name: { type: String, trim: true },
-    location: { type: String, required: true },
+    location: { type: String, required: true, unique: true },
     locationOptions: {
         query: Schema.Types.Mixed
     },
@@ -82,6 +82,15 @@ ServiceSchema.methods.createSync = function(done) {
 /*
 ** Static methods
 */
+ServiceSchema.statics = {
+
+    findByLocationAndProtocol: function(location, protocol, done) {
+        if (!(protocol in supportedProtocols)) return done(new Error('Protocol not supported'));
+        var parsedLocation = supportedProtocols[protocol].parseLocation(location);
+        this.findOne({ location: parsedLocation.location, protocol: protocol }, done);
+    }
+
+};
 
 /*
 ** Attach model
