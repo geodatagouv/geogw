@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
 
 // recursively walk modules path and callback for each file
 var walk = function(modulesPath, excludeDir, callback) {

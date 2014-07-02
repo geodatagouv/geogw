@@ -3,38 +3,27 @@
 */
 var mongoose = require('mongoose');
 var jobs = require('../kue').jobs;
-var url = require('url');
 var _ = require('lodash');
 var _s = require('underscore.string');
 var async = require('async');
 var Schema = mongoose.Schema;
+var csw = require('./serviceTypes/csw');
 
 /*
 ** Supported protocols
 */
-var SUPPORTED_PROTOCOLS = ['csw', 'wfs'];
-
-/*
-** Helpers
-*/
-function cleanLocation(location) {
-    location = url.parse(location, true);
-    var proto = location.protocol;
-    if (!proto) throw new Error('Missing protocol in location');
-    if (proto !== 'http:' && proto !== 'https:') throw new Error('Forbidden protocol in location. Use http or https instead');
-    if (location.hostname) location.hostname = location.hostname.toLowerCase();
-    location.query = _.pick(location.query, 'map');
-    location.pathname = _s.rtrim(location.pathname, '/');
-    return url.format(_.omit(location, 'search', 'hash', 'path', 'host'));
-}
+var supportedProtocols = { csw: csw };
 
 /*
 ** Service schema
 */
 var ServiceSchema = new Schema({
     name: { type: String, trim: true },
-    location: { type: String, require: true },
-    protocol: { type: String, enum: SUPPORTED_PROTOCOLS, required: true },
+    location: { type: String, required: true },
+    locationOptions: {
+        query: Schema.Types.Mixed
+    },
+    protocol: { type: String, enum: _.keys(supportedProtocols), required: true },
     syncEnabled: { type: Boolean, default: true },
     lastSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
     lastSuccessfulSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
@@ -46,11 +35,13 @@ var ServiceSchema = new Schema({
 ** Middlewares
 */
 ServiceSchema.pre('validate', function(next) {
-    if (!this.location) next();
     try {
-        this.location = cleanLocation(this.location);
+        if ((this.protocol in supportedProtocols) && this.isModified('location')) {
+            var parsedLocation = supportedProtocols[this.protocol].parseLocation(this.location);
+            _.extend(this, parsedLocation);
+        }
         next();
-    } catch (err) {
+    } catch(err) {
         next(err);
     }
 });
