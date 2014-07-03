@@ -12,6 +12,7 @@ function lookupService(serviceSync, job, done) {
         console.log(capabilities.featureTypes);
         serviceSync.toggleSuccessful(capabilities.featureTypes.length, done);
     }, function(e) {
+        console.trace(e);
         serviceSync.toggleError(function(err) {
             if (err) {
                 console.trace(err);
