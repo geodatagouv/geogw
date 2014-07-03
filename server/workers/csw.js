@@ -27,6 +27,9 @@ function processOnlineResource(resource) {
     if (resource.protocol && resource.protocol.toLowerCase().indexOf('wfs') !== -1)  {
         createRelatedService(resource.link, 'wfs');
     }
+    if (resource.protocol && resource.protocol.toLowerCase().indexOf('wms') !== -1)  {
+        createRelatedService(resource.link, 'wms');
+    }
     return resource;
 }
 
