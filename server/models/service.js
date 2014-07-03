@@ -98,8 +98,13 @@ ServiceSchema.statics = {
 
     findByLocationAndProtocol: function(location, protocol, done) {
         if (!(protocol in supportedProtocols)) return done(new Error('Protocol not supported'));
-        var parsedLocation = supportedProtocols[protocol].parseLocation(location);
-        this.findOne({ location: parsedLocation.location, protocol: protocol }, done);
+
+        try {
+            var parsedLocation = supportedProtocols[protocol].parseLocation(location);
+            this.findOne({ location: parsedLocation.location, protocol: protocol }, done);
+        } catch (err) {
+            done(err);
+        }
     }
 
 };
