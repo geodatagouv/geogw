@@ -19,7 +19,7 @@ var supportedProtocols = { csw: csw, wfs: wfs };
 */
 var ServiceSchema = new Schema({
     name: { type: String, trim: true },
-    location: { type: String, required: true, unique: true },
+    location: { type: String, required: true },
     locationOptions: {
         query: Schema.Types.Mixed
     },
@@ -30,6 +30,11 @@ var ServiceSchema = new Schema({
     addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     addedAt: { type: Date, default: Date.now }
 });
+
+/*
+** Indexes
+*/
+ServiceSchema.index({ location: 1, protocol: 1 }, { unique: true } );
 
 /*
 ** Middlewares
