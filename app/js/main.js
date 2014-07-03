@@ -48,7 +48,7 @@ mainApp.config(function($routeProvider, $locationProvider) {
         });
 });
 
-mainApp.controller('ServicesCtrl', function($scope, $http, $timeout) {
+mainApp.controller('ServicesCtrl', function($scope, $http/*, $timeout*/) {
     $scope.session = session;
     $scope.canBeSynced = function(service) {
         return service.syncEnabled && (!service.lastSync || service.lastSync.status === 'successful' || service.lastSync.status === 'failed');
