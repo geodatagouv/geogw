@@ -51,7 +51,7 @@ mainApp.config(function($routeProvider, $locationProvider) {
 mainApp.controller('ServicesCtrl', function($scope, $http/*, $timeout*/) {
     $scope.session = session;
     $scope.canBeSynced = function(service) {
-        return service.syncEnabled && (!service.lastSync || service.lastSync.status === 'successful' || service.lastSync.status === 'failed');
+        return service.syncable && (!service.lastSync || service.lastSync.status === 'successful' || service.lastSync.status === 'failed');
     };
     $scope.syncService = function(service) {
         if (!service.lastSync) service.lastSync = {};

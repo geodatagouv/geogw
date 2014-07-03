@@ -52,6 +52,13 @@ ServiceSchema.pre('validate', function(next) {
 });
 
 /*
+** Virtuals
+*/
+ServiceSchema.virtual('syncable').get(function() {
+    return this.syncEnabled && this.protocol && supportedProtocols[this.protocol].syncable;
+});
+
+/*
 ** Methods
 */
 ServiceSchema.methods.createSync = function(done) {
@@ -95,6 +102,12 @@ ServiceSchema.statics = {
     }
 
 };
+
+/*
+** Options
+*/
+ServiceSchema.set('toObject', { virtuals: true });
+ServiceSchema.set('toJSON', { virtuals: true });
 
 /*
 ** Attach model

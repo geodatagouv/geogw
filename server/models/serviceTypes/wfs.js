@@ -26,3 +26,5 @@ exports.parseLocation = function(location) {
     result.locationOptions = { query: l.query };
     return result;
 };
+
+exports.syncable = true;
