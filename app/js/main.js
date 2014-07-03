@@ -61,7 +61,7 @@ mainApp.controller('ServicesCtrl', function($scope, $http, $timeout) {
     $scope.fetchServices = function() {
         $http.get('/api/services').success(function(services) {
             $scope.services = services;
-            $timeout($scope.fetchServices, 2000);
+            // $timeout($scope.fetchServices, 2000);
         });
     };
     $scope.initNewService = function() {
