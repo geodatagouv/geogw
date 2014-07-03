@@ -49,7 +49,7 @@ ServiceSyncSchema.methods = {
         ], done);
     },
 
-    toogleError: function(done) {
+    toggleError: function(done) {
         this.set({
             status: 'failed',
             finished: Date.now()
