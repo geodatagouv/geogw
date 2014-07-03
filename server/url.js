@@ -15,7 +15,10 @@ exports.normalize = function(location, options) {
     var l = location;
 
     // Protocol
-    if (!l.protocol) l.protocol = options.defaultProtocol;
+    if (!l.protocol) {
+        l.protocol = options.defaultProtocol;
+        l.slashes = true;
+    }
     if (!(l.protocol in options.supportedProtocols)) throw new Error('Protocol not supported.');
 
     // Query string
