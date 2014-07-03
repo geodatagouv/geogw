@@ -5,20 +5,8 @@ var Record = mongoose.model('Record');
 var Service = mongoose.model('Service');
 var ServiceSync = mongoose.model('ServiceSync');
 var moment = require('moment');
-var url = require('url');
 var tld = require('tldjs');
 var debug = require('debug')('harvest-csw');
-
-function cleanLocation(location) {
-    debug('cleaning %s', location);
-    if (!location) return false;
-    location = url.parse(location);
-    if (!location.hostname || !tld.tldExists(location.hostname)) return false;
-    if (!location.protocol) location.protocol = 'http:';
-    if (!_.contains(['http:', 'https:'], location.protocol)) return false;
-    location.hostname = location.hostname.toLowerCase();
-    return url.format(location);
-}
 
 function createRelatedService(location, protocol) {
     if (!tld.tldExists(location)) return debug('related service dropped (TLD not exists) : %s', location);
@@ -26,7 +14,7 @@ function createRelatedService(location, protocol) {
         if (err) return console.trace(err);
         if (service) return debug('related service already known');
         if (!service) {
-            Service.create({ location: location, protocol: protocol }, function(err, service) {
+            Service.create({ location: location, protocol: protocol }, function(err) {
                 if (err) return console.trace(err);
                 debug('related service has been created!');
             });

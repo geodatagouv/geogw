@@ -4,7 +4,6 @@
 var mongoose = require('mongoose');
 var jobs = require('../kue').jobs;
 var _ = require('lodash');
-var _s = require('underscore.string');
 var async = require('async');
 var Schema = mongoose.Schema;
 var csw = require('./serviceTypes/csw');
