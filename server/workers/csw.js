@@ -99,7 +99,14 @@ function harvestService(serviceSync, job, done) {
 
     harvester.on('end', function(err, stats) {
         if (err) {
-            serviceSync.toggleError(done);
+            console.trace(err);
+            serviceSync.toggleError(function(mongoErr) {
+                if (mongoErr) {
+                    console.trace(mongoErr);
+                    job.log('Unable to persist status `failed`. Error has been traced to console');
+                }
+                done(err);
+            });
         } else {
             serviceSync.toggleSuccessful(stats.returned, done);
         }
