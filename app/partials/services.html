@@ -14,7 +14,7 @@
       <i ng-if="service.lastSync" ng-class="{ 'fa-refresh': service.lastSync.status === 'processing', 'fa-spin': service.lastSync.status === 'processing', 'fa-history': service.lastSync.status === 'queued' }" class="fa"></i>
     </div>
     <td class="vert" style="font-size: 85%; width: 280px">
-      <div ng-if="service.lastSuccessfulSync.itemsFound">Entrées : <strong>{{ service.lastSync.itemsFound | number }}</strong></div>
+      <div ng-if="service.lastSuccessfulSync.itemsFound">Entrées : <strong>{{ service.lastSuccessfulSync.itemsFound | number }}</strong></div>
       <div ng-if="service.lastSync">
         État de la synchronisation :
         <span style="color: green" ng-show="service.lastSync.status === 'successful'">OK</span>
@@ -22,7 +22,7 @@
         <span style="color: orange" ng-show="service.lastSync.status === 'processing'">En cours</span>
         <span style="color: red" ng-show="service.lastSync.status === 'failed'">Erreur</span>
       </div>
-      <div ng-if="service.lastSuccessfulSync.started">Dernier succès : <em>{{ service.lastSync.started | timeago }}</em></div>
+      <div ng-if="service.lastSuccessfulSync.started">Dernier succès : <em>{{ service.lastSuccessfulSync.started | timeago }}</em></div>
     </td>
     <td class="vert" ng-if="session.loggedIn">
         <a style="cursor: pointer" ng-show="canBeSynced(service)" ng-click="syncService(service)">Synchroniser</a>
