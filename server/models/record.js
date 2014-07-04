@@ -52,7 +52,7 @@ var RecordSchema = new Schema({
         ref: 'Service',
         index: true
     },
-    lastSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
+    lastSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync', required: true },
     identifier: {
         type: String,
         index: true
