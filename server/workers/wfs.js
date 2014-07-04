@@ -1,6 +1,8 @@
+var _ = require('lodash');
 var wfs = require('wfs-client');
 var mongoose = require('../mongoose');
 var ServiceSync = mongoose.model('ServiceSync');
+var FeatureType = mongoose.model('FeatureType');
 
 function lookupService(serviceSync, job, done) {
     var client = wfs(serviceSync.service.location, { 
@@ -9,7 +11,21 @@ function lookupService(serviceSync, job, done) {
     });
 
     client.capabilities().then(function(capabilities) {
-        console.log(capabilities.featureTypes);
+        capabilities.featureTypes.forEach(function(rawFeatureType) {
+            if (!rawFeatureType.name) return;
+
+            var query = {
+                service: serviceSync.service,
+                name: rawFeatureType.name
+            };
+
+            var newFeatureType = _.pick(rawFeatureType, 'title', 'abstract', 'keywords');
+            newFeatureType.lastSync = serviceSync._id;
+
+            FeatureType.findOneAndUpdate(query, { $set: newFeatureType }, { upsert: true }, function(err) {
+                if (err) console.trace(err);
+            });
+        });
         serviceSync.toggleSuccessful(capabilities.featureTypes.length, done);
     }, function(e) {
         console.trace(e);
