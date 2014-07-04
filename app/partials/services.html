@@ -3,6 +3,15 @@
   <li class="active">Services</li>
 </ol>
 
+<div class="alert alert-info">
+  Choisissez un type de service :
+  <div class="btn-group">
+    <a href="/services/by-protocol/csw" class="btn btn-default" ng-class="{ active: protocol === 'csw' }">CSW</a>
+    <a href="/services/by-protocol/wfs" class="btn btn-default" ng-class="{ active: protocol === 'wfs' }">WFS</a>
+    <a href="/services/by-protocol/wms" class="btn btn-default" ng-class="{ active: protocol === 'wms' }">WMS</a>
+  </div>
+</div>
+
 <table class="table table-hover">
   <tr ng-repeat="service in services">
     <td class="vert" style="width:70px"><span class="label" ng-class="{ 'label-warning': service.protocol === 'csw', 'label-success': service.protocol === 'wfs', 'label-info': service.protocol === 'wms' }">{{ service.protocol | uppercase }}</span></td>

@@ -31,7 +31,7 @@ var mainApp = angular.module('mainApp', ['ngRoute', 'customFilters']);
 mainApp.config(function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
     $routeProvider
-        .when('/services', {
+        .when('/services/by-protocol/:protocol', {
             templateUrl: '/partials/services.html',
             controller: 'ServicesCtrl'
         })
@@ -44,11 +44,13 @@ mainApp.config(function($routeProvider, $locationProvider) {
             controller: 'DatasetCtrl'
         })
         .otherwise({
-            redirectTo: '/services'
+            redirectTo: '/services/by-protocol/csw'
         });
 });
 
-mainApp.controller('ServicesCtrl', function($scope, $http/*, $timeout*/) {
+mainApp.controller('ServicesCtrl', function($scope, $http, $routeParams/*, $timeout*/) {
+    $scope.protocol = $routeParams.protocol;
+
     $scope.session = session;
     $scope.canBeSynced = function(service) {
         return service.syncable && (!service.lastSync || service.lastSync.status === 'successful' || service.lastSync.status === 'failed');
@@ -72,7 +74,7 @@ mainApp.controller('ServicesCtrl', function($scope, $http/*, $timeout*/) {
             delete $scope.newService;
         });
     };
-    $scope.fetchServices('csw');
+    $scope.fetchServices($scope.protocol);
 });
 
 mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams) {
