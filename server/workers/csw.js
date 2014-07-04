@@ -59,7 +59,7 @@ function processRecord(record, serviceSync) {
     var update = { $set: { metadata: metadata, lastSync: serviceSync._id }};
 
     Record.findOneAndUpdate(query, update, { upsert: true }, function(err) {
-        if (err) console.log(err);
+        if (err) console.trace(err);
     });
 }
 
