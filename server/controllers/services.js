@@ -27,11 +27,11 @@ exports.service = function(req, res, next, id) {
 ** Actions
 */
 exports.list = function(req, res, next) {
-    Service
-        .find()
-        .populate('addedBy', 'fullName')
-        .populate('lastSync')
-        .populate('lastSuccessfulSync')
+    var query = Service.find();
+    if (req.params.protocol) query.where('protocol').equals(req.params.protocol);
+    query
+        .populate('lastSync', 'status started')
+        .populate('lastSuccessfulSync', 'started finished itemsFound')
         .exec(function(err, services) {
             if (err) return next(err);
             res.json(services);

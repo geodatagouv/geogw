@@ -15,6 +15,9 @@ module.exports = function(app) {
         .get(services.list)
         .post(auth.ensureLoggedIn, services.create);
 
+    app.route('/services/by-protocol/:protocol')
+        .get(services.list);
+
     app.route('/services/:serviceId')
         .get(services.show);
 
