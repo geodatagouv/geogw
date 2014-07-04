@@ -35,7 +35,7 @@ var ServiceSchema = new Schema({
 /*
 ** Indexes
 */
-ServiceSchema.index({ location: 1, protocol: 1 }, { unique: true } );
+ServiceSchema.index({ location: 1, protocol: 1, 'locationOptions.query.map': 1 }, { unique: true } );
 
 /*
 ** Middlewares
