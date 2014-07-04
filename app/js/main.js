@@ -58,8 +58,8 @@ mainApp.controller('ServicesCtrl', function($scope, $http/*, $timeout*/) {
         service.lastSync.status = 'queued';
         $http.post('/api/services/' + service._id + '/sync');
     };
-    $scope.fetchServices = function() {
-        $http.get('/api/services').success(function(services) {
+    $scope.fetchServices = function(protocol) {
+        $http.get('/api/services/by-protocol/' + protocol).success(function(services) {
             $scope.services = services;
             // $timeout($scope.fetchServices, 2000);
         });
@@ -72,7 +72,7 @@ mainApp.controller('ServicesCtrl', function($scope, $http/*, $timeout*/) {
             delete $scope.newService;
         });
     };
-    $scope.fetchServices();
+    $scope.fetchServices('csw');
 });
 
 mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams) {
