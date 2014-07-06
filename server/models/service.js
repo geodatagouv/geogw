@@ -20,6 +20,8 @@ var supportedProtocols = { csw: csw, wfs: wfs, wms: wms };
 */
 var ServiceSchema = new Schema({
     name: { type: String, trim: true },
+    abstract: { type: String },
+    keywords: { type: [String] },
     location: { type: String, required: true },
     locationOptions: {
         query: Schema.Types.Mixed

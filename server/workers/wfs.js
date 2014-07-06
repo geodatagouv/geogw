@@ -11,6 +11,15 @@ function lookupService(serviceSync, job, done) {
     });
 
     client.capabilities().then(function(capabilities) {
+        // Basic mapping
+        var serviceUpdate = _.pick(capabilities.service, 'abstract', 'keywords');
+        if (capabilities.service.title) serviceUpdate.name = capabilities.service.title;
+        serviceSync.service
+            .set(serviceUpdate)
+            .save(function(err) {
+                if (err) console.trace(err);
+            });
+
         capabilities.featureTypes.forEach(function(rawFeatureType) {
             if (!rawFeatureType.name) return;
 
