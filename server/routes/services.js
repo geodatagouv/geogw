@@ -24,6 +24,9 @@ module.exports = function(app) {
     app.route('/services/:serviceId/sync')
         .post(auth.ensureLoggedIn, services.sync);
 
+    app.route('/services/:serviceId/synchronizations')
+        .get(services.listSyncs);
+
     app.route('/services/:serviceId/datasets')
         .get(datasets.search);
 

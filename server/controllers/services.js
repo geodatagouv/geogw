@@ -4,6 +4,7 @@
 var mongoose = require('mongoose');
 var _ = require('lodash');
 var Service = mongoose.model('Service');
+var ServiceSync = mongoose.model('ServiceSync');
 var async = require('async');
 
 /*
@@ -59,6 +60,17 @@ exports.sync = function(req, res, next) {
         if (err) return next(err);
         res.send(req.service);
     });
+};
+
+exports.listSyncs = function(req, res, next) {
+    ServiceSync
+        .find()
+        .where('service').equals(req.service.id)
+        .sort('finished')
+        .exec(function(err, serviceSyncs) {
+            if (err) return next(err);
+            res.send(serviceSyncs);
+        });
 };
 
 exports.syncAllByProtocol = function(req, res, next) {
