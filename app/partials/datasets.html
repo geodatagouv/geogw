@@ -28,9 +28,9 @@
           <h5><a href="/services/{{ service._id }}/datasets/{{ dataset._id }}">{{ dataset.metadata.title }}</a></h5>
           <p>{{ dataset.metadata.abstract | prune:500 }}</p>
           <p>
-            <span ng-repeat="contact in dataset.metadata._contacts"><span class="label label-danger">{{ contact.organizationName }}</span> </span>
-            <span ng-repeat="contact in dataset.metadata.contacts"><span class="label label-warning">{{ contact.organizationName }}</span> </span>
-            <span ng-repeat="keyword in dataset.metadata.keywords"><span class="label label-info">{{ keyword }}</span> </span>
+            <span ng-repeat="contact in dataset.metadata._contacts track by $index"><span class="label label-danger">{{ contact.organizationName }}</span> </span>
+            <span ng-repeat="contact in dataset.metadata.contacts track by $index"><span class="label label-warning">{{ contact.organizationName }}</span> </span>
+            <span ng-repeat="keyword in dataset.metadata.keywords track by $index"><span class="label label-info">{{ keyword }}</span> </span>
           </p>
         </td>
         <td class="vert"><span ng-if="hasKeywordOpenData(dataset)"><i style="color: green" class="fa fa-flag"></i></span></td>
