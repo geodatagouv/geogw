@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var csw = require('csw');
+var csw = require('csw-client');
 var mongoose = require('../mongoose');
 var Record = mongoose.model('Record');
 var Service = mongoose.model('Service');
