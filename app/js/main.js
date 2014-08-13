@@ -97,7 +97,8 @@ mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams,
             });
     };
 
-    $scope.updateResults = function() {
+    $scope.updateResults = function(oldValue, newValue) {
+        if (oldValue.q !== newValue.q || oldValue.opendata !== newValue.opendata) $scope.searchContext.offset = 0;
         $location.search(_.pick($scope.searchContext, 'q', 'opendata', 'offset'));
         $scope.fetchDatasets();
     };
