@@ -9,10 +9,10 @@
   <div class="col-lg-8">
     <div class="panel panel-default">
       <div class="panel-body">
-        <input type="search" placeholder="Rechercher..." ng-model="q" class="form-control">
+        <input type="search" placeholder="Rechercher..." ng-model="searchContext.q" class="form-control">
         <div class="checkbox">
           <label>
-            <input type="checkbox" ng-model="opendata">Uniquement les données marquées Open Data
+            <input type="checkbox" ng-model="searchContext.opendata">Uniquement les données marquées Open Data
           </label>
         </div>
         <p style="color:green">
@@ -37,8 +37,8 @@
       </tr>
     </table>
     <ul class="pager">
-      <li class="previous" ng-if="previousLink"><a href="{{ previousLink }}">&larr; Précédent</a></li>
-      <li class="next" ng-if="nextLink"><a href="{{ nextLink }}">Suivant &rarr;</a></li>
+      <li class="previous" ng-if="hasPreviousResults()"><a ng-click="paginatePrevious()">&larr; Précédent</a></li>
+      <li class="next" ng-if="hasNextResults()"><a ng-click="paginateNext()">Suivant &rarr;</a></li>
     </ul>
   </div>
 

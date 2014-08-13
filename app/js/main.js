@@ -37,7 +37,8 @@ mainApp.config(function($routeProvider, $locationProvider) {
         })
         .when('/services/:serviceId/datasets', {
             templateUrl: '/partials/datasets.html',
-            controller: 'ServiceDatasetsCtrl'
+            controller: 'ServiceDatasetsCtrl',
+            reloadOnSearch: false
         })
         .when('/services/:serviceId/datasets/:datasetId', {
             templateUrl: '/partials/dataset.html',
@@ -77,52 +78,52 @@ mainApp.controller('ServicesCtrl', function($scope, $http, $routeParams/*, $time
     $scope.fetchServices($scope.protocol);
 });
 
-mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams) {
+mainApp.controller('ServiceDatasetsCtrl', function ($scope, $http, $routeParams, $location) {
+    $scope.searchContext = _.pick($routeParams, 'q', 'offset', 'opendata');
+
     $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
         $scope.service = data;
     });
 
-    var offset = $routeParams.offset || 0;
-
     $scope.fetchDatasets = function() {
         $http
-            .get('/api/services/' + $routeParams.serviceId + '/datasets', { params: {
-                offset: offset,
-                q: $scope.q,
-                opendata: $scope.opendata
-            } })
+            .get('/api/services/' + $routeParams.serviceId + '/datasets', { params: $scope.searchContext })
             .success(function(data) {
                 $scope.datasets = data.results;
                 $scope.datasetsCount = data.count;
+                $scope.offset = data.offset;
                 $scope.firstResultPos = data.offset + 1;
                 $scope.lastResultPos = data.offset + data.results.length;
-
-                delete $scope.previousLink;
-                delete $scope.nextLink;
-
-                if (data.offset + data.results.length < data.count) {
-                    $scope.nextLink = '?offset=' + (data.offset + 20);
-                }
-                if (data.offset > 0) {
-                    $scope.previousLink = '?offset=' + (data.offset - 20);
-                }
             });
+    };
+
+    $scope.updateResults = function() {
+        $location.search(_.pick($scope.searchContext, 'q', 'opendata', 'offset'));
+        $scope.fetchDatasets();
+    };
+
+    $scope.hasPreviousResults = function() {
+        return $scope.datasets && ($scope.offset > 0);
+    };
+
+    $scope.hasNextResults = function() {
+        return $scope.datasets && ($scope.offset + $scope.datasets.length < $scope.datasetsCount);
+    };
+
+    $scope.paginatePrevious = function() {
+        $scope.searchContext.offset = $scope.offset - 20;
+        $scope.updateResults();
+    };
+
+    $scope.paginateNext = function() {
+        $scope.searchContext.offset = $scope.offset + 20;
     };
 
     $scope.hasKeywordOpenData = function(dataset) {
         return dataset.metadata.keywords && (dataset.metadata.keywords.indexOf('données ouvertes') >= 0 || dataset.metadata.keywords.indexOf('donnée ouverte') >= 0 || dataset.metadata.keywords.indexOf('opendata') >= 0);
     };
 
-    function searchIfUpdated(newValue, oldValue) {
-        if (newValue !== oldValue) {
-            offset = 0;
-            $scope.fetchDatasets();
-        }
-    }
-
-    $scope.$watch('q', searchIfUpdated);
-    $scope.$watch('opendata', searchIfUpdated);
-
+    $scope.$watch('searchContext', $scope.updateResults, true);
     $scope.fetchDatasets();
 });
 
