@@ -2,3 +2,7 @@
 {
     vertical-align: middle;
 }
+
+[ng-click] {
+    cursor: pointer;
+}
