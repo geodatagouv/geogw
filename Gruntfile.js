@@ -14,15 +14,14 @@ module.exports = function(grunt) {
             },
             browser: {
                 files: {
-                    src: ['app/**/*.js']
+                    src: ['app/scripts/**/*.js']
                 },
                 options: {
                     browser: true,
                     node: true,
                     devel: true,
                     globals: {
-                        angular: true,
-                        session: true
+                        angular: true
                     }
                 }
             },
