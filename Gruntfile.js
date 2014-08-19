@@ -18,12 +18,11 @@ module.exports = function(grunt) {
                 },
                 options: {
                     browser: true,
+                    node: true,
                     devel: true,
                     globals: {
                         angular: true,
-                        _: true,
-                        session: true,
-                        moment: true
+                        session: true
                     }
                 }
             },
@@ -41,11 +40,21 @@ module.exports = function(grunt) {
                 unused: true,
                 trailing: true,
             }
+        },
+
+        clean: ['.tmp', 'dist'],
+
+        browserify: {
+            app: {
+                src: 'app/scripts/main.js',
+                dest: '.tmp/scripts/bundle.js'
+            }
         }
 
     });
 
     grunt.registerTask('default', [
-        'jshint'
+        'jshint',
+        'browserify:app'
     ]);
 };

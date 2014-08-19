@@ -20,6 +20,7 @@ if (process.env.NODE_ENV === 'production') {
 app.set('view engine', 'jade');
 app.set('views', __dirname + '/views');
 
+app.use(express.static('.tmp'));
 app.use(express.static('app'));
 app.use(cookieParser());
 
