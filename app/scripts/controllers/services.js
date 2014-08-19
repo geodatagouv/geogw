@@ -1,7 +1,12 @@
-module.exports = function($scope, $http, $routeParams) { // $timeout
+module.exports = function($scope, $http, $routeParams, SessionService) { // $timeout
     $scope.protocol = $routeParams.protocol;
 
-    $scope.session = session;
+    $scope.isLoggedIn = SessionService.isLoggedIn();
+
+    $scope.$on('userLoggedIn', function() {
+        $scope.isLoggedIn = true;
+    });
+
     $scope.canBeSynced = function(service) {
         return service.syncable && (!service.lastSync || service.lastSync.status === 'successful' || service.lastSync.status === 'failed');
     };

@@ -47,7 +47,7 @@ app.get('/logout', function(req, res){
 });
 
 app.get('*', function(req, res) {
-    res.render('index', { user: req.user });
+    res.render('index');
 });
 
 app.listen(process.env.PORT);

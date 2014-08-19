@@ -24,6 +24,10 @@ exports.show = function(req, res) {
     res.send(req.profile);
 };
 
+exports.showCurrentUser = function(req, res) {
+    res.send(req.user);
+};
+
 exports.subscribe = function(req, res, next) {
     req.user.subscriptions.addToSet(req.service.id);
     req.user.save(function(err) {

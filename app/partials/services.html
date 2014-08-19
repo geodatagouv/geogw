@@ -33,13 +33,13 @@
       </div>
       <div ng-if="service.lastSuccessfulSync">Dernier succès : <em>{{ service.lastSuccessfulSync.finished | timeago }}</em></div>
     </td>
-    <td class="vert" ng-if="session.loggedIn">
+    <td class="vert" ng-if="isLoggedIn">
         <a style="cursor: pointer" ng-show="canBeSynced(service)" ng-click="syncService(service)">Synchroniser</a>
     </td>
   </tr>
 </table>
 
-<div ng-if="session.loggedIn">
+<div ng-if="isLoggedIn">
   <button ng-click="initNewService()" ng-if="!newService" class="btn btn-primary">
       <i class="fa fa-plus"></i> Ajouter un nouveau service
   </button>
