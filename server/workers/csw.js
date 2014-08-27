@@ -68,7 +68,8 @@ function harvestService(serviceSync, job, done) {
         maxSockets: job.data.maxSockets || 5,
         keepAlive: true,
         retry: job.data.maxRetry || 3,
-        userAgent: 'Afigeo CSW harvester'
+        userAgent: 'Afigeo CSW harvester',
+        queryStringToAppend: serviceSync.service.locationOptions.query
     });
 
     var harvesterOptions = {
