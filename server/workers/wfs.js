@@ -31,7 +31,7 @@ var updateRelatedRecords = function(service, done) {
             });
             record.save(function(err) {
                 if (err) console.log(err);
-            })
+            });
         })
         .on('close', function() {
             done();
