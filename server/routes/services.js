@@ -31,6 +31,6 @@ module.exports = function(app) {
         .get(datasets.search);
 
     app.route('/services/by-protocol/:protocol/sync-all')
-        .post(auth.isAdmin, services.syncAllByProtocol);
+        .post(services.syncAllByProtocol);
 
 };

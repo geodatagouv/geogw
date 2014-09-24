@@ -15,8 +15,6 @@ var updateRelatedRecords = function(service, done) {
         }
     }));
 
-    console.log(featureTypes);
-
     Record
         .findByRelatedService(service)
         .stream()
