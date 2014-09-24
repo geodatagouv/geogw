@@ -3,6 +3,7 @@
 */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var _ = require('lodash');
 
 /*
 ** Online resource schema
@@ -43,6 +44,16 @@ var ContactSchema = new Schema({
     }
 });
 
+var RelatedServiceSchema = new Schema({
+    name: { type: String, required: true },
+    service: { type: Schema.Types.ObjectId, ref: 'Service', required: true },
+    status: { type: String, enum: ['not-resolved', 'ok', 'unreachable'] },
+    protocol: String,
+    originalName: String,
+    originalLocation: String,
+    originalProtocol: String
+});
+
 /*
 ** Record schema
 */
@@ -57,6 +68,7 @@ var RecordSchema = new Schema({
         type: String,
         index: true
     },
+    relatedServices: [RelatedServiceSchema],
     metadata: {
         title: {
             type: String
@@ -95,11 +107,10 @@ var RecordSchema = new Schema({
     }
 });
 
-RecordSchema.index({
-    'metadata.title': 'text',
-    'metadata.abstract': 'text',
-    'metadata.keywords': 'text'
-}, {
+/*
+** Indexes
+*/
+var textIndexOptions = {
     default_language: 'french',
     name: 'default_text_index',
     weights: {
@@ -107,7 +118,46 @@ RecordSchema.index({
         'metadata.keywords': 5,
         'metadata.abstract': 2
     }
-});
+};
+
+var textIndexDefinition = {
+    'metadata.title': 'text',
+    'metadata.abstract': 'text',
+    'metadata.keywords': 'text'
+};
+
+RecordSchema.index(textIndexDefinition, textIndexOptions);
+RecordSchema.index({ _id: 1, 'relatedServices.service': 1, 'relatedServices.name': 1 }, { unique: true });
+
+/*
+** Methods
+*/
+RecordSchema.methods.upsertRelatedService = function(service, name) {
+    if (!name) return;
+
+    var matchingEntry = _.find(this.relatedServices, { service: service._id, name: name.toLowerCase() });
+
+    var update = {
+        service: service.id,
+        originalName: name,
+        name: name.toLowerCase(),
+        protocol: service.protocol
+    };
+
+    if (!matchingEntry) {
+        update.status = 'not-resolved';
+        this.relatedServices.push(update);
+    } else {
+        _.extend(matchingEntry, update);
+    }
+};
+
+/*
+** Methods
+*/
+RecordSchema.statics.findByRelatedService = function(service) {
+    return this.find({ relatedServices: { $elemMatch: { service: service.id } } });
+};
 
 /*
 ** Attach model

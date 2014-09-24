@@ -1,8 +1,42 @@
 var _ = require('lodash');
+var _s = require('underscore.string');
 var wfs = require('wfs-client');
 var mongoose = require('../mongoose');
 var ServiceSync = mongoose.model('ServiceSync');
-var FeatureType = mongoose.model('FeatureType');
+var Record = mongoose.model('Record');
+var debug = require('debug')('sync-wfs');
+
+var updateRelatedRecords = function(service, done) {
+    var featureTypes = _.flatten(service.featureTypes.map(function(featureType) {
+        if (featureType.name.indexOf(':')) {
+            return [featureType.name.toLowerCase(), _s.strRight(featureType.name.toLowerCase(), ':')];
+        } else {
+            return featureType.name.toLowerCase();
+        }
+    }));
+
+    console.log(featureTypes);
+
+    Record
+        .findByRelatedService(service)
+        .stream()
+        .on('data', function(record) {
+            _.where(record.relatedServices, { service: service._id }).forEach(function(matchingRelatedService) {
+                if (_.contains(featureTypes, matchingRelatedService.name)) {
+                    matchingRelatedService.status = 'ok';
+                } else {
+                    matchingRelatedService.status = 'unreachable';
+                }
+                debug('record %s references service %s (featureType: %s) with status %s', record.metadata.title, service.name, matchingRelatedService.name, matchingRelatedService.status);
+            });
+            record.save(function(err) {
+                if (err) console.log(err);
+            })
+        })
+        .on('close', function() {
+            done();
+        });
+};
 
 function lookupService(serviceSync, job, done) {
     var client = wfs(serviceSync.service.location, { 
@@ -14,28 +48,16 @@ function lookupService(serviceSync, job, done) {
         // Basic mapping
         var serviceUpdate = _.pick(capabilities.service, 'abstract', 'keywords');
         if (capabilities.service.title) serviceUpdate.name = capabilities.service.title;
+        if (capabilities.featureTypes) serviceUpdate.featureTypes = capabilities.featureTypes;
         serviceSync.service
             .set(serviceUpdate)
             .save(function(err) {
                 if (err) console.trace(err);
             });
-
-        capabilities.featureTypes.forEach(function(rawFeatureType) {
-            if (!rawFeatureType.name) return;
-
-            var query = {
-                service: serviceSync.service,
-                name: rawFeatureType.name
-            };
-
-            var newFeatureType = _.pick(rawFeatureType, 'title', 'abstract', 'keywords');
-            newFeatureType.lastSync = serviceSync._id;
-
-            FeatureType.findOneAndUpdate(query, { $set: newFeatureType }, { upsert: true }, function(err) {
-                if (err) console.trace(err);
-            });
+        serviceSync.toggleSuccessful(capabilities.featureTypes.length, function(err) {
+            if (err) return done(err);
+            updateRelatedRecords(serviceSync.service, done);
         });
-        serviceSync.toggleSuccessful(capabilities.featureTypes.length, done);
     }, function(e) {
         console.trace(e);
         serviceSync.toggleError(function(err) {
