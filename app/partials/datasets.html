@@ -15,6 +15,11 @@
             <input type="checkbox" ng-model="searchContext.opendata">Uniquement les données marquées Open Data
           </label>
         </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="searchContext.wfs">Uniquement les données téléchargeables en WFS
+          </label>
+        </div>
         <p style="color:green">
           {{ datasetsCount | number }} résultat(s) trouvé(s)
           <span ng-if="datasetsCount"> - Résultats {{ firstResultPos | number }} à {{ lastResultPos | number }}</span>

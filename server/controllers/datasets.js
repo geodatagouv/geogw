@@ -49,18 +49,20 @@ exports.findByIdentifier = function(req, res, next) {
 };
 
 exports.search = function(req, res, next) {
-    var q, limit, offset, opendata;
+    var q, limit, offset, opendata, wfs;
     if (req.query.q && _.isString(req.query.q) && req.query.q.length) q = req.query.q;
     limit = parseInt(req.query.limit);
     limit = _.isNumber(limit) && limit > 0 && limit <= 100 ? Math.floor(limit) : 20;
     offset = parseInt(req.query.offset);
     offset = _.isNumber(offset) && offset > 0 ? Math.floor(offset) : 0;
     opendata = req.query.opendata === 'true';
+    wfs = req.query.wfs === 'true';
 
     function buildQuery() {
         var query = Record.find().where('metadata.type').in(['dataset', 'series']);
         if (q) query.where({ $text: { $search: q, $language: 'french' }});
         if (opendata) query.where('metadata.keywords').in(OPENDATA_KEYWORDS);
+        if (wfs) query.where('relatedServices').elemMatch({ status: 'ok', protocol: 'wfs' });
         if (req.service) query.where('parentCatalog', req.service.id);
         return query;
     }

@@ -1,7 +1,7 @@
 var _ = require('lodash');
 
 module.exports = function ($scope, $http, $routeParams, $location) {
-    $scope.searchContext = _.pick($routeParams, 'q', 'offset', 'opendata');
+    $scope.searchContext = _.pick($routeParams, 'q', 'offset', 'opendata', 'wfs');
 
     $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
         $scope.service = data;
@@ -20,8 +20,8 @@ module.exports = function ($scope, $http, $routeParams, $location) {
     };
 
     $scope.updateResults = function(oldValue, newValue) {
-        if (oldValue.q !== newValue.q || oldValue.opendata !== newValue.opendata) $scope.searchContext.offset = 0;
-        $location.search(_.pick($scope.searchContext, 'q', 'opendata', 'offset'));
+        if (oldValue.q !== newValue.q || oldValue.opendata !== newValue.opendata || oldValue.wfs !== newValue.wfs) $scope.searchContext.offset = 0;
+        $location.search(_.pick($scope.searchContext, 'q', 'opendata', 'offset', 'wfs'));
         $scope.fetchDatasets();
     };
 
