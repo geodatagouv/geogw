@@ -93,13 +93,16 @@ ServiceSchema.methods.createSync = function(done) {
             });
         },
         function(serviceSync, cb) {
-            jobs.create('service-sync', {
-                title: service.name,
-                serviceUrl: service.location,
-                serviceId: service.id,
-                protocol: service.protocol,
-                serviceSyncId: serviceSync.id
-            }).save(cb);
+            jobs
+                .create('service-sync', {
+                    title: service.name,
+                    serviceUrl: service.location,
+                    serviceId: service.id,
+                    protocol: service.protocol,
+                    serviceSyncId: serviceSync.id
+                })
+                .removeOnComplete(true)
+                .save(cb);
         }
     ], done);
 };
