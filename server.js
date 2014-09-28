@@ -17,9 +17,6 @@ if (process.env.NODE_ENV === 'production') {
     app.use(morgan('dev'));
 }
 
-app.set('view engine', 'jade');
-app.set('views', __dirname + '/views');
-
 app.use(express.static('.tmp'));
 app.use(express.static('app'));
 app.use(cookieParser());
@@ -47,7 +44,7 @@ app.get('/logout', function(req, res){
 });
 
 app.get('*', function(req, res) {
-    res.render('index');
+    res.sendFile(__dirname + '/app/index.html');
 });
 
 app.listen(process.env.PORT);
