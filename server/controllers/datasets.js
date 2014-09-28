@@ -25,7 +25,7 @@ exports.dataset = function(req, res, next, id) {
         .findById(id)
         .exec(function(err, dataset) {
             if (err) return next(err);
-            if (!dataset) return res.send(404);
+            if (!dataset) return res.status(404).end();
             req.dataset = dataset;
             next();
         });

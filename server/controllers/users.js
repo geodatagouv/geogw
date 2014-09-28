@@ -7,7 +7,7 @@ var User = mongoose.model('User');
 exports.user = function(req, res, next, id) {
     User.findById(id).exec(function(err, user) {
         if (err) return next(err);
-        if (!user) return res.send(404);
+        if (!user) return res.status(404).end();
         req.profile = user; // req.user is used by passport
         next();
     });
@@ -32,7 +32,7 @@ exports.subscribe = function(req, res, next) {
     req.user.subscriptions.addToSet(req.service.id);
     req.user.save(function(err) {
         if (err) return next(err);
-        res.send(200);
+        res.status(200).end();
     });
 };
 
@@ -40,6 +40,6 @@ exports.unsubscribe = function(req, res, next) {
     req.user.subscriptions.remove(req.service.id);
     req.user.save(function(err) {
         if (err) return next(err);
-        res.send(200);
+        res.status(200).end();
     });
 };

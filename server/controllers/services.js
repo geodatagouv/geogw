@@ -18,7 +18,7 @@ exports.service = function(req, res, next, id) {
         .populate('lastSuccessfulSync')
         .exec(function(err, service) {
             if (err) return next(err);
-            if (!service) return res.send(404);
+            if (!service) return res.status(404).end();
             req.service = service;
             next();
         });
