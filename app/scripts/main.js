@@ -1,5 +1,5 @@
 // Setup moment locale
-require('moment/lang/fr');
+require('moment/locale/fr');
 
 var app = angular.module('mainApp', ['ngRoute']);
 
