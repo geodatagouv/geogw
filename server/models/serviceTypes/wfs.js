@@ -16,7 +16,8 @@ var QUERYSTRING_BLACKLIST = {
     propertyname: true,
     srsname: true,
     bbox: true,
-    valuereference: true
+    valuereference: true,
+    'format-options': true
 };
 
 exports.parseLocation = function(location) {

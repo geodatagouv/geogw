@@ -1,57 +1,11 @@
 var _ = require('lodash');
 var csw = require('csw-client');
-var mongoose = require('../mongoose');
+var mongoose = require('../../mongoose');
 var Record = mongoose.model('Record');
-var Service = mongoose.model('Service');
 var ServiceSync = mongoose.model('ServiceSync');
 var moment = require('moment');
-var tld = require('tldjs');
-var debug = require('debug')('harvest-csw');
 var async = require('async');
-
-
-var createRelatedService = function(record, resource, protocol, done) {
-    // TODO: accept public IP address
-    if (!tld.tldExists(resource.link)) {
-        debug('related service dropped (TLD not exists) : %s', resource.link);
-        return done();
-    }
-
-    if (!resource.name) {
-        return done();
-    }
-
-    Service.findByLocationAndProtocol(resource.link, protocol, function(err, service) {
-        if (err) return done(err);
-
-        if (service) {
-            record.upsertRelatedService(service, resource.name);
-            debug('related service already known');
-            return done();
-        } 
-
-        if (!service) {
-            Service.create({ location: resource.link, protocol: protocol }, function(err, service) {
-                if (err) return done(err);
-
-                record.upsertRelatedService(service, resource.name);
-                debug('related service has been created!');
-                return done();
-            });
-        }
-    });
-};
-
-var processOnlineResource = function(record, resource, done) {
-    if (!resource.link) return done();
-    if (resource.protocol && resource.protocol.toLowerCase().indexOf('wfs') !== -1)  {
-        createRelatedService(record, resource, 'wfs', done);
-    } else if (resource.protocol && resource.protocol.toLowerCase().indexOf('wms') !== -1)  {
-        createRelatedService(record, resource, 'wms', done);
-    } else {
-        return done(null, resource);
-    }
-};
+var resources = require('./resources');
 
 var updateRecord = function(job, record, data, serviceSync, done) {
     var metadata = _.pick(data, [
@@ -67,7 +21,7 @@ var updateRecord = function(job, record, data, serviceSync, done) {
     ]);
 
     var processItem = function(onlineResource, done) {
-        processOnlineResource(record, onlineResource, done);
+        resources.all(record, onlineResource, done);
     };
 
     async.map(data.onlineResources || [], processItem, function(err, onlineResources) {
