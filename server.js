@@ -24,7 +24,9 @@ app.use(cookieParser());
 app.use(session({
     store: new RedisStore({ client: redis.createClient() }),
     secret: process.env.COOKIE_SECRET,
-    name: 'sid'
+    name: 'sid',
+    saveUninitialized: false,
+    resave: true
 }));
 
 app.use(passport.initialize());
