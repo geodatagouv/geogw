@@ -126,11 +126,11 @@ var harvestService = function(serviceSync, job, harvestDone) {
             recordTypeStats[xmlRecord.name()]++;
         }
 
-        this.emit('data', xmlRecord);
+        return xmlRecord;
     }
 
     harvester
-        .pipe(es.through(recordTypeCount))
+        .pipe(es.mapSync(recordTypeCount))
         .pipe(iso19139.parseAll())
         .on('data', function(record) {
             job.progress(harvester.returned, harvester.matched);
