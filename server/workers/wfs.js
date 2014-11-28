@@ -1,10 +1,55 @@
+/*
+** Module dependencies
+*/
+var util = require('util');
 var _ = require('lodash');
 var _s = require('underscore.string');
 var wfs = require('wfs-client');
 var mongoose = require('../mongoose');
-var ServiceSync = mongoose.model('ServiceSync');
 var Record = mongoose.model('Record');
 var debug = require('debug')('sync-wfs');
+var ServiceSyncJob = require('./syncJob');
+
+
+/*
+** Constructor
+*/
+function WfsLookupJob(job) {
+    ServiceSyncJob.call(this, job);
+}
+
+util.inherits(WfsLookupJob, ServiceSyncJob);
+
+
+/*
+** Sync method
+*/
+WfsLookupJob.prototype._sync = function() {
+    var service = this.service;
+    var job = this;
+
+    var client = wfs(service.location, { 
+        userAgent: 'Afigeo WFS harvester',
+        queryStringToAppend: service.locationOptions.query
+    });
+
+    client.capabilities().then(function(capabilities) {
+        // Basic mapping
+        var serviceUpdate = _.pick(capabilities.service, 'abstract', 'keywords');
+        if (capabilities.service.title) serviceUpdate.name = capabilities.service.title;
+        if (capabilities.featureTypes) serviceUpdate.featureTypes = capabilities.featureTypes;
+        service
+            .set(serviceUpdate)
+            .save(function(err) {
+                if (err) console.trace(err);
+            });
+        job.success(capabilities.featureTypes.length);
+        // updateRelatedRecords(serviceSync.service)
+    }, function(e) {
+        job.fail(e);
+    });
+};
+
 
 var updateRelatedRecords = function(service, done) {
     var featureTypes = _.flatten(service.featureTypes.map(function(featureType) {
@@ -36,41 +81,10 @@ var updateRelatedRecords = function(service, done) {
         });
 };
 
-function lookupService(serviceSync, job, done) {
-    var client = wfs(serviceSync.service.location, { 
-        userAgent: 'Afigeo WFS harvester',
-        queryStringToAppend: serviceSync.service.locationOptions.query
-    });
 
-    client.capabilities().then(function(capabilities) {
-        // Basic mapping
-        var serviceUpdate = _.pick(capabilities.service, 'abstract', 'keywords');
-        if (capabilities.service.title) serviceUpdate.name = capabilities.service.title;
-        if (capabilities.featureTypes) serviceUpdate.featureTypes = capabilities.featureTypes;
-        serviceSync.service
-            .set(serviceUpdate)
-            .save(function(err) {
-                if (err) console.trace(err);
-            });
-        serviceSync.toggleSuccessful(capabilities.featureTypes.length, function(err) {
-            if (err) return done(err);
-            updateRelatedRecords(serviceSync.service, done);
-        });
-    }, function(e) {
-        console.trace(e);
-        serviceSync.toggleError(function(err) {
-            if (err) {
-                console.trace(err);
-                job.log('Unable to persist status `failed`. Error has been traced to console');
-            }
-            done(e);
-        });
-    });
-}
-
+/*
+** Exports
+*/
 exports.lookup = function(job, done) {
-    ServiceSync.findByIdAndProcess(job.data.serviceSyncId, job.id, function(err, serviceSync) {
-        if (err) return done(err);
-        lookupService(serviceSync, job, done);
-    });
+    (new WfsLookupJob(job)).start(done);
 };
