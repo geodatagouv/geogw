@@ -25,6 +25,35 @@ util.inherits(CswHarvestJob, ServiceSyncJob);
 
 
 /*
+** Methods
+*/
+CswHarvestJob.prototype.createCswHarvester = function() {
+    var location = this.service.location;
+
+    var client = csw(location, {
+        maxSockets: this.data.maxSockets || 5,
+        keepAlive: true,
+        retry: this.data.maxRetry || 3,
+        userAgent: 'Afigeo CSW harvester',
+        queryStringToAppend: this.service.locationOptions.query,
+        concurrency: 5
+    });
+
+    var harvesterOptions = {
+        typeNames: 'gmd:MD_Metadata',
+        outputSchema: 'http://www.isotc211.org/2005/gmd',
+        elementSetName: 'full',
+        constraintLanguage: 'CQL_TEXT'
+    };
+
+    if (location.indexOf('isogeo') !== -1) harvesterOptions.namespace = 'xmlns(gmd=http://www.isotc211.org/2005/gmd)';
+    if (location.indexOf('geoportal/csw/discovery') !== -1) delete harvesterOptions.constraintLanguage;
+
+    return client.harvest(harvesterOptions);
+};
+
+
+/*
 ** Sync method
 */
 CswHarvestJob.prototype._sync = function() {
@@ -104,26 +133,7 @@ CswHarvestJob.prototype._sync = function() {
             });
     }
 
-    var client = csw(service.location, {
-        maxSockets: job.data.maxSockets || 5,
-        keepAlive: true,
-        retry: job.data.maxRetry || 3,
-        userAgent: 'Afigeo CSW harvester',
-        queryStringToAppend: service.locationOptions.query,
-        concurrency: 5
-    });
-
-    var harvesterOptions = {
-        typeNames: 'gmd:MD_Metadata',
-        outputSchema: 'http://www.isotc211.org/2005/gmd',
-        elementSetName: 'full',
-        constraintLanguage: 'CQL_TEXT'
-    };
-
-    if (service.location.indexOf('isogeo') !== -1) harvesterOptions.namespace = 'xmlns(gmd=http://www.isotc211.org/2005/gmd)';
-    if (service.location.indexOf('geoportal/csw/discovery') !== -1) delete harvesterOptions.constraintLanguage;
-
-    var harvester = client.harvest(harvesterOptions);
+    var harvester = this.createCswHarvester();
 
     harvester.on('error', function(err) {
         job.log(JSON.stringify(err));
