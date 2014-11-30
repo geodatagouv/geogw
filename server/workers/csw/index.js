@@ -52,6 +52,20 @@ CswHarvestJob.prototype.createCswHarvester = function() {
     return client.harvest(harvesterOptions);
 };
 
+CswHarvestJob.prototype.recordTypeCount = function() {
+    var stats = this.recordTypeStats = {};
+
+    return es.mapSync(function (record) {
+        if (!(record.name() in stats)) {
+            stats[record.name()] = 1;
+        } else {
+            stats[record.name()]++;
+        }
+
+        return record;
+    });
+};
+
 
 /*
 ** Sync method
@@ -148,20 +162,8 @@ CswHarvestJob.prototype._sync = function() {
         processRecord(record, done);
     }, 1);
 
-    var recordTypeStats = {};
-
-    function recordTypeCount(xmlRecord) {
-        if (!(xmlRecord.name() in recordTypeStats)) {
-            recordTypeStats[xmlRecord.name()] = 1;
-        } else {
-            recordTypeStats[xmlRecord.name()]++;
-        }
-
-        return xmlRecord;
-    }
-
     harvester
-        .pipe(es.mapSync(recordTypeCount))
+        .pipe(this.recordTypeCount())
         .pipe(iso19139.parseAll())
         .on('data', function(record) {
             job.progress(harvester.returned, harvester.matched);
@@ -170,7 +172,7 @@ CswHarvestJob.prototype._sync = function() {
         .on('end', function() {
             job.log('Records returned: %d', this.returned);
             job.log('Statistics by record type:');
-            _(recordTypeStats).forEach(function(count, recordType) {
+            _(job.recordTypeStats).forEach(function(count, recordType) {
                 job.log('* %s: %d', recordType, count);
             });
             job.success(this.returned);
