@@ -79,6 +79,11 @@ CswHarvestJob.prototype.saveCswRecord = function () {
             return callback();
         }
 
+        if (record.fileIdentifier.length > 256) {
+            job.log('Dropping 1 record: fileIdentifier too long!');
+            return callback();
+        }
+
         if (!record._updated) {
             job.log('[INFO] Dropping 1 record: no dateStamp set!');
             return callback();
