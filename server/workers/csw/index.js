@@ -230,12 +230,12 @@ CswHarvestJob.prototype._sync = function() {
             q.push(record);
         })
         .on('end', function() {
-            job.log('Records returned: %d', this.returned);
+            job.log('Records returned: %d', harvester.returned);
             job.log('Statistics by record type:');
             _(job.recordTypeStats).forEach(function(count, recordType) {
                 job.log('* %s: %d', recordType, count);
             });
-            job.success(this.returned);
+            job.success(harvester.returned);
         });
 
 };
