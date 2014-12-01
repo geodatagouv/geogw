@@ -6,12 +6,15 @@ var util = require('util');
 var es = require('event-stream');
 var csw = require('csw-client');
 var iso19139 = require('iso19139');
-var mongoose = require('../../mongoose');
-var Record = mongoose.model('Record');
 var moment = require('moment');
 var async = require('async');
+
+var mongoose = require('../../mongoose');
 var resources = require('./resources');
 var ServiceSyncJob = require('../syncJob');
+
+var Record = mongoose.model('Record');
+var CswRecord = mongoose.model('CswRecord');
 
 
 /*
@@ -63,6 +66,62 @@ CswHarvestJob.prototype.recordTypeCount = function() {
         }
 
         return record;
+    });
+};
+
+CswHarvestJob.prototype.saveCswRecord = function () {
+    var job = this;
+
+    return es.map(function (record, callback) {
+
+        if (!record.fileIdentifier) {
+            job.log('Dropping 1 record: no fileIdentifier set!');
+            return callback();
+        }
+
+        if (!record._updated) {
+            job.log('[INFO] Dropping 1 record: no dateStamp set!');
+            return callback();
+        }
+
+        // TODO: Date validation
+        var timestamp = moment(record._updated).toDate();
+
+        var query = {
+            parentCatalog: job.service._id,
+            identifier: record.fileIdentifier,
+            timestamp: timestamp
+        };
+
+        var update = { $push: { synchronizations: job.id } };
+
+        CswRecord.update(query, update, function (err, nModified) {
+            if (err) {
+                job.log('[ERROR] Unable to update a CSW record');
+                return callback(err);
+            }
+
+            if (nModified === 1) {
+                job.log('[INFO] CSW record not updated');
+                callback();
+            } else {
+                CswRecord.collection
+                    .insert(_.extend(query, {
+                        synchronizations: [job.id],
+                        xml: record._xml.toString()
+                    }), function(err) {
+                        if (err) {
+                            job.log('[ERROR] Unable to save a CSW record');
+                            return callback(err);
+                        }
+
+                        delete record._xml;
+                        callback(null, record);
+                    });
+            }
+
+        });
+
     });
 };
 
@@ -164,7 +223,8 @@ CswHarvestJob.prototype._sync = function() {
 
     harvester
         .pipe(this.recordTypeCount())
-        .pipe(iso19139.parseAll())
+        .pipe(iso19139.parseAll({ keepXml: true }))
+        .pipe(this.saveCswRecord())
         .on('data', function(record) {
             job.progress(harvester.returned, harvester.matched);
             q.push(record);
