@@ -75,17 +75,17 @@ CswHarvestJob.prototype.saveCswRecord = function () {
     return es.map(function (record, callback) {
 
         if (!record.fileIdentifier) {
-            job.log('Dropping 1 record: no fileIdentifier set!');
+            job.log('[WARN] Dropping 1 record: no fileIdentifier set!');
             return callback();
         }
 
         if (record.fileIdentifier.length > 256) {
-            job.log('Dropping 1 record: fileIdentifier too long!');
+            job.log('[WARN] Dropping 1 record: fileIdentifier too long!');
             return callback();
         }
 
         if (!record._updated) {
-            job.log('[INFO] Dropping 1 record: no dateStamp set!');
+            job.log('[WARN] Dropping 1 record: no dateStamp set!');
             return callback();
         }
 
@@ -107,7 +107,7 @@ CswHarvestJob.prototype.saveCswRecord = function () {
             }
 
             if (nModified === 1) {
-                job.log('[INFO] CSW record not updated');
+                // job.log('[INFO] CSW record not updated');
                 callback();
             } else {
                 CswRecord.collection
@@ -120,6 +120,7 @@ CswHarvestJob.prototype.saveCswRecord = function () {
                             return callback(err);
                         }
 
+                        // job.log('[INFO] New CSW record inserted');
                         delete record._xml;
                         callback(null, record);
                     });
