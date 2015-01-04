@@ -51,6 +51,9 @@ ServiceSyncJob.prototype.success = function(count) {
 };
 
 ServiceSyncJob.prototype.log = function() {
+    if (process.env.NODE_ENV === 'development') {
+        console.log.apply(null, arguments);
+    }
     this._job.log.apply(this._job, arguments);
 };
 
