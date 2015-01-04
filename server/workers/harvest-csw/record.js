@@ -144,6 +144,8 @@ CswRecord.prototype.updateOrCreateRecord = function (done) {
 };
 
 CswRecord.prototype.createJob = function (done) {
+    if (this.status !== 'created') return done();
+
     jobs
         .create('process-record', {
             recordId: this.parsedRecord.fileIdentifier,
