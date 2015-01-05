@@ -37,7 +37,7 @@ CswRecord.prototype.parse = function () {
 };
 
 CswRecord.prototype.cleanXml = function () {
-    delete this.xmlElement;
+    this.xmlElement = null;
 };
 
 CswRecord.prototype.isValid = function () {
@@ -111,7 +111,7 @@ CswRecord.prototype.createNewRecord = function (done) {
         timestamp: this.timestamp(),
         synchronizations: [this.job.id],
         availableSince: this.job.id,
-        xml: this.xmlElement.toString()
+        xml: this.xmlElement.clone().toString()
     };
 
     this.cleanXml();
