@@ -7,6 +7,7 @@ var iso19139 = require('iso19139');
 var libxml = require('libxmljs');
 
 var mongoose = require('../../mongoose');
+var resources = require('./resources');
 
 var CswRecord = mongoose.model('CswRecord');
 var Record = mongoose.model('Record');
@@ -72,6 +73,15 @@ module.exports = function(job, done) {
         next();
     }
 
+    function processRelatedServices(next) {
+        if (parsedRecord.type === 'service') return next();
+        if (!parsedRecord.onlineResources) return next();
+
+        async.each(parsedRecord.onlineResources, function (resource, done) {
+            resources.all(record, resource, done);
+        }, next);
+    }
+
     function saveComputedRecord(next) {
         record.save(next);
     }
@@ -81,6 +91,7 @@ module.exports = function(job, done) {
         parseCswRecord,
         loadComputedRecord,
         applyChanges,
+        processRelatedServices,
         saveComputedRecord
     ];
 
