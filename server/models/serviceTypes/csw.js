@@ -32,4 +32,6 @@ exports.parseLocation = function(location) {
     return result;
 };
 
+exports.syncTask = 'harvest-csw';
+
 exports.syncable = true;

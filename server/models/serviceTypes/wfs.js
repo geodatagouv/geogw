@@ -28,4 +28,6 @@ exports.parseLocation = function(location) {
     return result;
 };
 
+exports.syncTask = 'lookup-wfs';
+
 exports.syncable = true;

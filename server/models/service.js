@@ -93,7 +93,7 @@ ServiceSchema.methods.createSync = function(done) {
             });
         },
         function(serviceSync, cb) {
-            var job = jobs.create('service-sync', {
+            var job = jobs.create(supportedProtocols[service.protocol].syncTask, {
                 title: service.name,
                 serviceUrl: service.location,
                 serviceId: service.id,
