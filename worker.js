@@ -1,6 +1,6 @@
 var jobs = require('./server/kue').jobs;
 var csw = require('./server/workers/harvest-csw');
-var wfs = require('./server/workers/wfs');
+var wfs = require('./server/workers/lookup-wfs');
 var processRecord = require('./server/workers/process-record');
 
 require('ssl-root-cas/latest').inject();
