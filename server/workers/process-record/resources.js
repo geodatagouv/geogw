@@ -32,7 +32,15 @@ var createRelatedService = function(record, location, name, protocol, done) {
 };
 
 var wfs = function(record, resource, next, done) {
-    var location = url.normalize(url.parse(resource.link, true));
+    var location;
+
+    // TODO: Refactor
+    try {
+        location = url.normalize(url.parse(resource.link, true));
+    } catch (e) {
+        return next();
+    }
+
     var query = location.query;
 
     if (resource.protocol && resource.protocol.toLowerCase().indexOf('wfs') !== -1 && resource.name) {
