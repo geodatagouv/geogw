@@ -152,6 +152,7 @@ CswRecord.prototype.createJob = function (done) {
             catalogId: this.job.service._id
         })
         .removeOnComplete(true)
+        .attempts(5)
         .save(done);
 };
 

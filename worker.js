@@ -7,6 +7,6 @@ require('ssl-root-cas/latest').inject();
 
 jobs.process('harvest-csw', 2, csw.harvest);
 jobs.process('lookup-wfs', 10, wfs.lookup);
-jobs.process('process-record', 100, processRecord);
+jobs.process('process-record', 20, processRecord);
 
 require('kue').app.listen(process.env.PORT || 3000);
