@@ -40,6 +40,10 @@
         <div><span ng-repeat="keyword in dataset.metadata.keywords"><span class="label label-info">{{ keyword }}</span> </span></div>
         <h3><i class="fa fa-download"></i> Ressources</h3>
         <div ng-repeat="resource in dataset.metadata.onlineResources"><a title="{{ resource.protocol }}" href="{{ resource.link }}">{{ resource.name || resource.link }}</a></div>
+        <h3><i class="fa fa-download"></i> Archives</h3>
+        <div ng-repeat="record in archivedRecords">
+          <a target="_blank" href="/api/catalogs/{{ service._id }}/records/{{ encodeURIComponent(dataset.identifier) }}/snapshots/{{ record._id }}/xml">Version du {{ record.timestamp | date : 'medium' }}</a>
+        </div>
       </div>
     </div>
   </div>

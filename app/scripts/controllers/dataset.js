@@ -22,14 +22,22 @@ module.exports = function($scope, $http, $routeParams) {
     };
     $http.get('/api/datasets/' + $routeParams.datasetId).success(function(dataset) {
         $scope.dataset = dataset;
+
         $http.get('/api/datasets/by-identifier/' + dataset.identifier).success(function(otherDatasets) {
             $scope.sameIdentifierDatasets = _.reject(otherDatasets, { _id: dataset._id });
             if ($scope.sameIdentifierDatasets.length === 0) return;
             var mostRecent = _.max($scope.sameIdentifierDatasets, function(d) { return moment(d.metadata._updated); });
             if (mostRecent.metadata._updated > dataset.metadata._updated) $scope.moreRecent = mostRecent;
         });
+
+        $http
+            .get('/api/catalogs/' + $routeParams.serviceId + '/records/' + encodeURIComponent(dataset.identifier) + '/history')
+            .success(function (records) {
+                $scope.archivedRecords = records;
+            });
     });
     $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
         $scope.service = data;
     });
+    $scope.encodeURIComponent = encodeURIComponent;
 };
