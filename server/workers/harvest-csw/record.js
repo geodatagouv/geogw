@@ -51,22 +51,22 @@ CswRecord.prototype.isValid = function () {
     }
 
     if (!this.parsedRecord.fileIdentifier) {
-        this.job.log('[WARN] Dropping 1 record: no fileIdentifier set!');
+        this.job.log('[DROP] No fileIdentifier set.');
         return notValid();
     }
 
     if (this.parsedRecord.fileIdentifier.length > 256) {
-        this.job.log('[WARN] Dropping 1 record: fileIdentifier too long!');
+        this.job.log('[DROP] fileIdentifier too long: %s', this.parsedRecord.fileIdentifier);
         return notValid();
     }
 
     if (!this.parsedRecord._updated) {
-        this.job.log('[WARN] Dropping 1 record: no dateStamp set!');
+        this.job.log('[DROP] No dateStamp found for %s', this.parsedRecord.fileIdentifier);
         return notValid();
     }
 
     if (!_.isDate(new Date(this.parsedRecord._updated))) {
-        this.job.log('[WARN] Dropping 1 record: dateStamp not valid!');
+        this.job.log('[DROP] dateStamp not valid for %s, given: %s', this.parsedRecord.fileIdentifier, this.parsedRecord._updated);
         return notValid();
     }
 
