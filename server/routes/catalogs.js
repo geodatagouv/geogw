@@ -19,7 +19,10 @@ module.exports = function(app) {
     app.route('/catalogs/:serviceId/synchronizations')
         .get(services.listSyncs);
 
-    // app.route('/services/by-protocol/:protocol/sync-all')
-    //     .post(services.syncAllByProtocol);
+    app.route('/catalogs/:serviceId/records/:identifier/history')
+        .get(catalogs.showRecordHistory);
+
+    app.route('/catalogs/:serviceId/records/:identifier/snapshots/:snapshotId/xml')
+        .get(catalogs.downloadRecordSnapshot);
 
 };
