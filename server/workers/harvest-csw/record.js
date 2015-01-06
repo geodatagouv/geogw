@@ -65,7 +65,7 @@ CswRecord.prototype.isValid = function () {
         return notValid();
     }
 
-    if (!_.isDate(Date.parse(this.parsedRecord._updated))) {
+    if (!_.isDate(new Date(this.parsedRecord._updated))) {
         this.job.log('[WARN] Dropping 1 record: dateStamp not valid!');
         return notValid();
     }
