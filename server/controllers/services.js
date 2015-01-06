@@ -13,7 +13,6 @@ var async = require('async');
 exports.service = function(req, res, next, id) {
     Service
         .findById(id)
-        .populate('addedBy', 'fullName')
         .populate('lastSync')
         .populate('lastSuccessfulSync')
         .exec(function(err, service) {
