@@ -12,6 +12,9 @@ module.exports = function(app) {
     app.route('/datasets/:datasetId')
         .get(datasets.show);
 
+    app.route('/datasets/:datasetId/resources/:resourceId/json')
+        .get(datasets.downloadRelatedResource);
+
     app.route('/datasets/by-identifier/:identifier')
         .get(datasets.findByIdentifier);
 

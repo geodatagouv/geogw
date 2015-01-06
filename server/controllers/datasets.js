@@ -3,8 +3,11 @@
 */
 var mongoose = require('mongoose');
 var Record = mongoose.model('Record');
+var Service = mongoose.model('Service');
 var async = require('async');
 var _ = require('lodash');
+var ogr2ogr = require('ogr2ogr');
+var url = require('url');
 
 var OPENDATA_KEYWORDS = [
     'donnée ouverte',
@@ -36,6 +39,30 @@ exports.dataset = function(req, res, next, id) {
 */
 exports.show = function(req, res) {
     res.send(req.dataset);
+};
+
+exports.downloadRelatedResource = function (req, res, next) {
+    var resource = _.find(req.dataset.relatedServices, function (rs) {
+        return rs.protocol === 'wfs' && rs.status === 'ok' && rs._id.toString() === req.params.resourceId;
+    });
+
+    if (!resource) return res.status(404).end();
+
+    Service.findById(resource.service).exec(function (err, service) {
+        if (err) return next(err);
+        if (!service) return res.status(500).end();
+
+        res.type('json');
+
+        var wfsLocation = url.parse(service.location);
+        wfsLocation.query = service.locationOptions.query;
+
+        ogr2ogr('WFS:' + url.format(wfsLocation))
+            .project('EPSG:4326')
+            .options([resource.name])
+            .stream()
+            .pipe(res);
+    });
 };
 
 exports.findByIdentifier = function(req, res, next) {
