@@ -15,12 +15,6 @@
     <nav role="navigation" class="navbar navbar-default navbar-static-top">
       <div class="container-fluid">
         <div class="navbar-header"><a href="/" class="navbar-brand">Passerelle Inspire Open Data</a></div>
-        <div class="navbar-right">
-          <ul ng-controller="NavbarCtrl" class="nav navbar-nav">
-            <li ng-if="isLoggedIn"><a href="/logout" target="_self">Déconnexion</a></li>
-            <li ng-if="!isLoggedIn"><a href="/auth/datagouv" target="_self">Connexion</a></li>
-          </ul>
-        </div>
       </div>
     </nav>
     <div ng-view class="container-fluid"></div><br>

@@ -2,7 +2,6 @@
 ** Module dependencies
 */
 var services = require('../controllers/services');
-var auth = require('./middlewares/auth');
 var datasets = require('../controllers/datasets');
 
 module.exports = function(app) {
@@ -13,7 +12,7 @@ module.exports = function(app) {
     // Routes
     app.route('/services')
         .get(services.list)
-        .post(auth.ensureLoggedIn, services.create);
+        .post(services.create);
 
     app.route('/services/by-protocol/:protocol')
         .get(services.list);
@@ -22,7 +21,7 @@ module.exports = function(app) {
         .get(services.show);
 
     app.route('/services/:serviceId/sync')
-        .post(auth.ensureLoggedIn, services.sync);
+        .post(services.sync);
 
     app.route('/services/:serviceId/synchronizations')
         .get(services.listSyncs);
