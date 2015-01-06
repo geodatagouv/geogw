@@ -48,7 +48,6 @@ var wfs = function(record, resource, next, done) {
     }
 
     if (query.service && query.service.toLowerCase() === 'wfs' && query.outputformat && (query.typename || query.typenames)) {
-        console.log(query.typename || query.typenames);
         return createRelatedService(record, resource.link, query.typename || query.typenames, 'wfs', done);
     }
 
