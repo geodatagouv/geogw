@@ -69,6 +69,7 @@ var RecordSchema = new Schema({
         index: true
     },
     relatedServices: [RelatedServiceSchema],
+    organizations: { type: [String], index: true },
     metadata: {
         title: {
             type: String

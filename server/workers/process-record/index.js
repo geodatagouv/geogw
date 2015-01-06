@@ -8,6 +8,7 @@ var libxml = require('libxmljs');
 
 var mongoose = require('../../mongoose');
 var resources = require('./resources');
+var organizations = require('./organizations');
 
 var CswRecord = mongoose.model('CswRecord');
 var Record = mongoose.model('Record');
@@ -70,6 +71,25 @@ module.exports = function(job, done) {
             '_updated'
         ]);
         record.set('metadata', metadata);
+
+        function normalizeOrganization(contact) {
+            var originalName = contact.organizationName;
+            if (!originalName) return;
+            if (!organizations[originalName]) return originalName;
+            if (organizations[originalName].reject) return; // TODO: Warn catalog owner
+            if (organizations[originalName].rename) return organizations[originalName].rename;
+        }
+
+        var normalizedOrganizations = _.chain([parsedRecord.contacts, parsedRecord._contacts])
+            .flatten()
+            .compact()
+            .map(normalizeOrganization)
+            .compact()
+            .uniq()
+            .valueOf();
+
+        record.set('organizations', normalizedOrganizations);
+
         next();
     }
 
