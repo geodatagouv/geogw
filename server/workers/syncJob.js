@@ -2,6 +2,7 @@
 ** Module dependencies
 */
 var _ = require('lodash');
+var util = require('util');
 var mongoose = require('../mongoose');
 
 var ServiceSync = mongoose.model('ServiceSync');
@@ -54,6 +55,7 @@ ServiceSyncJob.prototype.log = function() {
     if (process.env.NODE_ENV === 'development') {
         console.log.apply(null, arguments);
     }
+    this.serviceSync.log.push(util.format.apply(null, arguments));
     this._job.log.apply(this._job, arguments);
 };
 
