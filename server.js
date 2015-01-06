@@ -7,8 +7,10 @@ var api = require('./server/api');
 var redis = require('./server/redis');
 var RedisStore = require('connect-redis')(session);
 var morgan = require('morgan');
+var httpProxy = require('http-proxy');
 
 var app = express();
+var proxy = httpProxy.createProxyServer({ changeOrigin: true });
 
 if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', true);
@@ -32,7 +34,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api', api);
+if (process.env.API_URL) {
+    app.use('/api', function (req, res) {
+        proxy.web(req, res, { target: process.env.API_URL });
+    });
+} else {
+    app.use('/api', api);
+}
 
 app.get('/auth/datagouv', passport.authenticate('datagouv'));
 app.get('/auth/datagouv/callback', passport.authenticate('datagouv', { 
