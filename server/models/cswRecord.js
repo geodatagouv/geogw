@@ -13,7 +13,7 @@ var CswRecordSchema = new Schema({
     identifier: { type: String, required: true, index: true },
     timestamp: { type: Date, required: true },
     parentCatalog: { type: Schema.Types.ObjectId, ref: 'Service', required: true, index: true },
-    synchronizations: { type: [Schema.Types.ObjectId], ref: 'ServiceSync', index: true },
+    synchronizations: [{ type: Schema.Types.ObjectId, ref: 'ServiceSync', index: true }],
     availableSince: { type: Schema.Types.ObjectId, ref: 'ServiceSync', index: true },
     removedSince: { type: Schema.Types.ObjectId, ref: 'ServiceSync', index: true },
     xml: String
