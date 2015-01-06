@@ -58,6 +58,7 @@ exports.downloadRelatedResource = function (req, res, next) {
         wfsLocation.query = service.locationOptions.query;
 
         ogr2ogr('WFS:' + url.format(wfsLocation))
+            .timeout(60000)
             .project('EPSG:4326')
             .options([resource.name])
             .stream()
