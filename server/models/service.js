@@ -69,7 +69,7 @@ ServiceSchema.pre('validate', function(next) {
 ** Virtuals
 */
 ServiceSchema.virtual('syncable').get(function() {
-    return this.syncEnabled && this.protocol && supportedProtocols[this.protocol].syncable;
+    return this.syncEnabled && this.protocol && supportedProtocols[this.protocol] && supportedProtocols[this.protocol].syncable;
 });
 
 /*
