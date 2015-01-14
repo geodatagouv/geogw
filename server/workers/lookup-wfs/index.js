@@ -69,12 +69,19 @@ WfsLookupJob.prototype._sync = function () {
         // Basic mapping
         var serviceUpdate = _.pick(capabilities.service, 'abstract', 'keywords');
         if (capabilities.service.title) serviceUpdate.name = capabilities.service.title;
-        if (capabilities.featureTypes) serviceUpdate.featureTypes = capabilities.featureTypes;
+
+        if (capabilities.featureTypes) {
+            serviceUpdate.featureTypes = _.filter(capabilities.featureTypes, function (featureType) {
+                return 'name' in featureType;
+            });
+        }
+
         service
             .set(serviceUpdate)
             .save(function(err) {
                 if (err) console.trace(err);
             });
+
         updateRelatedRecords(service, function () {
             job.success(capabilities.featureTypes ? capabilities.featureTypes.length : 0);
         });
