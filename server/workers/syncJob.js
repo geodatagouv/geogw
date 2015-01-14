@@ -70,7 +70,7 @@ ServiceSyncJob.prototype.progress = function() {
 };
 
 ServiceSyncJob.prototype.touchTimeout = function () {
-    this.cleanTimeout();
+    this.clearTimeout();
     var self = this;
 
     if (this.options.failsAfter) {
@@ -81,7 +81,7 @@ ServiceSyncJob.prototype.touchTimeout = function () {
     }
 };
 
-ServiceSyncJob.prototype.cleanTimeout = function () {
+ServiceSyncJob.prototype.clearTimeout = function () {
     if (this.failsAfterTimeout) {
         clearTimeout(this.failsAfterTimeout);
     }
