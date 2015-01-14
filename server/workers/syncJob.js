@@ -11,7 +11,8 @@ var ServiceSync = mongoose.model('ServiceSync');
 /*
 ** Constructor
 */
-function ServiceSyncJob(job) {
+function ServiceSyncJob(job, options) {
+    this.options = options || {};
     this._job = job;
     this.data = job.data;
 }
@@ -22,6 +23,7 @@ function ServiceSyncJob(job) {
 */
 ServiceSyncJob.prototype.start = function(executionDone) {
     this.executionCallback = executionDone;
+    this.touchTimeout();
 
     ServiceSync.findByIdAndProcess(this.data.serviceSyncId, this._job.id, _.bind(function(err, serviceSync) {
         if (err) {
@@ -38,6 +40,8 @@ ServiceSyncJob.prototype.start = function(executionDone) {
 };
 
 ServiceSyncJob.prototype.fail = function(err) {
+    this.clearTimeout();
+
     this.serviceSync.toggleError(_.bind(function(persistError) {
         if (persistError) console.log('Critical error: unable to persist error status on a serviceSync');
         this.executionCallback(err);
@@ -45,6 +49,8 @@ ServiceSyncJob.prototype.fail = function(err) {
 };
 
 ServiceSyncJob.prototype.success = function(count) {
+    this.clearTimeout();
+
     this.serviceSync.toggleSuccessful(count, _.bind(function(err) {
         if (err) console.log('Critical error: unable to persist success status on a serviceSync');
         this.executionCallback();
@@ -61,6 +67,24 @@ ServiceSyncJob.prototype.log = function() {
 
 ServiceSyncJob.prototype.progress = function() {
     this._job.progress.apply(this._job, arguments);
+};
+
+ServiceSyncJob.prototype.touchTimeout = function () {
+    this.cleanTimeout();
+    var self = this;
+
+    if (this.options.failsAfter) {
+        setTimeout(function () {
+            self.log('Synchronization timeout');
+            self.fail(new Error('Synchronization timeout'));
+        }, this.failsAfter * 1000);
+    }
+};
+
+ServiceSyncJob.prototype.cleanTimeout = function () {
+    if (this.failsAfterTimeout) {
+        clearTimeout(this.failsAfterTimeout);
+    }
 };
 
 
