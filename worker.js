@@ -5,7 +5,7 @@ var processRecord = require('./server/workers/process-record');
 
 require('ssl-root-cas/latest').inject();
 
-jobs.process('harvest-csw', 2, csw.harvest);
+jobs.process('harvest-csw', 4, csw.harvest);
 jobs.process('lookup-wfs', 10, wfs.lookup);
 jobs.process('process-record', 20, processRecord);
 
