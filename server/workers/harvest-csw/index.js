@@ -105,6 +105,10 @@ CswHarvestJob.prototype._sync = function() {
         job.log(util.inspect(err));
     });
 
+    harvester.on('failed', function () {
+        job.fail(new Error('Harvesting has failed'));
+    });
+
     harvester.on('started', function() {
         job.matched = this.matched;
         job.log('Records matched: %d', this.matched);
