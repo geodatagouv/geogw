@@ -13,8 +13,8 @@ var CswRecord = require('./record');
 /*
 ** Constructor
 */
-function CswHarvestJob(job) {
-    ServiceSyncJob.call(this, job);
+function CswHarvestJob(job, options) {
+    ServiceSyncJob.call(this, job, options);
 }
 
 util.inherits(CswHarvestJob, ServiceSyncJob);

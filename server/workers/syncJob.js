@@ -71,13 +71,13 @@ ServiceSyncJob.prototype.progress = function() {
 
 ServiceSyncJob.prototype.touchTimeout = function () {
     this.clearTimeout();
-    var self = this;
+    var job = this;
 
     if (this.options.failsAfter) {
-        setTimeout(function () {
-            self.log('Synchronization timeout');
-            self.fail(new Error('Synchronization timeout'));
-        }, this.failsAfter * 1000);
+        this.failsAfterTimeout = setTimeout(function () {
+            job.log('Synchronization timeout');
+            job.fail(new Error('Synchronization timeout'));
+        }, this.options.failsAfter * 1000);
     }
 };
 
