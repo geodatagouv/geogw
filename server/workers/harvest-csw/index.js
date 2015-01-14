@@ -134,5 +134,5 @@ CswHarvestJob.prototype._sync = function() {
 ** Exports
 */
 exports.harvest = function(job, done) {
-    (new CswHarvestJob(job)).start(done);
+    (new CswHarvestJob(job, { failsAfter: 120 })).start(done);
 };
