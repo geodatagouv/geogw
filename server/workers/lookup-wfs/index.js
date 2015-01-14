@@ -61,7 +61,8 @@ WfsLookupJob.prototype._sync = function () {
 
     var client = wfs(service.location, { 
         userAgent: 'Afigeo WFS harvester',
-        queryStringToAppend: service.locationOptions.query
+        queryStringToAppend: service.locationOptions.query,
+        timeout: 25
     });
 
     client.capabilities().then(function(capabilities) {
