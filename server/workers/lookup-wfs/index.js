@@ -88,5 +88,5 @@ WfsLookupJob.prototype._sync = function () {
 ** Exports
 */
 exports.lookup = function(job, done) {
-    (new WfsLookupJob(job)).start(done);
+    (new WfsLookupJob(job, { failsAfter: 60 })).start(done);
 };
