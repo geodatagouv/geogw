@@ -87,7 +87,7 @@ exports.search = function(req, res, next) {
     wfs = req.query.wfs === 'true';
 
     function buildQuery() {
-        var query = Record.find().where('metadata.type').in(['dataset', 'series']);
+        var query = Record.find().where('metadata.type').in(['dataset', 'series', 'nonGeographicDataset']);
         if (q) query.where({ $text: { $search: q, $language: 'french' }});
         if (opendata) query.where('metadata.keywords').in(OPENDATA_KEYWORDS);
         if (wfs) query.where('relatedServices').elemMatch({ status: 'ok', protocol: 'wfs' });
