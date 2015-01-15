@@ -8,9 +8,12 @@ var redis = require('./server/redis');
 var RedisStore = require('connect-redis')(session);
 var morgan = require('morgan');
 var httpProxy = require('http-proxy');
+var compression = require('compression');
 
 var app = express();
 var proxy = httpProxy.createProxyServer({ changeOrigin: true });
+
+app.use(compression());
 
 if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', true);
