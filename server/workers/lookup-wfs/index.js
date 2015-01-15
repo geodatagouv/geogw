@@ -5,6 +5,7 @@ var util = require('util');
 var _ = require('lodash');
 var _s = require('underscore.string');
 var wfs = require('wfs-client');
+var async = require('async');
 var mongoose = require('../../mongoose');
 var Record = mongoose.model('Record');
 var debug = require('debug')('sync-wfs');
@@ -33,7 +34,10 @@ function updateRelatedRecords(service, done) {
                 debug('record %s references service %s (featureType: %s) with status %s', record.metadata.title, service.name, matchingRelatedService.name, matchingRelatedService.status);
             });
             record.save(function(err) {
-                if (err) console.log(err);
+                if (err) {
+                    debug('unable to update related record reference');
+                    console.trace(err);
+                }
             });
         })
         .on('close', function() {
@@ -74,17 +78,23 @@ WfsLookupJob.prototype._sync = function () {
             serviceUpdate.featureTypes = _.filter(capabilities.featureTypes, function (featureType) {
                 return 'name' in featureType;
             });
+            debug('%d featureTypes found', serviceUpdate.featureTypes.length);
         }
 
-        service
-            .set(serviceUpdate)
-            .save(function(err) {
-                if (err) console.trace(err);
-            });
-
-        updateRelatedRecords(service, function () {
-            job.success(capabilities.featureTypes ? capabilities.featureTypes.length : 0);
+        async.parallel([
+            function updateService(cb) {
+                service
+                    .set(serviceUpdate)
+                    .save(cb);
+            },
+            function updateRecords(cb) {
+                updateRelatedRecords(service, cb);
+            }
+        ], function (err) {
+            if (err) job.fail(err);
+            else job.success(serviceUpdate.featureTypes ? serviceUpdate.featureTypes.length : 0);
         });
+
     }, function(e) {
         job.fail(e);
     });
