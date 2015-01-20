@@ -3,8 +3,6 @@
 */
 var async = require('async');
 var _ = require('lodash');
-var iso19139 = require('iso19139');
-var libxml = require('libxmljs');
 
 var mongoose = require('../../mongoose');
 var resources = require('./resources');
@@ -17,32 +15,20 @@ var Record = mongoose.model('Record');
 module.exports = function(job, done) {
     var recordId = job.data.recordId;
     var catalogId = job.data.catalogId;
-    var cswRecord, parsedRecord, record;
+    var parsedRecord, record, mostRecentCswRecord;
     var recordName;
 
-    function loadCswRecord(next) {
+    function loadMostRecentCswRecord(next) {
         CswRecord
             .findOne({ identifier: recordId, parentCatalog: catalogId })
-            .select('-availableSince -removedSince -synchronizations')
-            .sort('-timestamp')
-            .exec(function (err, foundRecord) {
+            .select({ timestamp: 1, parsed: 1 })
+            .sort({ timestamp: -1 })
+            .exec(function (err, mostRecentFound) {
                 if (err) return next(err);
-                if (!foundRecord) return next(new Error('Record not found'));
-                cswRecord = foundRecord;
+                if (!mostRecentFound) return next(new Error('Record not found'));
+                mostRecentCswRecord = mostRecentFound;
                 next();
             });
-    }
-
-    function parseCswRecord(next) {
-        var xmlElement;
-        try {
-            xmlElement = libxml.parseXml(cswRecord.xml, { noblanks: true });
-        } catch (ex) {
-            return next(ex);
-        }
-        parsedRecord = iso19139.parse(xmlElement.root());
-        recordName = parsedRecord.title || parsedRecord.name;
-        next();
     }
 
     function loadComputedRecord(next) {
@@ -55,6 +41,42 @@ module.exports = function(job, done) {
                 record = foundRecord || new Record(query);
                 next();
             });
+    }
+
+    function loadParsedRecord(next) {
+        var query = CswRecord.findById(mostRecentCswRecord._id);
+
+        // Check if the record has already been parsed
+        if (mostRecentCswRecord.parsed === true) {
+            query.select({ parsedValue: 1 });
+        } else {
+            query.select({ xml: 1 });
+        }
+
+        query.exec(function (err, cswRecord) {
+            if (err) return next(err);
+            if (!cswRecord) return next(new Error('CswRecord not found'));
+
+            function parsedValueReady(parsedValue) {
+                parsedRecord = parsedValue;
+                recordName = parsedRecord.title || parsedRecord.name;
+                next();
+            }
+
+            if (cswRecord.parsedValue) {
+                parsedValueReady(cswRecord.parsedValue);
+            } else {
+                cswRecord.parseXml(function (err, parsedValue) {
+                    if (err) return next(err);
+
+                    cswRecord.save(function (err) {
+                        if (err) console.trace(err);
+                    });
+
+                    parsedValueReady(parsedValue);
+                });
+            }
+        });
     }
 
     function applyChanges(next) {
@@ -71,6 +93,8 @@ module.exports = function(job, done) {
             '_updated'
         ]);
         record.set('metadata', metadata);
+
+        record.set('sourceRecord', mostRecentCswRecord._id);
 
         function normalizeOrganization(contact) {
             var originalName = contact.organizationName;
@@ -107,9 +131,9 @@ module.exports = function(job, done) {
     }
 
     var seq = [
-        loadCswRecord,
-        parseCswRecord,
+        loadMostRecentCswRecord,
         loadComputedRecord,
+        loadParsedRecord,
         applyChanges,
         processRelatedServices,
         saveComputedRecord

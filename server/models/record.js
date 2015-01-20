@@ -68,6 +68,7 @@ var RecordSchema = new Schema({
         type: String,
         index: true
     },
+    sourceRecord: { type: Schema.Types.ObjectId, ref: 'CswRecord', unique: true },
     relatedServices: [RelatedServiceSchema],
     organizations: { type: [String], index: true },
     metadata: {

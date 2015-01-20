@@ -2,6 +2,8 @@
 ** Module dependencies
 */
 var mongoose = require('mongoose');
+var iso19139 = require('iso19139');
+var libxml = require('libxmljs');
 
 var Schema = mongoose.Schema;
 
@@ -25,6 +27,24 @@ var CswRecordSchema = new Schema({
 ** Index
 */
 CswRecordSchema.index({ identifier: 1, timestamp: 1, parentCatalog: 1 }, { unique: true });
+
+
+/*
+** Methods
+*/
+CswRecordSchema.methods = {
+    parseXml: function (cb) {
+        var xmlElement;
+        try {
+            xmlElement = libxml.parseXml(this.xml, { noblanks: true });
+        } catch (ex) {
+            return cb(ex);
+        }
+        this.parsed = true;
+        this.parsedValue = iso19139.parse(xmlElement.root());
+        cb(null, this.parsedValue);
+    }
+};
 
 
 /*
