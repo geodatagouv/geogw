@@ -16,7 +16,9 @@ var CswRecordSchema = new Schema({
     synchronizations: [{ type: Schema.Types.ObjectId, ref: 'ServiceSync', index: true }],
     availableSince: { type: Schema.Types.ObjectId, ref: 'ServiceSync', index: true },
     removedSince: { type: Schema.Types.ObjectId, ref: 'ServiceSync', index: true },
-    xml: String
+    xml: String,
+    parsed: Boolean,
+    parsedValue: Schema.Types.Mixed
 });
 
 /*

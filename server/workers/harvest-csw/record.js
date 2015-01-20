@@ -116,7 +116,9 @@ CswRecord.prototype.createNewRecord = function (done) {
         timestamp: this.timestamp(),
         synchronizations: [this.job.id],
         availableSince: this.job.id,
-        xml: this.xmlElement.clone().toString()
+        xml: this.xmlElement.clone().toString(),
+        parsed: true,
+        parsedValue: this.parsedRecord
     };
 
     this.cleanXml();
