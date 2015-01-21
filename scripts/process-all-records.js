@@ -1,17 +1,16 @@
+var es = require('event-stream');
+
 var jobs = require('../server/kue').jobs;
 var mongoose = require('../server/mongoose');
 
 var Record = mongoose.model('Record');
-
-var count = 0;
 
 Record
     .find()
     .select({ identifier: 1, parentCatalog: 1 })
     .lean()
     .stream()
-    .on('data', function (record) {
-        count++;
+    .pipe(es.map(function (record, cb) {
         jobs
             .create('process-record', {
                 recordId: record.identifier,
@@ -19,12 +18,12 @@ Record
             })
             .removeOnComplete(true)
             .attempts(5)
-            .save();
-    })
+            .save(cb);
+    }))
     .on('error', function (err) {
         console.trace(err);
     })
-    .on('close', function () {
-        console.log(count);
+    .on('end', function () {
+        console.log('Completed');
         process.exit();
     });
