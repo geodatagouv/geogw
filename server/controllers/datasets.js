@@ -9,6 +9,8 @@ var _ = require('lodash');
 var ogr2ogr = require('ogr2ogr');
 var url = require('url');
 
+var jobs = require('../kue').jobs;
+
 var OPENDATA_KEYWORDS = [
     'donnée ouverte',
     'données ouvertes',
@@ -113,4 +115,18 @@ exports.search = function(req, res, next) {
         out.offset = offset;
         res.json(out);
     });
+};
+
+exports.forceReprocess = function (req, res, next) {
+    jobs
+        .create('process-record', {
+            recordId: req.dataset.identifier,
+            catalogId: req.dataset.parentCatalog
+        })
+        .removeOnComplete(true)
+        .attempts(5)
+        .save(function (err) {
+            if (err) return next(err);
+            res.status(200).end();
+        });
 };

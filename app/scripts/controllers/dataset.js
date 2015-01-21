@@ -40,4 +40,9 @@ module.exports = function($scope, $http, $routeParams) {
         $scope.service = data;
     });
     $scope.encodeURIComponent = encodeURIComponent;
+    $scope.forceReprocess = function () {
+        $http.post('/api/datasets/' + $routeParams.datasetId + '/force-reprocess').success(function () {
+            // Do nothing
+        });
+    };
 };

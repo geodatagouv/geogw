@@ -18,4 +18,7 @@ module.exports = function(app) {
     app.route('/datasets/by-identifier/:identifier')
         .get(datasets.findByIdentifier);
 
+    app.route('/datasets/:datasetId/force-reprocess')
+        .post(datasets.forceReprocess);
+
 };
