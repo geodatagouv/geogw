@@ -3,6 +3,7 @@
 */
 var async = require('async');
 var _ = require('lodash');
+var debug = require('debug')('process-record');
 
 var mongoose = require('../../mongoose');
 var resources = require('./resources');
@@ -19,6 +20,7 @@ module.exports = function(job, done) {
     var recordName;
 
     function loadMostRecentCswRecord(next) {
+        debug('load most recent CSW record');
         CswRecord
             .findOne({ identifier: recordId, parentCatalog: catalogId })
             .select({ timestamp: 1, parsed: 1 })
@@ -32,6 +34,8 @@ module.exports = function(job, done) {
     }
 
     function loadComputedRecord(next) {
+        debug('load computed record');
+
         var query = { identifier: recordId, parentCatalog: catalogId };
 
         Record
@@ -44,6 +48,8 @@ module.exports = function(job, done) {
     }
 
     function loadParsedRecord(next) {
+        debug('load CSW-related parsed record');
+
         var query = CswRecord.findById(mostRecentCswRecord._id);
 
         // Check if the record has already been parsed
@@ -64,8 +70,10 @@ module.exports = function(job, done) {
             }
 
             if (cswRecord.parsedValue) {
+                debug('Already parsed!');
                 parsedValueReady(cswRecord.parsedValue);
             } else {
+                debug('Not parsed again :(');
                 cswRecord.parseXml(function (err, parsedValue) {
                     if (err) return next(err);
 
@@ -80,6 +88,8 @@ module.exports = function(job, done) {
     }
 
     function applyChanges(next) {
+        debug('apply changes');
+
         var metadata = _.pick(parsedRecord, [
             'title',
             'abstract',
@@ -118,6 +128,8 @@ module.exports = function(job, done) {
     }
 
     function processRelatedServices(next) {
+        debug('process related services');
+
         if (parsedRecord.type === 'service') return next();
         if (!parsedRecord.onlineResources) return next();
 
@@ -127,6 +139,7 @@ module.exports = function(job, done) {
     }
 
     function saveComputedRecord(next) {
+        debug('final save');
         record.save(next);
     }
 
