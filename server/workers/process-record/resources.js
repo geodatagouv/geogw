@@ -1,7 +1,7 @@
 var mongoose = require('../../mongoose');
 var Service = mongoose.model('Service');
 var tld = require('tldjs');
-var debug = require('debug')('harvest-csw');
+var debug = require('debug')('process-record');
 var url = require('../../url');
 var async = require('async');
 
