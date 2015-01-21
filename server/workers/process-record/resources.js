@@ -38,6 +38,7 @@ var wfs = function(record, resource, next, done) {
     try {
         location = url.normalize(url.parse(resource.link, true));
     } catch (e) {
+        console.trace(e);
         return next();
     }
 
