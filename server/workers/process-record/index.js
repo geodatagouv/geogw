@@ -106,6 +106,13 @@ module.exports = function(job, done) {
 
         record.set('sourceRecord', mostRecentCswRecord._id);
 
+        // Process representationType
+        if (parsedRecord.representationType === 'raster') {
+            // TODO: Warn catalog owner
+            record.representationType = 'grid';
+        }
+
+        // Process organizations
         function normalizeOrganization(contact) {
             var originalName = contact.organizationName;
             if (!originalName) return;
