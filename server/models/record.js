@@ -106,7 +106,8 @@ var RecordSchema = new Schema({
         _updated: {
             type: Date
         }
-    }
+    },
+    facets: { type: [Schema.Types.Mixed], select: false }
 });
 
 /*

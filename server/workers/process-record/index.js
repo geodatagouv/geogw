@@ -8,6 +8,7 @@ var debug = require('debug')('process-record');
 var mongoose = require('../../mongoose');
 var resources = require('./resources');
 var organizations = require('./organizations');
+var facets = require('./facets');
 
 var CswRecord = mongoose.model('CswRecord');
 var Record = mongoose.model('Record');
@@ -145,6 +146,12 @@ module.exports = function(job, done) {
         }, next);
     }
 
+    function computeFacets(next) {
+        debug('compute facets');
+        facets.compute(record);
+        next();
+    }
+
     function saveComputedRecord(next) {
         debug('final save');
         record.save(next);
@@ -156,6 +163,7 @@ module.exports = function(job, done) {
         loadParsedRecord,
         applyChanges,
         processRelatedServices,
+        computeFacets,
         saveComputedRecord
     ];
 
