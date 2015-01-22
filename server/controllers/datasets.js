@@ -11,17 +11,6 @@ var url = require('url');
 
 var jobs = require('../kue').jobs;
 
-var OPENDATA_KEYWORDS = [
-    'donnée ouverte',
-    'données ouvertes',
-    'opendata',
-    'open data',
-    'Open Data',
-    'OpenData',
-    'data gouv',
-    'etalab'
-];
-
 /*
 ** Middlewares
 */
@@ -79,41 +68,64 @@ exports.findByIdentifier = function(req, res, next) {
 };
 
 exports.search = function(req, res, next) {
-    var q, limit, offset, opendata, wfs;
-    if (req.query.q && _.isString(req.query.q) && req.query.q.length) q = req.query.q;
-    limit = parseInt(req.query.limit);
+    var q = req.query.q && _.isString(req.query.q) && req.query.q.length ? req.query.q : null;
+    var limit = parseInt(req.query.limit);
     limit = _.isNumber(limit) && limit > 0 && limit <= 100 ? Math.floor(limit) : 20;
-    offset = parseInt(req.query.offset);
+    var offset = parseInt(req.query.offset);
     offset = _.isNumber(offset) && offset > 0 ? Math.floor(offset) : 0;
-    opendata = req.query.opendata === 'true';
-    wfs = req.query.wfs === 'true';
 
-    function buildQuery() {
-        var query = Record.find().where('metadata.type').in(['dataset', 'series', 'nonGeographicDataset']);
-        if (q) query.where({ $text: { $search: q, $language: 'french' }});
-        if (opendata) query.where('metadata.keywords').in(OPENDATA_KEYWORDS);
-        if (wfs) query.where('relatedServices').elemMatch({ status: 'ok', protocol: 'wfs' });
-        if (req.service) query.where('parentCatalog', req.service.id);
-        return query;
+    var query = { parentCatalog: req.service._id };
+
+    // Text search
+    if (q) {
+        query.$text = { $search: req.query.q, $language: 'french' };
+    }
+
+    // Facets
+    var facetKeys = ['organization', 'type', 'keyword', 'representationType', 'opendata', 'distributionFormat', 'availability'];
+    var facets = [];
+    facetKeys.forEach(function (facetKey) {
+        if (!(facetKey in req.query)) return;
+
+        var values = _.isArray(req.query[facetKey]) ? req.query[facetKey] : [req.query[facetKey]];
+        values.forEach(function (value) {
+            facets.push({ name: facetKey, value: value });
+        });
+    });
+
+    if (facets.length > 0) {
+        query.facets = {
+            $all: facets.map(function (facet) {
+                return { $elemMatch: facet };
+            })
+        };
     }
 
     async.parallel({
-        results: function(callback) {
-            buildQuery()
-                .select({ score: { $meta: 'textScore' } })
+        results: function (callback) {
+            Record.find(query)
+                .select({ score: { $meta: 'textScore' }, facets: 0 }) // TODO: $meta seems to break selection :/
                 .sort({ score: { $meta: 'textScore' } })
                 .skip(offset)
                 .limit(limit)
                 .exec(callback);
         },
-        count: function(callback) {
-            buildQuery().count().exec(callback);
+        count: function (callback) {
+            Record.count(query).exec(callback);
+        },
+        facets: function (cb) {
+            Record
+                .aggregate([
+                    { $match: query },
+                    { $unwind: '$facets' },
+                    { $group: { _id: { name: '$facets.name', value: '$facets.value' }, count: { $sum: 1 } }}
+                ])
+                .exec(cb);
         }
-    }, function(err, out) {
+    }, function(err, output) {
         if (err) return next(err);
-        out.limit = limit;
-        out.offset = offset;
-        res.json(out);
+        output.query = { q: q, facets: facets, limit: limit, offset: offset };
+        res.json(output);
     });
 };
 
