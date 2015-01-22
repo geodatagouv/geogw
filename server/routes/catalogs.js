@@ -25,4 +25,7 @@ module.exports = function(app) {
     app.route('/catalogs/:serviceId/records/:identifier/snapshots/:snapshotId/xml')
         .get(catalogs.downloadRecordSnapshot);
 
+    app.route('/catalogs/:serviceId/force-reprocess-all')
+        .post(catalogs.forceReprocessAll);
+
 };

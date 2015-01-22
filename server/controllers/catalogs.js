@@ -1,9 +1,14 @@
 /*
 ** Module dependencies
 */
+var es = require('event-stream');
 var mongoose = require('mongoose');
+
+var jobs = require('../kue').jobs;
+
 var Service = mongoose.model('Service');
 var CswRecord = mongoose.model('CswRecord');
+var Record = mongoose.model('Record');
 
 
 /*
@@ -43,5 +48,29 @@ exports.downloadRecordSnapshot = function (req, res, next) {
             if (err) return next(err);
             res.type('application/xml');
             res.send(record.xml);
+        });
+};
+
+exports.forceReprocessAll = function (req, res) {
+    Record
+        .find({ parentCatalog: req.service._id })
+        .select({ identifier: 1 })
+        .lean()
+        .stream()
+        .pipe(es.map(function (record, cb) {
+            jobs
+                .create('process-record', {
+                    recordId: record.identifier,
+                    catalogId: req.service._id
+                })
+                .removeOnComplete(true)
+                .attempts(5)
+                .save(cb);
+        }))
+        .on('error', function (err) {
+            console.trace(err);
+        })
+        .on('end', function () {
+            res.status(200).end();
         });
 };
