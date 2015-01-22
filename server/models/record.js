@@ -131,6 +131,7 @@ var textIndexDefinition = {
 
 RecordSchema.index(textIndexDefinition, textIndexOptions);
 RecordSchema.index({ _id: 1, 'relatedServices.service': 1, 'relatedServices.name': 1 }, { unique: true });
+RecordSchema.index({ 'facets.name': 1, 'facets.value': 1 });
 
 /*
 ** Methods
