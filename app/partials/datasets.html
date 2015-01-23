@@ -38,7 +38,7 @@
   </div>
 
   <div class="col-lg-4">
-    <div ng-repeat="facetType in facets">
+    <div ng-repeat="facetType in facets" ng-if="facetType.values.length > 0">
       <h4>{{ facetType.label }}</h4>
       <div class="list-group">
         <a href="#" class="list-group-item" ng-repeat="facetValue in facetType.values" ng-click="toggleFacet({ name: facetType.name, value: facetValue.value })" ng-class="{ active: facetIsActive({ name: facetType.name, value: facetValue.value }) }">
