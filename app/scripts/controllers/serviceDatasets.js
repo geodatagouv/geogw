@@ -1,27 +1,104 @@
 var _ = require('lodash');
 
-module.exports = function ($scope, $http, $routeParams, $location) {
-    $scope.searchContext = _.pick($routeParams, 'q', 'offset', 'opendata', 'wfs');
+var facetsDef = [
+    {
+        name: 'type',
+        label: 'Type de résultat',
+        valueLabels: {
+            dataset: 'Jeu de données',
+            service: 'Service',
+            map: 'Carte',
+            other: 'Autre',
+            none: 'Non renseigné'
+        }
+    },
+    {
+        name: 'representationType',
+        label: 'Type de donnée',
+        valueLabels: {
+            vector: 'Vecteur',
+            grid: 'Imagerie / Raster',
+            other: 'Autre',
+            none: 'Non renseigné'
+        }
+    },
+    {
+        name: 'opendata',
+        label: 'Donnée ouverte',
+        valueLabels: {
+            yes: 'Oui'
+        }
+    },
+    {
+        name: 'availability',
+        label: 'Disponibilité',
+        valueLabels: {
+            yes: 'Oui',
+            'true': 'Oui'
+        }
+    },
+    {
+        name: 'organization',
+        label: 'Organismes'
+    },
+    {
+        name: 'keyword',
+        label: 'Mot-clés'
+    },
+    {
+        name: 'distributionFormat',
+        label: 'Format de distribution',
+        valueLabels: {
+            wfs: 'WFS'
+        }
+    }
+];
 
+module.exports = function ($scope, $http, $routeParams, $location) {
     $http.get('/api/services/' + $routeParams.serviceId).success(function(data) {
         $scope.service = data;
     });
 
+    function buildQueryString() {
+        if (!$scope.datasets) {
+            return _.pick($routeParams, 'organization', 'keyword', 'type', 'representationType', 'opendata', 'availability', 'distributionFormat', 'q', 'offset');
+        } else {
+            var qs = {};
+            $scope.activeFacets.forEach(function (activeFacet) {
+                if (!qs[activeFacet.name]) qs[activeFacet.name] = [];
+                qs[activeFacet.name].push(activeFacet.value);
+            });
+
+            qs.q = $scope.q;
+            qs.offset = $scope.offset;
+
+            return qs;
+        }
+    }
+
     $scope.fetchDatasets = function() {
         $http
-            .get('/api/services/' + $routeParams.serviceId + '/datasets', { params: $scope.searchContext })
+            .get('/api/services/' + $routeParams.serviceId + '/datasets', { params: buildQueryString() })
             .success(function(data) {
                 $scope.datasets = data.results;
-                $scope.datasetsCount = data.count;
-                $scope.offset = data.offset;
-                $scope.firstResultPos = data.offset + 1;
-                $scope.lastResultPos = data.offset + data.results.length;
+                $scope.count = data.count;
+                $scope.offset = data.query.offset;
+                $scope.firstResultPos = data.query.offset + 1;
+                $scope.lastResultPos = data.query.offset + data.results.length;
+                $scope.activeFacets = data.query.facets;
+                $scope.computeFacets(data.facets);
             });
     };
 
-    $scope.updateResults = function(oldValue, newValue) {
-        if (oldValue.q !== newValue.q || oldValue.opendata !== newValue.opendata || oldValue.wfs !== newValue.wfs) $scope.searchContext.offset = 0;
-        $location.search(_.pick($scope.searchContext, 'q', 'opendata', 'offset', 'wfs'));
+    $scope.computeFacets = function (facets) {
+        $scope.facets = _.map(facetsDef, function(def) {
+            return { name: def.name, label: def.label, values: facets[def.name], valueLabels: def.valueLabels };
+        });
+    };
+
+    $scope.updateResults = function (paginate) {
+        if (!paginate) $scope.offset = null;
+        $location.search(buildQueryString());
         $scope.fetchDatasets();
     };
 
@@ -30,22 +107,32 @@ module.exports = function ($scope, $http, $routeParams, $location) {
     };
 
     $scope.hasNextResults = function() {
-        return $scope.datasets && ($scope.offset + $scope.datasets.length < $scope.datasetsCount);
+        return $scope.datasets && ($scope.offset + $scope.datasets.length < $scope.count);
     };
 
     $scope.paginatePrevious = function() {
-        $scope.searchContext.offset = $scope.offset - 20;
-        $scope.updateResults();
+        $scope.offset = $scope.offset - 20;
+        $scope.updateResults(true);
     };
 
     $scope.paginateNext = function() {
-        $scope.searchContext.offset = $scope.offset + 20;
+        $scope.offset = $scope.offset + 20;
+        $scope.updateResults(true);
     };
 
-    $scope.hasKeywordOpenData = function(dataset) {
-        return dataset.metadata.keywords && (dataset.metadata.keywords.indexOf('données ouvertes') >= 0 || dataset.metadata.keywords.indexOf('donnée ouverte') >= 0 || dataset.metadata.keywords.indexOf('opendata') >= 0);
+    $scope.toggleFacet = function (facet) {
+        if (!$scope.facetIsActive(facet)) {
+            $scope.activeFacets.push(facet);
+        } else {
+            _.remove($scope.activeFacets, facet);
+        }
+        $scope.updateResults();
     };
 
-    $scope.$watch('searchContext', $scope.updateResults, true);
+    $scope.facetIsActive = function (facet) {
+        return _.find($scope.activeFacets, facet);
+    };
+
+    $scope.$watch('q', $scope.updateResults, true);
     $scope.fetchDatasets();
 };

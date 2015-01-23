@@ -9,20 +9,11 @@
   <div class="col-lg-8">
     <div class="panel panel-default">
       <div class="panel-body">
-        <input type="search" placeholder="Rechercher..." ng-model="searchContext.q" class="form-control">
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-model="searchContext.opendata">Uniquement les données marquées Open Data
-          </label>
-        </div>
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-model="searchContext.wfs">Uniquement les données téléchargeables en WFS
-          </label>
-        </div>
+        <input type="search" placeholder="Rechercher..." ng-model="q" class="form-control">
+        <br />
         <p style="color:green">
-          {{ datasetsCount | number }} résultat(s) trouvé(s)
-          <span ng-if="datasetsCount"> - Résultats {{ firstResultPos | number }} à {{ lastResultPos | number }}</span>
+          {{ count | number }} résultat(s) trouvé(s)
+          <span ng-if="count"> - Résultats {{ firstResultPos | number }} à {{ lastResultPos | number }}</span>
         </p>
       </div>
     </div>
@@ -38,7 +29,6 @@
             <span ng-repeat="keyword in dataset.metadata.keywords track by $index"><span class="label label-info">{{ keyword }}</span> </span>
           </p>
         </td>
-        <td class="vert"><span ng-if="hasKeywordOpenData(dataset)"><i style="color: green" class="fa fa-flag"></i></span></td>
       </tr>
     </table>
     <ul class="pager">
@@ -48,6 +38,15 @@
   </div>
 
   <div class="col-lg-4">
+    <div ng-repeat="facetType in facets">
+      <h4>{{ facetType.label }}</h4>
+      <div class="list-group">
+        <a href="#" class="list-group-item" ng-repeat="facetValue in facetType.values" ng-click="toggleFacet({ name: facetType.name, value: facetValue.value })" ng-class="{ active: facetIsActive({ name: facetType.name, value: facetValue.value }) }">
+          <span class="badge">{{ facetValue.count }}</span>
+          {{ facetType.valueLabels[facetValue.value] || facetValue.value }}
+        </a>
+      </div>
+    </div>
   </div>
 
 </div>
