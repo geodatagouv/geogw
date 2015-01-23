@@ -118,9 +118,23 @@ exports.search = function(req, res, next) {
                 .aggregate([
                     { $match: query },
                     { $unwind: '$facets' },
-                    { $group: { _id: { name: '$facets.name', value: '$facets.value' }, count: { $sum: 1 } }}
+                    { $group: { _id: { name: '$facets.name', value: '$facets.value' }, count: { $sum: 1 } } },
+                    { $sort: { count: -1 } }
                 ])
-                .exec(cb);
+                .exec(function (err, result) {
+                    if (err) return cb(err);
+                    var outputFacets = {};
+                    result.forEach(function (facet) {
+                        if (!outputFacets[facet._id.name]) outputFacets[facet._id.name] = [];
+                        outputFacets[facet._id.name].push({
+                            value: facet._id.value,
+                            count: facet.count
+                        });
+                    });
+                    outputFacets.keyword = outputFacets.keyword ? _.first(outputFacets.keyword, 20) : [];
+                    outputFacets.organization = outputFacets.organization ? _.first(outputFacets.organization, 20) : [];
+                    cb(null, outputFacets);
+                });
         }
     }, function(err, output) {
         if (err) return next(err);
