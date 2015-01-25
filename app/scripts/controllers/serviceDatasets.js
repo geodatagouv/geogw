@@ -133,6 +133,13 @@ module.exports = function ($scope, $http, $routeParams, $location) {
         return _.find($scope.activeFacets, facet);
     };
 
+    $scope.applyFacet = function (facet) {
+        $scope.activeFacets = [facet];
+        $scope.updateResults();
+    };
+
+    $scope.encodeURIComponent = encodeURIComponent;
+
     $scope.$watch('q', $scope.updateResults, true);
     $scope.fetchDatasets();
 };

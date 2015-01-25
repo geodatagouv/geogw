@@ -19,15 +19,23 @@
     </div>
     <table class="table">
       <tr ng-repeat="dataset in datasets | orderBy:'-score'">
-        <td class="vert"><i ng-class="{ 'fa-file-o': dataset.metadata.type === 'dataset', 'fa-database': dataset.metadata.type === 'series' }" class="fa"></i></td>
         <td class="vert">
           <h5><a href="/services/{{ service._id }}/datasets/{{ dataset._id }}">{{ dataset.metadata.title }}</a></h5>
           <p>{{ dataset.metadata.abstract | prune:500 }}</p>
-          <p>
-            <span ng-repeat="contact in dataset.metadata._contacts track by $index"><span class="label label-danger">{{ contact.organizationName }}</span> </span>
-            <span ng-repeat="contact in dataset.metadata.contacts track by $index"><span class="label label-warning">{{ contact.organizationName }}</span> </span>
-            <span ng-repeat="keyword in dataset.metadata.keywords track by $index"><span class="label label-info">{{ keyword }}</span> </span>
-          </p>
+          <div class="small">
+            <div ng-if="dataset.metadata.keywords">
+              <strong><i class="fa fa-tag"></i> Mots-clés :</strong>
+              <span ng-repeat="keyword in dataset.metadata.keywords track by $index">
+                <a href="?keyword={{ encodeURIComponent(keyword) }}" ng-click="applyFacet({ name: 'keyword', value: keyword })">{{ keyword }}</a>{{ $last ? '' : ',' }}
+              </span>
+            </div>
+            <div ng-if="dataset.organizations">
+              <strong><i class="fa fa-building"></i> Organismes :</strong>
+              <span ng-repeat="org in dataset.organizations">
+                <a href="?organization={{ encodeURIComponent(org) }}" ng-click="applyFacet({ name: 'organization', value: org })">{{ org }}</a>{{ $last ? '' : ',' }}
+              </span>
+            </div>
+          </div>
         </td>
       </tr>
     </table>
