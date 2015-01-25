@@ -37,6 +37,11 @@
             </div>
           </div>
         </td>
+        <td>
+          <div ng-if="dataset.metadata.graphicOverviews[0]">
+            <img ng-src="{{ dataset.metadata.graphicOverviews[0].fileName }}" class="img-responsive img-thumbnail">
+          </div>
+        </td>
       </tr>
     </table>
     <ul class="pager">

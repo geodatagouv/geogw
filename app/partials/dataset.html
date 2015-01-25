@@ -56,7 +56,12 @@
   </div>
 
   <div class="col-lg-4">
-    <div class="well">
+    <div ng-if="dataset.metadata.graphicOverviews[0]">
+      <img ng-src="{{ dataset.metadata.graphicOverviews[0].fileName }}" class="img-responsive img-thumbnail">
+    </div>
+
+    <div>
+      <h3>Diffusion</h3>
       <p ng-if="sameIdentifierDatasets.length === 0">Ce jeu de données n'est disponible que dans ce catalogue.</p>
       <div ng-if="sameIdentifierDatasets.length > 0">
         <p>Ce jeu de données est aussi disponible dans les catalogues suivantes :</p>
@@ -70,7 +75,7 @@
     </div>
 
     <div>
-      <h4>Administration</h4>
+      <h3>Administration</h3>
       <ul>
         <li><button class="btn-link" ng-click="forceReprocess()">Mettre à jour les références</button></li>
       </ul>

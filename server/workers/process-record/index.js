@@ -100,6 +100,7 @@ module.exports = function(job, done) {
             'keywords',
             'contacts',
             'onlineResources',
+            'graphicOverviews',
             '_contacts',
             '_updated'
         ]);

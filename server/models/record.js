@@ -97,6 +97,7 @@ var RecordSchema = new Schema({
         onlineResources: {
             type: [OnlineResourceSchema]
         },
+        graphicOverviews: Schema.Types.Mixed,
         contacts: {
             type: [ContactSchema]
         },
