@@ -43,15 +43,16 @@ var wfs = function(record, resource, next, done) {
     }
 
     var query = location.query;
+    var typeName = query.typename || query.typenames;
 
-    if (resource.protocol && resource.protocol.toLowerCase().indexOf('wfs') !== -1 && resource.name) {
+    if (resource.protocol && resource.protocol.toLowerCase().indexOf('wfs') !== -1 && (typeName || resource.name)) {
         debug('found resource provided by WFS (general)');
-        return createRelatedService(record, resource.link, resource.name, 'wfs', done);
+        return createRelatedService(record, resource.link, typeName || resource.name, 'wfs', done);
     }
 
-    if (query.service && query.service.toLowerCase() === 'wfs' && query.outputformat && (query.typename || query.typenames)) {
+    if (query.service && query.service.toLowerCase() === 'wfs' && query.outputformat && typeName) {
         debug('found resource provided by WFS (infered using outputformat)');
-        return createRelatedService(record, resource.link, query.typename || query.typenames, 'wfs', done);
+        return createRelatedService(record, resource.link, typeName, 'wfs', done);
     }
 
     debug('not a WFS-provided resource');
