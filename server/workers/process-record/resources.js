@@ -50,8 +50,8 @@ var wfs = function(record, resource, next, done) {
         return createRelatedService(record, resource.link, typeName || resource.name, 'wfs', done);
     }
 
-    if (query.service && query.service.toLowerCase() === 'wfs' && query.outputformat && typeName) {
-        debug('found resource provided by WFS (infered using outputformat)');
+    if (query.service && query.service.toLowerCase() === 'wfs' && typeName) {
+        debug('found resource provided by WFS (infered using typeName(s))');
         return createRelatedService(record, resource.link, typeName, 'wfs', done);
     }
 
