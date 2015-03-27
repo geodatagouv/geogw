@@ -102,6 +102,7 @@ module.exports = function(job, done) {
             'contacts',
             'onlineResources',
             'graphicOverviews',
+            'history',
             '_contacts',
             '_updated'
         ]);

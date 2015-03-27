@@ -44,6 +44,11 @@ var ContactSchema = new Schema({
     }
 });
 
+var DateSchema = new Schema({
+    date: Date,
+    type: { type: String }
+}, { _id: false });
+
 var RelatedServiceSchema = new Schema({
     name: { type: String, required: true },
     service: { type: Schema.Types.ObjectId, ref: 'Service', required: true },
@@ -96,6 +101,9 @@ var RecordSchema = new Schema({
         },
         lineage: {
             type: String
+        },
+        history: {
+            type: [DateSchema]
         },
         onlineResources: {
             type: [OnlineResourceSchema]
