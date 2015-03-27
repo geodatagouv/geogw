@@ -94,6 +94,9 @@ var RecordSchema = new Schema({
             type: [String],
             index: true
         },
+        lineage: {
+            type: String
+        },
         onlineResources: {
             type: [OnlineResourceSchema]
         },
