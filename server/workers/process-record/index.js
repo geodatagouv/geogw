@@ -97,6 +97,7 @@ module.exports = function(job, done) {
             'type',
             'representationType',
             'serviceType',
+            'lineage',
             'keywords',
             'contacts',
             'onlineResources',
