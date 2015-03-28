@@ -91,6 +91,9 @@ module.exports = function(job, done) {
     function applyChanges(next) {
         debug('apply changes');
 
+        debug('Parsed record: ');
+        debug(parsedRecord);
+
         var metadata = _.pick(parsedRecord, [
             'title',
             'abstract',
