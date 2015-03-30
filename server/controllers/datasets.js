@@ -32,28 +32,58 @@ exports.show = function(req, res) {
     res.send(req.dataset);
 };
 
+var projections = {
+    'WGS-84': 'EPSG:4326'
+};
+
 exports.downloadRelatedResource = function (req, res, next) {
     var resource = _.find(req.dataset.relatedServices, function (rs) {
         return rs.protocol === 'wfs' && rs.status === 'ok' && rs._id.toString() === req.params.resourceId;
     });
 
-    if (!resource) return res.status(404).end();
+    if (!resource) return res.sendStatus(404);
 
     Service.findById(resource.service).exec(function (err, service) {
         if (err) return next(err);
-        if (!service) return res.status(500).end();
-
-        res.type('json');
+        if (!service) return res.sendStatus(500);
 
         var wfsLocation = url.parse(service.location);
         wfsLocation.query = service.locationOptions.query;
 
-        ogr2ogr('WFS:' + url.format(wfsLocation))
-            .timeout(60000)
-            .project('EPSG:4326')
-            .options([resource.name, '-explodecollections'])
-            .stream()
-            .pipe(res);
+        res.type('json');
+
+        var ogrstream = ogr2ogr('WFS:' + url.format(wfsLocation))
+            .timeout(60000);
+
+        var options = [resource.name];
+
+        // Format
+        if (req.query.format === 'GeoJSON') {
+            res.type('json');
+            options.push('-explodecollections');
+        } else if (req.query.format === 'KML') {
+            res.type('application/vnd.google-earth.kml+xml');
+            res.attachment(resource.name + '.kml');
+            ogrstream.format('KML');
+            options.push('-explodecollections');
+        } else if (req.query.format === 'SHP') {
+            res.type('application/octet-stream');
+            res.attachment(resource.name + '.zip');
+            ogrstream.format('ESRI Shapefile')
+        } else {
+            return res.sendStatus(400);
+        }
+
+        // Projection
+        if (req.query.projection === 'WGS84') {
+            ogrstream.project('EPSG:4326');
+        } else if (req.query.projection === 'Lambert93') {
+            ogrstream.project('EPSG:2154');
+        } else {
+            return res.sendStatus(400);
+        }
+
+        ogrstream.options(options).stream().pipe(res);
     });
 };
 

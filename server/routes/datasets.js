@@ -13,6 +13,11 @@ module.exports = function(app) {
         .get(datasets.show);
 
     app.route('/datasets/:datasetId/resources/:resourceId/json')
+        .get(function (req, res) {
+            res.redirect('/datasets/' + req.params.datasetId + '/resources/' + req.params.resourceId + '/download?format=GeoJSON&projection=WGS84');
+        });
+
+    app.route('/datasets/:datasetId/resources/:resourceId/download')
         .get(datasets.downloadRelatedResource);
 
     app.route('/datasets/by-identifier/:identifier')
