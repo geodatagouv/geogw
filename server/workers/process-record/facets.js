@@ -64,7 +64,8 @@ exports.compute = function (record) {
     var markedAsOpen = _.find(record.get('metadata.keywords'), function (keyword) {
         return markedAsOpenKeywords.indexOf(_.kebabCase(keyword)) >= 0;
     });
-    if (markedAsOpen) {
+    var parentCatalogId = record.get('parentCatalog').toString();
+    if (markedAsOpen || parentCatalogId === '53a01c3c23a9836106440e0f' || parentCatalogId === '547c93503da4a1c26e329435') {
         facets.push({ name: 'opendata', value: 'yes' });
     }
 
