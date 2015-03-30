@@ -60,6 +60,7 @@ exports.downloadRelatedResource = function (req, res, next) {
         // Format
         if (req.query.format === 'GeoJSON') {
             res.type('json');
+            res.attachment(resource.name + '.json');
             options.push('-explodecollections');
         } else if (req.query.format === 'KML') {
             res.type('application/vnd.google-earth.kml+xml');
