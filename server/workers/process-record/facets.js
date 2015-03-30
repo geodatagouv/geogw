@@ -14,10 +14,12 @@ var representationTypes = {
 };
 
 var markedAsOpenKeywords = [
-    'donnée ouverte',
-    'données ouvertes',
+    'donnee-ouverte',
+    'donnees-ouvertes',
+    'donnee-ouvertes',
+    'donnees-ouverte',
     'opendata',
-    'open data'
+    'open-data'
 ];
 
 exports.compute = function (record) {
@@ -60,7 +62,7 @@ exports.compute = function (record) {
 
     // Marked as open
     var markedAsOpen = _.find(record.get('metadata.keywords'), function (keyword) {
-        return markedAsOpenKeywords.indexOf(keyword.toLowerCase()) >= 0;
+        return markedAsOpenKeywords.indexOf(_.kebabCase(keyword)) >= 0;
     });
     if (markedAsOpen) {
         facets.push({ name: 'opendata', value: 'yes' });
