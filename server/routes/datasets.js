@@ -14,7 +14,7 @@ module.exports = function(app) {
 
     app.route('/datasets/:datasetId/resources/:resourceId/json')
         .get(function (req, res) {
-            res.redirect('/datasets/' + req.params.datasetId + '/resources/' + req.params.resourceId + '/download?format=GeoJSON&projection=WGS84');
+            res.redirect('/api/datasets/' + req.params.datasetId + '/resources/' + req.params.resourceId + '/download?format=GeoJSON&projection=WGS84');
         });
 
     app.route('/datasets/:datasetId/resources/:resourceId/download')
