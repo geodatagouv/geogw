@@ -30,7 +30,7 @@
     "iso19139": "jdesboeufs/node-iso19139",
     "kue": "^0.8.8",
     "libxmljs": "^0.13.0",
-    "lodash": "^2.4.1",
+    "lodash": "^3.6.0",
     "moment": "^2.8.3",
     "mongoose": "^3.8.21",
     "morgan": "^1.3.2",
