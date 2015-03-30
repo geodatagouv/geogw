@@ -32,10 +32,6 @@ exports.show = function(req, res) {
     res.send(req.dataset);
 };
 
-var projections = {
-    'WGS-84': 'EPSG:4326'
-};
-
 exports.downloadRelatedResource = function (req, res, next) {
     var resource = _.find(req.dataset.relatedServices, function (rs) {
         return rs.protocol === 'wfs' && rs.status === 'ok' && rs._id.toString() === req.params.resourceId;
@@ -70,7 +66,7 @@ exports.downloadRelatedResource = function (req, res, next) {
         } else if (req.query.format === 'SHP') {
             res.type('application/octet-stream');
             res.attachment(resource.name + '.zip');
-            ogrstream.format('ESRI Shapefile')
+            ogrstream.format('ESRI Shapefile');
         } else {
             return res.sendStatus(400);
         }
