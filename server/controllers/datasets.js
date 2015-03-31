@@ -158,8 +158,8 @@ exports.search = function(req, res, next) {
                             count: facet.count
                         });
                     });
-                    outputFacets.keyword = outputFacets.keyword ? _.first(outputFacets.keyword, 20) : [];
-                    outputFacets.organization = outputFacets.organization ? _.first(outputFacets.organization, 20) : [];
+                    outputFacets.keyword = outputFacets.keyword ? _.take(outputFacets.keyword, 20) : [];
+                    outputFacets.organization = outputFacets.organization ? _.take(outputFacets.organization, 20) : [];
                     cb(null, outputFacets);
                 });
         }
