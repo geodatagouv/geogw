@@ -98,8 +98,7 @@ CswHarvestJob.prototype.processRecord = function () {
 */
 CswHarvestJob.prototype._sync = function() {
     var job = this;
-
-    var harvester = this.createCswHarvester();
+    var harvester = this.harvester = this.createCswHarvester();
 
     harvester.on('error', function(err) {
         job.log(util.inspect(err));
@@ -131,6 +130,15 @@ CswHarvestJob.prototype._sync = function() {
             job.success(harvester.returned);
         })
         .resume();
+};
+
+CswHarvestJob.prototype._finish = function () {
+    if (this.harvester) {
+        this.harvester.pause();
+        this.harvester.unpipe();
+        this.harvester.removeAllListeners();
+        this.harvester = null;
+    }
 };
 
 

@@ -22,7 +22,7 @@ function ServiceSyncJob(job, options) {
 ** Methods
 */
 ServiceSyncJob.prototype.start = function(executionDone) {
-    this.executionCallback = executionDone;
+    this.executionCallback = _.once(executionDone);
     this.touchTimeout();
 
     ServiceSync.findByIdAndProcess(this.data.serviceSyncId, this._job.id, _.bind(function(err, serviceSync) {
@@ -41,6 +41,7 @@ ServiceSyncJob.prototype.start = function(executionDone) {
 
 ServiceSyncJob.prototype.fail = function(err) {
     this.clearTimeout();
+    if (this._finish) this._finish();
 
     this.serviceSync.toggleError(_.bind(function(persistError) {
         if (persistError) {
