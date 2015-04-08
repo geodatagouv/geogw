@@ -11,7 +11,8 @@
         "MONGODB_URL": "mongodb://localhost/geogw-dev",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
-        "PORT": 5000
+        "PORT": 5000,
+        "GML_CONSIDER_EPSG_AS_URN": "YES"
       },
       "env_production" : {
         "NODE_ENV": "production"
