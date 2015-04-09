@@ -70,6 +70,7 @@ ServiceSyncJob.prototype.log = function() {
 };
 
 ServiceSyncJob.prototype.progress = function() {
+    this.touchTimeout();
     this._job.progress.apply(this._job, arguments);
 };
 
