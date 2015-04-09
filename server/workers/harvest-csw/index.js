@@ -146,5 +146,5 @@ CswHarvestJob.prototype._finish = function () {
 ** Exports
 */
 exports.harvest = function(job, done) {
-    (new CswHarvestJob(job, { failsAfter: 120 })).start(done);
+    (new CswHarvestJob(job, { failsAfter: 600 })).start(done);
 };
