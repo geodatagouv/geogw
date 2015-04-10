@@ -27,8 +27,9 @@ CswHarvestJob.prototype.createCswHarvester = function() {
     var location = this.service.location;
 
     var client = csw(location, {
-        maxSockets: this.data.maxSockets || 5,
-        keepAlive: true,
+        // Removed since redirections may break agent definition (example: http > https)
+        // maxSockets: this.data.maxSockets || 5,
+        // keepAlive: true,
         retry: this.data.maxRetry || 3,
         userAgent: 'Afigeo CSW harvester',
         queryStringToAppend: this.service.locationOptions.query,
