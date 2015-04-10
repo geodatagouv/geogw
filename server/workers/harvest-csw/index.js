@@ -26,6 +26,8 @@ util.inherits(CswHarvestJob, ServiceSyncJob);
 CswHarvestJob.prototype.createCswHarvester = function() {
     var location = this.service.location;
 
+    location.replace('metadata.carmencarto.fr/geosource-', 'metadata.carmencarto.fr/geosource/');
+
     var client = csw(location, {
         // Removed since redirections may break agent definition (example: http > https)
         // maxSockets: this.data.maxSockets || 5,
@@ -33,7 +35,8 @@ CswHarvestJob.prototype.createCswHarvester = function() {
         retry: this.data.maxRetry || 3,
         userAgent: 'Afigeo CSW harvester',
         queryStringToAppend: this.service.locationOptions.query,
-        concurrency: 5
+        concurrency: 5,
+        noEncodeQs: location.indexOf('metadata.carmencarto.fr') !== -1
     });
 
     var harvesterOptions = {
