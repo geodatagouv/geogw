@@ -13,7 +13,7 @@
 </div>
 
 <table class="table table-hover">
-  <tr ng-repeat="service in services">
+  <tr ng-repeat="service in services | orderBy:'name'">
     <td class="vert" style="width:70px"><span class="label" ng-class="{ 'label-warning': service.protocol === 'csw', 'label-success': service.protocol === 'wfs', 'label-info': service.protocol === 'wms' }">{{ service.protocol | uppercase }}</span></td>
     <td class="vert">
       <a href="/services/{{ service._id }}/datasets">{{ service.name }}</a>
