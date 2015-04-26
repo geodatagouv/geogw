@@ -1,6 +1,8 @@
 /*
 ** Module dependencies
 */
+var crypto = require('crypto');
+
 var async = require('async');
 var _ = require('lodash');
 var debug = require('debug')('process-record');
@@ -137,6 +139,9 @@ module.exports = function(job, done) {
             .valueOf();
 
         record.set('organizations', normalizedOrganizations);
+
+        // Compute hashedId
+        record.set('hashedId', crypto.createHash('sha1').update(recordId, 'utf8').digest('hex'));
 
         next();
     }
