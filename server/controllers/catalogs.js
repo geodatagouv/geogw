@@ -52,6 +52,7 @@ exports.downloadRecordSnapshot = function (req, res, next) {
 };
 
 exports.forceReprocessAll = function (req, res) {
+    var count = 0;
     Record
         .find({ parentCatalog: req.service._id })
         .select({ identifier: 1 })
@@ -65,12 +66,16 @@ exports.forceReprocessAll = function (req, res) {
                 })
                 .removeOnComplete(true)
                 .attempts(5)
-                .save(cb);
+                .save(function (err) {
+                    if (err) return cb(err);
+                    count++;
+                    cb();
+                });
         }))
         .on('error', function (err) {
             console.trace(err);
         })
         .on('end', function () {
-            res.status(200).end();
+            res.send({ count: count });
         });
 };
