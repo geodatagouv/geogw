@@ -46,6 +46,7 @@ exports.downloadRecordSnapshot = function (req, res, next) {
         .lean()
         .exec(function (err, record) {
             if (err) return next(err);
+            if (!record) return res.sendStatus(404);
             res.type('application/xml');
             res.send(record.xml);
         });
