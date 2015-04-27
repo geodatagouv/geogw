@@ -23,7 +23,7 @@
       <div ng-if="dataset.metadata.graphicOverviews[0]" class="pull-right">
         <img ng-src="{{ dataset.metadata.graphicOverviews[0].fileName }}" class="img-responsive img-thumbnail" style="max-height:128px">
       </div>
-      <h5><a href="/services/{{ service._id }}/datasets/{{ dataset._id }}">{{ dataset.metadata.title }}</a></h5>
+      <h5><a href="/services/{{ service._id }}/datasets/{{ dataset.hashedId }}">{{ dataset.metadata.title }}</a></h5>
       <p>{{ dataset.metadata.abstract | prune:500 }}</p>
       <div class="small">
         <div ng-if="dataset.metadata.keywords">
