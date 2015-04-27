@@ -20,7 +20,7 @@ module.exports = function($scope, $http, $routeParams) {
         autor: 'Auteur',
         author: 'Auteur'
     };
-    $http.get('/api/datasets/' + $routeParams.datasetId).success(function(dataset) {
+    $http.get('/api/services/' + $routeParams.serviceId + '/datasets/' + $routeParams.datasetId).success(function(dataset) {
         $scope.dataset = dataset;
 
         $http.get('/api/datasets/by-identifier/' + dataset.identifier).success(function(otherDatasets) {
@@ -41,7 +41,7 @@ module.exports = function($scope, $http, $routeParams) {
     });
     $scope.encodeURIComponent = encodeURIComponent;
     $scope.forceReprocess = function () {
-        $http.post('/api/datasets/' + $routeParams.datasetId + '/force-reprocess').success(function () {
+        $http.post('/api/services/' + $routeParams.serviceId + '/datasets/' + $routeParams.datasetId + '/force-reprocess').success(function () {
             // Do nothing
         });
     };
