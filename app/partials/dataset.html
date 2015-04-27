@@ -41,7 +41,7 @@
 
         <h3><i class="fa fa-download"></i> Téléchargement</h3>
         <div ng-repeat="rs in dataset.relatedServices">
-          <a ng-if="rs.status === 'ok' && rs.protocol === 'wfs'" target="_blank" href="/api/services/{{ service._id }}/datasets/{{ dataset._id }}/resources/{{ rs._id }}/json">Télécharger {{ rs.name }} au format GeoJSON</a>
+          <a ng-if="rs.status === 'ok' && rs.protocol === 'wfs'" target="_blank" href="/api/services/{{ service._id }}/datasets/{{ dataset.hashedId }}/resources/{{ rs._id }}/json">Télécharger {{ rs.name }} au format GeoJSON</a>
         </div>
 
         <h3><i class="fa fa-download"></i> Ressources</h3>
