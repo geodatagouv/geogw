@@ -16,7 +16,7 @@ var jobs = require('../kue').jobs;
 */
 exports.dataset = function(req, res, next, id) {
     Record
-        .findOne({ parentCatalog: req.param.serviceId, hashedId: id })
+        .findOne({ parentCatalog: req.params.serviceId, hashedId: id })
         .exec(function(err, dataset) {
             if (err) return next(err);
             if (!dataset) return res.status(404).end();
