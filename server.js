@@ -1,8 +1,10 @@
 var express = require('express');
-require('./server/mongoose');
+var mongoose = require('./server/mongoose');
 var api = require('./server/api');
 var morgan = require('morgan');
 var httpProxy = require('http-proxy');
+
+var Record = mongoose.model('Record');
 
 var app = express();
 var proxy = httpProxy.createProxyServer({ changeOrigin: true });
@@ -25,8 +27,23 @@ if (process.env.API_URL) {
     app.use('/api', api);
 }
 
-app.get('*', function(req, res) {
+function showPage(req, res) {
     res.sendFile(__dirname + '/app/index.html');
+}
+
+// Legacy URL
+app.get('/services/:serviceId/datasets/:datasetId', function (req, res, next) {
+    if (req.params.datasetId.length !== 24) return next();
+    Record
+        .findById(req.params.datasetId)
+        .select('hashedId')
+        .exec(function (err, record) {
+            if (err) return next(err);
+            if (!record || !record.hashedId) return res.sendStatus(404);
+            res.redirect(301, '/services/' + req.params.serviceId + '/datasets/' + record.hashedId);
+        });
 });
+
+app.get('*', showPage);
 
 app.listen(process.env.PORT);
