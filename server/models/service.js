@@ -16,16 +16,6 @@ var wms = require('./serviceTypes/wms');
 var supportedProtocols = { csw: csw, wfs: wfs, wms: wms };
 
 /*
-** FeatureType schema
-*/
-var FeatureTypeSchema = new Schema({
-    name: { type: String, required: true },
-    title: String,
-    abstract: String,
-    keywords: [String]
-});
-
-/*
 ** Service schema
 */
 var ServiceSchema = new Schema({
@@ -39,10 +29,10 @@ var ServiceSchema = new Schema({
     protocol: { type: String, enum: _.keys(supportedProtocols), required: true },
     syncEnabled: { type: Boolean, default: true },
     lastSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
-    lastSuccessfulSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
-    addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
-    addedAt: { type: Date, default: Date.now },
-    featureTypes: [FeatureTypeSchema]
+    lastSuccessfulSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' }
+    // TO MIGRATE: addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    // TO MIGRATE: addedAt: { type: Date, default: Date.now },
+    // TO MIGRATE: featureTypes: [FeatureTypeSchema]
 });
 
 /*
