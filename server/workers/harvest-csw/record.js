@@ -89,16 +89,16 @@ CswRecord.prototype.updateCurrentRecord = function (done) {
     var job = this.job;
     var record = this;
 
-    PersistedCswRecord.update(query, update, function (err, nModified) {
+    PersistedCswRecord.update(query, update, function (err, rawResponse) {
         if (err) {
             record.cleanXml();
             job.log('[ERROR] Unable to update a CSW record');
             return done(err);
         }
 
-        if (nModified === 0) {
+        if (rawResponse.nModified === 0) {
             done(null, false);
-        } else if (nModified === 1) {
+        } else if (rawResponse.nModified === 1) {
             record.status = 'not-updated';
             record.cleanXml();
             done(null, true);
