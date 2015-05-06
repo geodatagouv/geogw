@@ -43,7 +43,7 @@ var wfs = function(record, resource, next, done) {
     }
 
     var query = location.query;
-    var typeName = query.typename || query.typenames;
+    var typeName = query.typename || query.typenames || query.layers;
 
     if (resource.protocol && resource.protocol.toLowerCase().indexOf('wfs') !== -1 && (typeName || resource.name)) {
         debug('found resource provided by WFS (general)');
