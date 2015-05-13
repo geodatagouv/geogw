@@ -49,16 +49,6 @@ var DateSchema = new Schema({
     type: { type: String }
 }, { _id: false });
 
-var RelatedServiceSchema = new Schema({
-    name: { type: String, required: true },
-    service: { type: Schema.Types.ObjectId, ref: 'Service', required: true },
-    status: { type: String, enum: ['not-resolved', 'ok', 'unreachable'] },
-    protocol: String,
-    originalName: String,
-    originalLocation: String,
-    originalProtocol: String
-});
-
 /*
 ** Record schema
 */
@@ -78,7 +68,6 @@ var RecordSchema = new Schema({
         index: true
     },
     sourceRecord: { type: Schema.Types.ObjectId, ref: 'CswRecord', unique: true },
-    relatedServices: [RelatedServiceSchema],
     organizations: { type: [String], index: true },
     metadata: {
         title: {
@@ -146,38 +135,8 @@ var textIndexDefinition = {
 };
 
 RecordSchema.index(textIndexDefinition, textIndexOptions);
-RecordSchema.index({ _id: 1, 'relatedServices.service': 1, 'relatedServices.name': 1 }, { unique: true });
 RecordSchema.index({ 'facets.name': 1, 'facets.value': 1 });
 
-/*
-** Methods
-*/
-RecordSchema.methods.upsertRelatedService = function(service, name) {
-    if (!name) return;
-
-    var matchingEntry = _.find(this.relatedServices, { service: service._id, name: name.toLowerCase() });
-
-    var update = {
-        service: service.id,
-        originalName: name,
-        name: name.toLowerCase(),
-        protocol: service.protocol
-    };
-
-    if (!matchingEntry) {
-        update.status = 'not-resolved';
-        this.relatedServices.push(update);
-    } else {
-        _.extend(matchingEntry, update);
-    }
-};
-
-/*
-** Methods
-*/
-RecordSchema.statics.findByRelatedService = function(service) {
-    return this.find({ relatedServices: { $elemMatch: { service: service.id } } });
-};
 
 /*
 ** Attach model

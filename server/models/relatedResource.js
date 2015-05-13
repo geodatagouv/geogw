@@ -19,6 +19,8 @@ var RelatedResourceSchema = new Schema({
     type: { type: String, required: true, index: true, enum: RESOURCE_TYPES },
     updated: { type: Boolean, index: true, sparse: true, select: false },
 
+    name: { type: String },
+
     /* Origin */
     originType: { type: String, enum: ORIGIN_TYPES, required: true, index: true },
     originId: { type: ObjectId, required: true, index: true },

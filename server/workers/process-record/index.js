@@ -8,9 +8,11 @@ var _ = require('lodash');
 var debug = require('debug')('process-record');
 
 var mongoose = require('../../mongoose');
-var resources = require('./resources');
 var organizations = require('./organizations');
 var facets = require('./facets');
+var OnlineResource = require('./onlineResources').OnlineResource;
+var relatedResources = require('./relatedResources');
+var featureTypeMatchings = require('../../matching/featureTypes');
 
 var CswRecord = mongoose.model('CswRecord');
 var Record = mongoose.model('Record');
@@ -146,14 +148,58 @@ module.exports = function(job, done) {
         next();
     }
 
-    function processRelatedServices(next) {
-        debug('process related services');
+    function deleteExistingRelatedResources(next) {
+        relatedResources.deleteExisting(record, next);
+    }
+
+    function processOnlineResources(next) {
+        debug('process online resources');
 
         if (parsedRecord.type === 'service') return next();
         if (!parsedRecord.onlineResources) return next();
 
-        async.each(parsedRecord.onlineResources, function (resource, done) {
-            resources.all(record, resource, done);
+        async.each(parsedRecord.onlineResources, function (rawOnlineResource, done) {
+            var resource;
+
+            try {
+                resource = new OnlineResource(rawOnlineResource);
+            } catch (err) {
+                console.trace(err);
+                console.error(rawOnlineResource);
+                return done();
+            }
+
+            if (resource.isWfsFeatureType()) {
+                var featureType = {
+                    location: resource.getNormalizedWfsServiceLocation(),
+                    name: resource.getFeatureTypeName()
+                };
+
+                var relatedResource;
+
+                var insert = function (cb) {
+                    relatedResources.insertFeatureType(record, featureType, function (err, documentInserted) {
+                        if (err) return cb(err);
+                        relatedResource = documentInserted;
+                        cb();
+                    });
+                };
+
+                var resolve = function (cb) {
+                    featureTypeMatchings.resolveByRelatedResource(relatedResource, cb);
+                };
+
+                return async.series([insert, resolve], done);
+            }
+
+            if (resource.isWellKnownService()) {
+                // Do nothing
+                return done();
+            }
+
+            // Else
+            return done();
+
         }, next);
     }
 
@@ -173,7 +219,8 @@ module.exports = function(job, done) {
         loadComputedRecord,
         loadParsedRecord,
         applyChanges,
-        processRelatedServices,
+        deleteExistingRelatedResources,
+        processOnlineResources,
         computeFacets,
         saveComputedRecord
     ];
