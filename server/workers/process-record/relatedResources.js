@@ -18,10 +18,26 @@ function getMatchingService(location, protocol, done) {
     };
     var changes = {
         $setOnInsert: {
-            syncEnabled: true
+            syncEnabled: true,
+            'sync.status': 'new',
+            'sync.processing': false,
+            'sync.pending': false,
+            'sync.finishedAt': new Date('1970')
         }
     };
-    Service.findOneAndUpdate(query, changes, { upsert: true, new: true }, done);
+    Service.findOneAndUpdate(query, changes, { upsert: true, new: true }, function (err, service) {
+        if (err) return done(err);
+
+        function finished(err) {
+            done(err, service);
+        }
+
+        if (service.sync.status === 'new') {
+            service.doSync(0, finished);
+        } else {
+            service.doSync(2 * 60 * 60 * 1000, finished); // 2 hours
+        }
+    });
 }
 
 

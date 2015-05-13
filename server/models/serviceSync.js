@@ -35,51 +35,41 @@ ServiceSyncSchema.methods = {
 
     toggleSuccessful: function(itemsFound, done) {
         var serviceSync = this;
-        async.parallel([
-            function(cb) {
-                serviceSync.set({
-                    itemsFound: itemsFound,
-                    status: 'successful',
-                    finished: Date.now()
-                }).save(cb);
-            },
-            function(cb) {
-                serviceSync.service.set('lastSuccessfulSync', serviceSync._id).save(cb);
-            }
-        ], done);
+
+        function updateServiceSync(cb) {
+            serviceSync.set({
+                itemsFound: itemsFound,
+                status: 'successful',
+                finished: Date.now()
+            }).save(cb);
+        }
+
+        function updateService(cb) {
+            serviceSync.service.toggleSyncStatus('successful', cb);
+        }
+
+        async.parallel([updateServiceSync, updateService], done);
     },
 
     toggleError: function(done) {
-        this.set({
-            status: 'failed',
-            finished: Date.now()
-        }).save(done);
+        var serviceSync = this;
+
+        function updateServiceSync(cb) {
+            serviceSync.set({
+                status: 'failed',
+                finished: Date.now()
+            }).save(cb);
+        }
+
+        function updateService(cb) {
+            serviceSync.service.toggleSyncStatus('failed', cb);
+        }
+
+        async.parallel([updateServiceSync, updateService], done);
     }
 
 };
 
-/*
-** Static methods
-*/
-ServiceSyncSchema.statics = {
-
-    findByIdAndProcess: function(id, jobId, done) {
-        this
-            .findById(id)
-            .populate('service')
-            .exec(function(err, serviceSync) {
-                if (err) return done(err);
-                if (!serviceSync) return done(new Error('Unable to fetch serviceSync ' + id));
-
-                serviceSync.set({
-                    status: 'processing',
-                    started: Date.now(),
-                    jobId: jobId
-                }).save(done);
-            });
-    }
-
-};
 
 /*
 ** Attach model

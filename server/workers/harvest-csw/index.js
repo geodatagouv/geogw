@@ -34,7 +34,6 @@ CswHarvestJob.prototype.createCswHarvester = function() {
         // keepAlive: true,
         retry: this.data.maxRetry || 3,
         userAgent: 'Afigeo CSW harvester',
-        queryStringToAppend: this.service.locationOptions.query,
         concurrency: 5,
         noEncodeQs: location.indexOf('metadata.carmencarto.fr') !== -1
     });

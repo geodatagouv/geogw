@@ -55,7 +55,7 @@ exports.show = function(req, res) {
 
 
 exports.sync = function(req, res, next) {
-    req.service.createSync(function(err) {
+    req.service.doSync(0, function(err) {
         if (err) return next(err);
         res.send(req.service);
     });
@@ -80,7 +80,7 @@ exports.syncAllByProtocol = function(req, res, next) {
         .exec(function(err, services) {
             if (err) return next(err);
             async.each(services, function(service, cb) {
-                service.createSync(cb);
+                service.doSync(0, cb);
             }, function(err) {
                 if (err) return next(err);
                 res.send({ status: 'ok', services: services.length });

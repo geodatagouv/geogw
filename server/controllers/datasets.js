@@ -44,7 +44,6 @@ exports.downloadRelatedResource = function (req, res, next) {
         if (!service) return res.sendStatus(500);
 
         var wfsLocation = url.parse(service.location);
-        wfsLocation.query = service.locationOptions.query;
 
         res.type('json');
 

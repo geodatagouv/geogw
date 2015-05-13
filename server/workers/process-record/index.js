@@ -164,8 +164,8 @@ module.exports = function(job, done) {
             try {
                 resource = new OnlineResource(rawOnlineResource);
             } catch (err) {
-                console.trace(err);
-                console.error(rawOnlineResource);
+                // console.trace(err);
+                // console.error(rawOnlineResource);
                 return done();
             }
 

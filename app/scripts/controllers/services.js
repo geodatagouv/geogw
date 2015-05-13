@@ -2,7 +2,7 @@ module.exports = function($scope, $http, $routeParams) {
     $scope.protocol = $routeParams.protocol;
 
     $scope.canBeSynced = function(service) {
-        return service.syncable && (!service.lastSync || service.lastSync.status === 'successful' || service.lastSync.status === 'failed');
+        return service.syncEnabled && !service.sync.pending && !service.sync.processing;
     };
     $scope.syncService = function(service) {
         if (!service.lastSync) service.lastSync = {};

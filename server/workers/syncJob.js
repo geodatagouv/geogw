@@ -25,18 +25,21 @@ ServiceSyncJob.prototype.start = function(executionDone) {
     this.executionCallback = _.once(executionDone);
     this.touchTimeout();
 
-    ServiceSync.findByIdAndProcess(this.data.serviceSyncId, this._job.id, _.bind(function(err, serviceSync) {
-        if (err) {
-            this.fail(err);
-        } else if (!serviceSync) {
-            this.fail(new Error('No related ServiceSync found!'));
-        } else {
-            this.serviceSync = serviceSync;
-            this.id = serviceSync._id;
-            this.service = serviceSync.service;
-            this._sync();
-        }
-    }, this));
+    ServiceSync
+        .findOne({ service: this.data.serviceId, status: 'queued' })
+        .populate('service')
+        .exec(_.bind(function(err, serviceSync) {
+            if (err) {
+                this.fail(err);
+            } else if (!serviceSync) {
+                this.fail(new Error('No related ServiceSync found!'));
+            } else {
+                this.serviceSync = serviceSync;
+                this.id = serviceSync._id;
+                this.service = serviceSync.service;
+                this._sync();
+            }
+        }, this));
 };
 
 ServiceSyncJob.prototype.fail = function(err) {

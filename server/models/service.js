@@ -2,9 +2,11 @@
 ** Module dependencies
 */
 var mongoose = require('mongoose');
-var jobs = require('../kue').jobs;
 var _ = require('lodash');
+var jobs = require('../kue').jobs;
 var async = require('async');
+var debug = require('debug')('model:service');
+
 var Schema = mongoose.Schema;
 var csw = require('./serviceTypes/csw');
 var wfs = require('./serviceTypes/wfs');
@@ -15,80 +17,72 @@ var wms = require('./serviceTypes/wms');
 */
 var supportedProtocols = { csw: csw, wfs: wfs, wms: wms };
 
+var SYNC_STATUSES = ['new', 'successful', 'failed'];
+
 /*
 ** Service schema
 */
 var ServiceSchema = new Schema({
+
+    location: { type: String, required: true },
+    protocol: { type: String, enum: _.keys(supportedProtocols), required: true },
+
+    /* Context */
     name: { type: String, trim: true },
     abstract: { type: String },
     keywords: { type: [String] },
-    location: { type: String, required: true },
-    locationOptions: {
-        query: Schema.Types.Mixed
+
+    /* Synchronization */
+    sync: {
+        status: { type: String, enum: SYNC_STATUSES, index: true, required: true },
+        pending: { type: Boolean },
+        processing: { type: Boolean },
+        finishedAt: { type: Date, index: true }
     },
-    protocol: { type: String, enum: _.keys(supportedProtocols), required: true },
-    syncEnabled: { type: Boolean, default: true },
-    lastSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
-    lastSuccessfulSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' }
-    // TO MIGRATE: addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
-    // TO MIGRATE: addedAt: { type: Date, default: Date.now },
-    // TO MIGRATE: featureTypes: [FeatureTypeSchema]
-});
 
-/*
-** Indexes
-*/
-ServiceSchema.index({ location: 1, protocol: 1, 'locationOptions.query.map': 1 }, { unique: true } );
-
-/*
-** Middlewares
-*/
-ServiceSchema.pre('validate', function(next) {
-    try {
-        if ((this.protocol in supportedProtocols) && this.isModified('location')) {
-            var parsedLocation = supportedProtocols[this.protocol].parseLocation(this.location);
-            _.extend(this, parsedLocation);
-        }
-        next();
-    } catch(err) {
-        next(err);
-    }
-});
-
-/*
-** Virtuals
-*/
-ServiceSchema.virtual('syncable').get(function() {
-    return this.syncEnabled && this.protocol && supportedProtocols[this.protocol] && supportedProtocols[this.protocol].syncable;
+    syncEnabled: { type: Boolean, default: true }
 });
 
 /*
 ** Methods
 */
-ServiceSchema.methods.createSync = function(done) {
-    if ((this.lastSync && _.contains(['queued', 'processing'], this.lastSync.status)) || !this.syncEnabled) return done();
-
+ServiceSchema.methods.doSync = function(freshness, done) {
+    var Service = mongoose.model('Service');
+    var ServiceSync = mongoose.model('ServiceSync');
     var service = this;
-    var ServiceSync = this.model('ServiceSync');
 
-    async.waterfall([
-        function(cb) {
+    var query = {
+        _id: service._id,
+        syncEnabled: true,
+        'sync.pending': false,
+        'sync.processing': false,
+        'sync.finishedAt': { $lt: new Date(Date.now() - freshness) }
+    };
+
+    var changes = {
+        $set: { 'sync.pending': true }
+    };
+
+    Service.update(query, changes, function (err, rawResult) {
+        if (err) return done(err);
+
+        if (rawResult.nModified === 0) {
+            debug('synchronization ignored for %s', service.name || service._id);
+            return done();
+        }
+
+        debug('synchronization queued for %s', service.name || service._id);
+
+        function createServiceSync(cb) {
             ServiceSync.create({ service: service, status: 'queued' }, cb);
-        },
-        function(serviceSync, cb) {
-            service.lastSync = serviceSync._id;
-            service.save(function(err) {
-                if (err) return cb(err);
-                cb(null, serviceSync);
-            });
-        },
-        function(serviceSync, cb) {
+        }
+
+        function createJob(cb) {
             var job = jobs.create(supportedProtocols[service.protocol].syncTask, {
                 title: service.name,
                 serviceUrl: service.location,
                 serviceId: service.id,
-                protocol: service.protocol,
-                serviceSyncId: serviceSync.id
+                protocol: service.protocol
             });
 
             if (process.env.NODE_ENV === 'production') {
@@ -97,32 +91,21 @@ ServiceSchema.methods.createSync = function(done) {
 
             job.save(cb);
         }
-    ], done);
-};
 
-/*
-** Static methods
-*/
-ServiceSchema.statics = {
+        async.parallel([createServiceSync, createJob], done);
 
-    findByLocationAndProtocol: function(location, protocol, done) {
-        if (!(protocol in supportedProtocols)) return done(new Error('Protocol not supported'));
-
-        try {
-            var parsedLocation = supportedProtocols[protocol].parseLocation(location);
-            this.findOne({ location: parsedLocation.location, protocol: protocol }, done);
-        } catch (err) {
-            done(err);
-        }
-    }
+    });
 
 };
 
-/*
-** Options
-*/
-ServiceSchema.set('toObject', { virtuals: true });
-ServiceSchema.set('toJSON', { virtuals: true });
+ServiceSchema.methods.toggleSyncStatus = function (status, done) {
+    this
+        .set('sync.status', status)
+        .set('sync.pending', false)
+        .set('sync.processing', false)
+        .set('sync.finishedAt', new Date())
+        .save(done);
+};
 
 /*
 ** Attach model
