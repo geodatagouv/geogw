@@ -2,115 +2,33 @@
 ** Module dependencies
 */
 var mongoose = require('mongoose');
+
 var Schema = mongoose.Schema;
-
-/*
-** Online resource schema
-*/
-var OnlineResourceSchema = new Schema({
-    name: {
-        type: String
-    },
-    link: {
-        type: String
-    },
-    protocol: {
-        type: String
-    },
-    description: {
-        type: String
-    }
-});
-
-/*
-** Contact schema
-*/
-var ContactSchema = new Schema({
-    organizationName: {
-        type: String
-    },
-    individualName: {
-        type: String
-    },
-    positionName: {
-        type: String
-    },
-    email: {
-        type: String
-    },
-    role: {
-        type: String
-    }
-});
-
-var DateSchema = new Schema({
-    date: Date,
-    type: { type: String }
-}, { _id: false });
+var ObjectId = Schema.Types.ObjectId;
+var Mixed = Schema.Types.Mixed;
 
 /*
 ** Record schema
 */
 var RecordSchema = new Schema({
-    parentCatalog: {
-        type: Schema.Types.ObjectId,
-        ref: 'Service',
-        index: true
-    },
-    lastSync: { type: Schema.Types.ObjectId, ref: 'ServiceSync' },
-    identifier: {
-        type: String,
-        index: true
-    },
-    hashedId: {
-        type: String,
-        index: true
-    },
-    sourceRecord: { type: Schema.Types.ObjectId, ref: 'CswRecord', unique: true },
+
+    /* Synchronization */
+    parentCatalog: { type: ObjectId, ref: 'Service', required: true, index: true },
+    updatedAt: { type: Date, required: true, index: true },
+    touchedAt: { type: Date, required: true },
+
+    /* Identification */
+    hashedId: { type: String, required: true, index: true },
+    dateStamp: { type: Date, index: true },
+
+    /* Content */
+    metadata: { type: Mixed },
+    identifier: { type: String, required: true }, // Can be removed since it clones metadata.identifier
+
+    /* Augmented content */
     organizations: { type: [String], index: true },
-    metadata: {
-        title: {
-            type: String
-        },
-        abstract: {
-            type: String
-        },
-        type: {
-            type: String,
-            index: true
-        },
-        representationType: {
-            type: String,
-            index: true
-        },
-        serviceType: {
-            type: String,
-            index: true
-        },
-        keywords: {
-            type: [String],
-            index: true
-        },
-        lineage: {
-            type: String
-        },
-        history: {
-            type: [DateSchema]
-        },
-        onlineResources: {
-            type: [OnlineResourceSchema]
-        },
-        graphicOverviews: Schema.Types.Mixed,
-        contacts: {
-            type: [ContactSchema]
-        },
-        _contacts: {
-            type: [ContactSchema]
-        },
-        _updated: {
-            type: Date
-        }
-    },
+
+    /* Facets */
     facets: { type: [Schema.Types.Mixed], select: false }
 });
 
@@ -134,7 +52,9 @@ var textIndexDefinition = {
 };
 
 RecordSchema.index(textIndexDefinition, textIndexOptions);
+
 RecordSchema.index({ 'facets.name': 1, 'facets.value': 1 });
+RecordSchema.index({ parentCatalog: 1, hashedId: 1 }, { unique: true });
 
 
 /*

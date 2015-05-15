@@ -14,7 +14,7 @@ function dropByFeatureType(featureType, done) {
         'featureType.matchingName': featureType.name
     };
     var changes = {
-        $set: { updated: true },
+        $set: { updatedAt: new Date() },
         $unset: { 'featureType.matchingName': 1 }
     };
 
@@ -44,7 +44,7 @@ function resolveOne(relatedResource, typeName, done) {
     var changes = {
         $set: {
             'featureType.matchingName': typeName,
-            updated: true
+            updatedAt: new Date()
         }
     };
 

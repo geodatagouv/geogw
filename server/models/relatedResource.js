@@ -17,7 +17,9 @@ var RESOURCE_TYPES = [
 var RelatedResourceSchema = new Schema({
 
     type: { type: String, required: true, index: true, enum: RESOURCE_TYPES },
-    updated: { type: Boolean, index: true, sparse: true, select: false },
+
+    updatedAt: { type: Date, required: true, index: true },
+    // touchedAt: { type: Date, required: true },
 
     name: { type: String },
 

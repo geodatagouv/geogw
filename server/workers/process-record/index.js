@@ -1,8 +1,6 @@
 /*
 ** Module dependencies
 */
-var crypto = require('crypto');
-
 var async = require('async');
 var _ = require('lodash');
 var debug = require('debug')('process-record');
@@ -14,113 +12,30 @@ var OnlineResource = require('./onlineResources').OnlineResource;
 var relatedResources = require('./relatedResources');
 var featureTypeMatchings = require('../../matching/featureTypes');
 
-var CswRecord = mongoose.model('CswRecord');
 var Record = mongoose.model('Record');
 
 
 module.exports = function(job, done) {
-    var recordId = job.data.recordId;
+    var hashedId = job.data.hashedId;
     var catalogId = job.data.catalogId;
-    var parsedRecord, record, mostRecentCswRecord;
-    var recordName;
+    var record;
 
-    function loadMostRecentCswRecord(next) {
-        debug('load most recent CSW record');
-        CswRecord
-            .findOne({ identifier: recordId, parentCatalog: catalogId })
-            .select({ timestamp: 1, parsed: 1 })
-            .sort({ timestamp: -1 })
-            .exec(function (err, mostRecentFound) {
-                if (err) return next(err);
-                if (!mostRecentFound) return next(new Error('Record not found'));
-                mostRecentCswRecord = mostRecentFound;
-                next();
-            });
-    }
-
-    function loadComputedRecord(next) {
-        debug('load computed record');
-
-        var query = { identifier: recordId, parentCatalog: catalogId };
-
+    function fetchRecord(next) {
         Record
-            .findOne(query)
-            .exec(function (err, foundRecord) {
+            .findOne({ hashedId: hashedId, parentCatalog: catalogId })
+            .exec(function (err, response) {
                 if (err) return next(err);
-                record = foundRecord || new Record(query);
+                if (!response) return done(new Error('Record not found'));
+                record = response;
                 next();
             });
-    }
-
-    function loadParsedRecord(next) {
-        debug('load CSW-related parsed record');
-
-        var query = CswRecord.findById(mostRecentCswRecord._id);
-
-        // Check if the record has already been parsed
-        if (mostRecentCswRecord.parsed === true) {
-            query.select({ parsedValue: 1 });
-        } else {
-            query.select({ xml: 1 });
-        }
-
-        query.exec(function (err, cswRecord) {
-            if (err) return next(err);
-            if (!cswRecord) return next(new Error('CswRecord not found'));
-
-            function parsedValueReady(parsedValue) {
-                parsedRecord = parsedValue;
-                recordName = parsedRecord.title || parsedRecord.name;
-                next();
-            }
-
-            if (cswRecord.parsedValue) {
-                debug('Already parsed!');
-                parsedValueReady(cswRecord.parsedValue);
-            } else {
-                debug('Not parsed again :(');
-                cswRecord.parseXml(function (err, parsedValue) {
-                    if (err) return next(err);
-
-                    cswRecord.save(function (err) {
-                        if (err) console.trace(err);
-                    });
-
-                    parsedValueReady(parsedValue);
-                });
-            }
-        });
     }
 
     function applyChanges(next) {
-        debug('apply changes');
-
-        debug('Parsed record: ');
-        debug(parsedRecord);
-
-        var metadata = _.pick(parsedRecord, [
-            'title',
-            'abstract',
-            'type',
-            'representationType',
-            'serviceType',
-            'lineage',
-            'keywords',
-            'contacts',
-            'onlineResources',
-            'graphicOverviews',
-            'history',
-            '_contacts',
-            '_updated'
-        ]);
-        record.set('metadata', metadata);
-
-        record.set('sourceRecord', mostRecentCswRecord._id);
-
         // Process representationType
-        if (parsedRecord.representationType === 'raster') {
+        if (record.metadata.representationType === 'raster') {
             // TODO: Warn catalog owner
-            record.representationType = 'grid';
+            record.metadata.representationType = 'grid';
         }
 
         // Process organizations
@@ -132,7 +47,7 @@ module.exports = function(job, done) {
             if (organizations[originalName].rename) return organizations[originalName].rename;
         }
 
-        var normalizedOrganizations = _.chain([parsedRecord.contacts, parsedRecord._contacts])
+        var normalizedOrganizations = _.chain([record.metadata.contacts, record.metadata._contacts])
             .flatten()
             .compact()
             .map(normalizeOrganization)
@@ -141,9 +56,6 @@ module.exports = function(job, done) {
             .valueOf();
 
         record.set('organizations', normalizedOrganizations);
-
-        // Compute hashedId
-        record.set('hashedId', crypto.createHash('sha1').update(recordId, 'utf8').digest('hex'));
 
         next();
     }
@@ -155,10 +67,10 @@ module.exports = function(job, done) {
     function processOnlineResources(next) {
         debug('process online resources');
 
-        if (parsedRecord.type === 'service') return next();
-        if (!parsedRecord.onlineResources) return next();
+        if (record.metadata.type === 'service') return next();
+        if (!record.metadata.onlineResources) return next();
 
-        async.each(parsedRecord.onlineResources, function (rawOnlineResource, done) {
+        async.each(record.metadata.onlineResources, function (rawOnlineResource, done) {
             var resource;
 
             try {
@@ -215,9 +127,7 @@ module.exports = function(job, done) {
     }
 
     var seq = [
-        loadMostRecentCswRecord,
-        loadComputedRecord,
-        loadParsedRecord,
+        fetchRecord,
         applyChanges,
         deleteExistingRelatedResources,
         processOnlineResources,

@@ -5,8 +5,9 @@ var _ = require('lodash');
 
 var mongoose = require('../../mongoose');
 var jobs = require('../../kue').jobs;
+var hashRecordId = require('../../utils');
 
-var PersistedCswRecord = mongoose.model('CswRecord');
+var Record = mongoose.model('Record');
 
 /*
 ** Constructor
@@ -15,29 +16,22 @@ function CswRecord(xmlElement, job) {
     if (!xmlElement) throw new Error('xmlElement is not defined');
     if (!job) throw new Error('job is not defined');
 
-    this.xmlElement = xmlElement;
     this.recordName = xmlElement.name();
     this.job = job;
-    this.parse();
+    this.parse(xmlElement);
 }
 
 
 /*
 ** Methods
 */
-CswRecord.prototype.parse = function () {
-    if (!this.xmlElement) throw new Error('xmlElement is not defined');
-
+CswRecord.prototype.parse = function (xmlElement) {
     if (this.recordName === 'MD_Metadata') {
-        this.parsedRecord = iso19139.parse(this.xmlElement);
+        this.parsedRecord = iso19139.parse(xmlElement);
+        this.hashedId = hashRecordId(this.parsedRecord.fileIdentifier);
     } else {
         this.status = 'not-parsed';
-        this.cleanXml();
     }
-};
-
-CswRecord.prototype.cleanXml = function () {
-    this.xmlElement = null;
 };
 
 CswRecord.prototype.isValid = function () {
@@ -77,21 +71,20 @@ CswRecord.prototype.timestamp = function () {
     return moment(this.parsedRecord._updated).toDate();
 };
 
-CswRecord.prototype.updateCurrentRecord = function (done) {
+CswRecord.prototype.touchExistingRecord = function (done) {
     var query = {
         parentCatalog: this.job.service._id,
-        identifier: this.parsedRecord.fileIdentifier,
-        timestamp: this.timestamp()
+        hashedId: this.hashedId,
+        dateStamp: this.timestamp()
     };
 
-    var update = { $push: { synchronizations: this.job.id } };
+    var update = { $currentDate: { touchedAt: 1 } };
 
     var job = this.job;
     var record = this;
 
-    PersistedCswRecord.update(query, update, function (err, rawResponse) {
+    Record.update(query, update, function (err, rawResponse) {
         if (err) {
-            record.cleanXml();
             job.log('[ERROR] Unable to update a CSW record');
             return done(err);
         }
@@ -100,53 +93,53 @@ CswRecord.prototype.updateCurrentRecord = function (done) {
             done(null, false);
         } else if (rawResponse.nModified === 1) {
             record.status = 'not-updated';
-            record.cleanXml();
             done(null, true);
         } else {
-            record.cleanXml();
             done(new Error('Multiple CSW record updated!!'));
         }
     });
 };
 
-CswRecord.prototype.createNewRecord = function (done) {
+CswRecord.prototype.upsertRecord = function (done) {
     var query = {
         parentCatalog: this.job.service._id,
-        identifier: this.parsedRecord.fileIdentifier,
-        timestamp: this.timestamp(),
-        synchronizations: [this.job.id],
-        availableSince: this.job.id,
-        xml: this.xmlElement.clone().toString(),
-        parsed: true,
-        parsedValue: this.parsedRecord
+        hashedId: this.hashedId
     };
 
-    this.cleanXml();
+    var changes = {
+        $currentDate: {
+            updatedAt: 1,
+            touchetAt: 1
+        },
+        $setOnInsert: {
+            identifier: this.parsedRecord.fileIdentifier
+        },
+        $set: {
+            metadata: this.parsedRecord,
+            dateStamp: this.timestamp()
+        }
+    };
 
     var record = this;
 
-    PersistedCswRecord.collection.insert(query, function (err) {
+    Record.update(query, changes, { upsert: true }, function (err, rawResponse) {
         if (err) {
             record.job.log('[ERROR] Unable to save a CSW record');
             return done(err);
         }
 
-        record.status = 'created';
-        // job.log('[INFO] New CSW record inserted');
+        record.status = rawResponse.upserted ? 'created' : 'updated';
         done();
     });
 };
 
-CswRecord.prototype.updateOrCreateRecord = function (done) {
+CswRecord.prototype.touchOrUpsertRecord = function (done) {
     var record = this;
 
-    record.updateCurrentRecord(function (err, updated) {
+    record.touchExistingRecord(function (err, touched) {
         if (err) return done(err);
-        if (updated) {
-            done();
-        } else {
-            record.createNewRecord(done);
-        }
+        if (touched) return done();
+        record.upsertRecord(done);
     });
 };
 
@@ -155,7 +148,7 @@ CswRecord.prototype.createJob = function (done) {
 
     jobs
         .create('process-record', {
-            recordId: this.parsedRecord.fileIdentifier,
+            hashedId: this.hashedId,
             catalogId: this.job.service._id
         })
         .removeOnComplete(true)
@@ -164,10 +157,7 @@ CswRecord.prototype.createJob = function (done) {
 };
 
 CswRecord.prototype.process = function (done) {
-    if (!this.isValid()) {
-        this.cleanXml();
-        return done();
-    }
+    if (!this.isValid()) return done();
 
     async.series([
         _.bind(this.updateOrCreateRecord, this),
