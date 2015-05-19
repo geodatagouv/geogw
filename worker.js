@@ -1,9 +1,9 @@
 var _ = require('lodash');
 
 var q = require('./lib/kue').jobs;
-var csw = require('./lib/workers/harvest-csw');
-var wfs = require('./lib/workers/lookup-wfs');
-var processRecord = require('./server/workers/process-record');
+var csw = require('./lib/tasks/harvest-csw');
+var wfs = require('./lib/tasks/lookup-wfs');
+var processRecord = require('./lib/tasks/process-record');
 
 // To remove in the future
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
