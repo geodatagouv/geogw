@@ -1,8 +1,8 @@
 var _ = require('lodash');
 
-var q = require('./server/kue').jobs;
-var csw = require('./server/workers/harvest-csw');
-var wfs = require('./server/workers/lookup-wfs');
+var q = require('./lib/kue').jobs;
+var csw = require('./lib/workers/harvest-csw');
+var wfs = require('./lib/workers/lookup-wfs');
 var processRecord = require('./server/workers/process-record');
 
 // To remove in the future

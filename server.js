@@ -1,6 +1,6 @@
 var express = require('express');
-var mongoose = require('./server/mongoose');
-var api = require('./server/api');
+var mongoose = require('./lib/mongoose');
+var api = require('./lib/api');
 var morgan = require('morgan');
 var httpProxy = require('http-proxy');
 

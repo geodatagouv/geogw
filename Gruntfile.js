@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         jshint: {
             server: {
                 files: {
-                    src: ['*.js', 'server/**/*.js']
+                    src: ['*.js', 'lib/**/*.js']
                 },
                 options: {
                     node: true
