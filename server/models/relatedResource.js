@@ -26,6 +26,7 @@ var RelatedResourceSchema = new Schema({
     /* Origin */
     originType: { type: String, enum: ORIGIN_TYPES, required: true, index: true },
     originId: { type: ObjectId, required: true, index: true },
+    originCatalog: { type: ObjectId, ref: 'Service', index: true, sparse: true },
 
     /* Record */
     record: { type: String, required: true, index: true },

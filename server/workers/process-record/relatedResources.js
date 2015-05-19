@@ -59,6 +59,7 @@ function insertFeatureType(record, featureType, done) {
         type: 'feature-type',
         originId: recordId,
         originType: 'gmd:onLine',
+        originCatalog: record.parentCatalog,
         record: record.hashedId,
         featureType: {
             candidateName: featureType.name,
