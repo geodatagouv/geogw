@@ -4,6 +4,7 @@ var q = require('./lib/kue').jobs;
 var csw = require('./lib/tasks/harvest-csw');
 var wfs = require('./lib/tasks/lookup-wfs');
 var processRecord = require('./lib/tasks/process-record');
+var consolidateDataset = require('./lib/tasks/consolidate-dataset');
 
 // To remove in the future
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -13,6 +14,7 @@ require('ssl-root-cas/latest').inject();
 q.process('harvest-csw', 4, csw.harvest);
 q.process('lookup-wfs', 10, wfs.lookup);
 q.process('process-record', 20, processRecord);
+q.process('dataset:consolidate', 20, consolidateDataset);
 
 require('kue').app.listen(process.env.PORT || 3000);
 
