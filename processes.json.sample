@@ -12,7 +12,8 @@
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "PORT": 5000,
-        "GML_CONSIDER_EPSG_AS_URN": "YES"
+        "GML_CONSIDER_EPSG_AS_URN": "YES",
+        "KUE_PREFIX": "q"
       },
       "env_production" : {
         "NODE_ENV": "production"
@@ -29,7 +30,8 @@
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "HTTP_AGENT_NAME": "GeoGw 0.1",
-        "PORT": 5100
+        "PORT": 5100,
+        "KUE_PREFIX": "q"
       },
       "env_production" : {
         "NODE_ENV": "production"
