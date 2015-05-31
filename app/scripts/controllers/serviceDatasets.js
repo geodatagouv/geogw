@@ -26,7 +26,8 @@ var facetsDef = [
         name: 'opendata',
         label: 'Donnée ouverte',
         valueLabels: {
-            yes: 'Oui'
+            yes: 'Oui',
+            'not-determined': 'Indéterminé'
         }
     },
     {
@@ -34,7 +35,7 @@ var facetsDef = [
         label: 'Disponibilité',
         valueLabels: {
             yes: 'Oui',
-            'true': 'Oui'
+            'not-determined': 'Indéterminé'
         }
     },
     {
@@ -49,7 +50,8 @@ var facetsDef = [
         name: 'distributionFormat',
         label: 'Format de distribution',
         valueLabels: {
-            wfs: 'WFS'
+            'wfs-featureType': 'WFS',
+            'file-package': 'Package fichier'
         }
     }
 ];
