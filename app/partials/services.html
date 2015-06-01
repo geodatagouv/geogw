@@ -20,18 +20,18 @@
       <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 500px"><em>{{ service.location }}</em></div>
     </td>
     <td class="vert" style="width:30px">
-      <i ng-if="service.lastSync" ng-class="{ 'fa-refresh': service.lastSync.status === 'processing', 'fa-spin': service.lastSync.status === 'processing', 'fa-history': service.lastSync.status === 'queued' }" class="fa"></i>
+      <i ng-if="!isNew(service)" ng-class="{ 'fa-refresh': service.sync.processing, 'fa-spin': service.sync.processing, 'fa-history': service.sync.pending }" class="fa"></i>
     </div>
     <td class="vert" style="font-size: 85%; width: 280px">
-      <div ng-if="service.lastSuccessfulSync.itemsFound">Entrées : <strong>{{ service.lastSuccessfulSync.itemsFound | number }}</strong></div>
-      <div ng-if="service.lastSync">
+      <div ng-if="service.sync.itemsFound">Entrées : <strong>{{ service.sync.itemsFound | number }}</strong></div>
+      <div ng-if="!isNew(service)">
         État de la synchronisation :
-        <span style="color: green" ng-show="service.lastSync.status === 'successful'">OK</span>
-        <span style="color: purple" ng-show="service.lastSync.status === 'queued'">En attente</span>
-        <span style="color: orange" ng-show="service.lastSync.status === 'processing'">En cours</span>
-        <span style="color: red" ng-show="service.lastSync.status === 'failed'">Erreur</span>
+        <span style="color: green" ng-show="service.sync.status === 'successful'">OK</span>
+        <span style="color: purple" ng-show="service.sync.pending">En attente</span>
+        <span style="color: orange" ng-show="service.sync.processing">En cours</span>
+        <span style="color: red" ng-show="service.sync.status === 'failed'">Erreur</span>
       </div>
-      <div ng-if="service.lastSuccessfulSync">Dernier succès : <em>{{ service.lastSuccessfulSync.finished | timeago }}</em></div>
+      <div ng-if="service.lastSuccessfulSync">Dernier succès : <em>{{ service.sync.finishedAt | timeago }}</em></div>
     </td>
     <td class="vert">
         <a style="cursor: pointer" ng-show="canBeSynced(service)" ng-click="syncService(service)">Synchroniser</a>
