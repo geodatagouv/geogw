@@ -44,6 +44,7 @@
     "ssl-root-cas": "^1.1.7",
     "superagent": "^1.2.0",
     "tldjs": "^1.5.1",
+    "tmp": "0.0.26",
     "underscore.string": "^3.0",
     "wfs-client": "jdesboeufs/wfs-client"
   },
