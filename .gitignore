@@ -27,7 +27,4 @@ node_modules
 # Env
 .env
 
-.tmp
-dist
-
 processes.json

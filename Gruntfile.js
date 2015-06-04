@@ -1,6 +1,4 @@
 module.exports = function(grunt) {
-    grunt.loadNpmTasks('grunt-browserify');
-    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
     grunt.initConfig({
@@ -10,24 +8,9 @@ module.exports = function(grunt) {
                 files: {
                     src: ['*.js', 'lib/**/*.js']
                 },
-                options: {
-                    node: true
-                }
-            },
-            browser: {
-                files: {
-                    src: ['app/scripts/**/*.js']
-                },
-                options: {
-                    browser: true,
-                    node: true,
-                    devel: true,
-                    globals: {
-                        angular: true
-                    }
-                }
             },
             options: {
+                node: true,
                 bitwise: true,
                 eqeqeq: true,
                 freeze: true,
@@ -41,21 +24,11 @@ module.exports = function(grunt) {
                 unused: true,
                 trailing: true,
             }
-        },
-
-        clean: ['.tmp', 'dist'],
-
-        browserify: {
-            app: {
-                src: 'app/scripts/main.js',
-                dest: '.tmp/scripts/bundle.js'
-            }
         }
 
     });
 
     grunt.registerTask('default', [
-        'jshint',
-        'browserify:app'
+        'jshint'
     ]);
 };

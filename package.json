@@ -29,7 +29,6 @@
     "express": "^4.9.5",
     "file-type": "^2.6.0",
     "hiredis": "^0.4",
-    "http-proxy": "^1.8.1",
     "ipaddr.js": "^1.0.1",
     "iso19139": "jdesboeufs/node-iso19139",
     "json-stable-stringify": "^1.0.0",
@@ -50,8 +49,6 @@
   },
   "devDependencies": {
     "grunt": "^0.4",
-    "grunt-browserify": "^3.6",
-    "grunt-contrib-clean": "^0.6",
     "grunt-contrib-jshint": "^0.11"
   }
 }
