@@ -27,7 +27,6 @@ require('kue').app.listen(process.env.PORT || 3000);
 var gracefulShutdown = _.once(function () {
     q.shutdown(function (err) {
         console.log( 'Job queue is shut down. ', err || '');
-        process.exit(0);
     }, 5000);
 });
 
