@@ -43,7 +43,7 @@
     "ogr2ogr": "jdesboeufs/ogr2ogr",
     "passport": "^0.2.1",
     "passport-oauth2": "^1.1.2",
-    "plunger": "0.1.0",
+    "plunger": "~0.1.0",
     "redis": "^0.12",
     "ssl-root-cas": "^1.1.7",
     "superagent": "^1.2.0",
