@@ -1,6 +1,3 @@
-var fs = require('fs');
-var path = require('path');
-
 var moment = require('moment');
 var Handlebars = require('handlebars');
 var _ = require('lodash');
@@ -9,7 +6,37 @@ var debug = require('debug')('mapping');
 
 moment.locale('fr');
 
-var bodyTemplate = Handlebars.compile(fs.readFileSync(path.join(__dirname, 'template.hbs'), 'utf-8'));
+var bodyTemplate = Handlebars.compile(
+    `{{metadata.abstract}}
+
+    {{#if metadata.lineage}}
+    __Origine__
+
+    {{metadata.lineage}}
+    {{/if}}
+
+    {{#if history}}
+    __Historique__
+
+    {{#each history}}
+     * {{date}} : {{description}}
+    {{/each}}
+    {{/if}}
+
+    {{#if inlineOrganizations}}
+    __Organisations partenaires__
+
+    {{inlineOrganizations}}
+    {{/if}}
+
+    {{#if alternateResources}}
+    __Liens annexes__
+
+    {{#each alternateResources}}
+     * [{{name}}]({{location}})
+    {{/each}}
+    {{/if}}`
+);
 
 exports.map = function (sourceDataset) {
     sourceDataset.alternateResources = _.filter(sourceDataset.alternateResources || [], 'name');

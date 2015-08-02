@@ -4,7 +4,7 @@ var path = require('path');
 
 var organizations = {};
 
-fs.createReadStream(path.join(__dirname, 'organizations.csv'))
+fs.createReadStream(path.join(__dirname, '..', '..', '..', 'data', 'organizations.csv'))
     .pipe(csv.parse({ columns: true, trim: true }))
     .on('data', function (entry) {
 
