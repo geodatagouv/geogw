@@ -26,7 +26,19 @@ var RemoteResourceSchema = new Schema({
     type: { type: String, enum: REMOTE_RESOURCE_TYPES, index: true },
     available: { type: Boolean, index: true, sparse: true },
 
-    checkResult: { type: Mixed }
+    checkResult: { type: Mixed },
+
+    file: {
+        digest: { type: String },
+        length: { type: Number },
+        downloadedAt: { type: Date },
+        dropped: { type: Boolean }
+    },
+
+    archive: {
+        paths: [String],
+        datasets: [String]
+    }
 
 });
 

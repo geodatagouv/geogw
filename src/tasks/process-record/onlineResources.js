@@ -105,14 +105,6 @@ OnlineResource.prototype.getNormalizedWfsServiceLocation = function () {
     return location.valueOf();
 };
 
-OnlineResource.prototype.isFileDistribution = function () {
-    // Start with Geo-IDE only
-    var result = this.location.hostname() === 'atom.geo-ide.developpement-durable.gouv.fr';
-    result = result && this.location.pathname() === '/atomArchive/GetResource';
-    result = result && this.query.id && !this.query.datasetaggregate;
-    return result;
-};
-
 OnlineResource.prototype.getNormalizedString = function () {
     return this.location.clone().fragment('').normalize().valueOf();
 };

@@ -121,10 +121,6 @@ module.exports = function(job, done) {
                 }
             };
 
-            if (resource.isFileDistribution()) {
-                relatedResource.remoteResource.type = 'file-distribution';
-            }
-
             return RelatedResource.upsertRemoteResource(relatedResource, done);
 
         }, next);

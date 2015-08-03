@@ -1,12 +1,12 @@
 var mongoose = require('mongoose');
 var async = require('async');
-var Plunger = require('plunger');
+var Checker = require('./checker');
 
 var RemoteResource = mongoose.model('RemoteResource');
 var RelatedResource = mongoose.model('RelatedResource');
 
 
-module.exports = function (job, done) {
+module.exports = function (job, jobDone) {
     // var remoteResourceId = job.data.remoteResourceId;
     var remoteResourceLocation = job.data.remoteResourceLocation;
     var checkResult;
@@ -16,7 +16,7 @@ module.exports = function (job, done) {
 
     /* Steps */
 
-    function fetchResource(next) {
+    function fetchModel(next) {
         RemoteResource
             .findOne({ location: remoteResourceLocation })
             .select('-checkResult')
@@ -29,20 +29,39 @@ module.exports = function (job, done) {
     }
 
     function checkResource(next) {
-        var plunger = new Plunger(remoteResourceLocation, { abort: 'always' });
+        var plunger = new Checker(remoteResourceLocation, { abort: 'never' });
+
         plunger
             .inspect()
-            .then(function () {
+            .then(() => {
                 checkResult = plunger.toObject();
-                next();
-            }, next);
+
+                if (plunger.isArchive()) {
+                    return plunger.saveArchive()
+                        .then(path => job.log('Saved at %s!', path))
+                        .then(() => plunger.decompressArchive())
+                        .then(path => job.log('Decompressed at %s!', path))
+                        .then(() => plunger.listFiles())
+                        .then(files => {
+                            remoteResource
+                                .set('archive.paths', files.all)
+                                .set('archive.datasets', files.datasets);
+
+                            isAvailable = true;
+                            isFileDistribution = files.datasets.length === 1;
+                        })
+                        .finally(() => plunger.cleanup());
+                } else {
+                    plunger.closeConnection(true);
+                    isFileDistribution = false;
+                    isAvailable = plunger.statusCode === 200;
+                }
+            })
+            .nodeify(next);
     }
 
     function update(next) {
         var now = new Date();
-
-        isFileDistribution = checkResult.archive === 'zip'
-        isAvailable = checkResult.statusCode === 200;
 
         remoteResource
             .set('checkResult', checkResult)
@@ -84,11 +103,11 @@ module.exports = function (job, done) {
     /* Execution */
 
     var processSequence = [
-        fetchResource,
+        fetchModel,
         checkResource,
         update,
         propagate
     ];
 
-    async.series(processSequence, done);
+    async.series(processSequence, jobDone);
 };

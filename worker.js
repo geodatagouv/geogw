@@ -19,7 +19,7 @@ q.process('harvest-csw', 4, csw.harvest);
 q.process('lookup-wfs', 10, wfs.lookup);
 q.process('process-record', 20, processRecord);
 q.process('dataset:consolidate', 20, consolidateDataset);
-q.process('remote-resource:check', 4, checkRemoteResource);
+q.process('remote-resource:check', 10, checkRemoteResource);
 
 q.process('dgv:publish', 5, require('./lib/tasks/dgfr/publish'));
 q.process('dgv:fetch', 1, require('./lib/tasks/dgfr/fetch'));
