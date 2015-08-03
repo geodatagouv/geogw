@@ -24,8 +24,6 @@ q.process('remote-resource:check', 4, checkRemoteResource);
 q.process('dgv:publish', 5, require('./lib/tasks/dgfr/publish'));
 q.process('dgv:fetch', 1, require('./lib/tasks/dgfr/fetch'));
 
-require('kue').app.listen(process.env.PORT || 3000);
-
 var gracefulShutdown = _.once(function () {
     q.shutdown(function (err) {
         console.log( 'Job queue is shut down. ', err || '');

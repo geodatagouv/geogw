@@ -13,6 +13,9 @@ var utils = require('./utils');
 // Configure passport
 require('./passport');
 
+// Configure kue
+require('./kue');
+
 var app = express();
 
 app.use(cors());
@@ -55,5 +58,7 @@ utils.walk(path.join(__dirname, 'routes'), 'middlewares', function(path) {
 });
 app.use('/api/geogw', geogwRouter);
 require('./dgfr/routes')(app);
+
+app.use('/kue', require('kue').app);
 
 module.exports = app;
