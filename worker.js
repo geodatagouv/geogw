@@ -25,9 +25,9 @@ q.process('dgv:publish', 5, require('./lib/tasks/dgfr/publish'));
 q.process('dgv:fetch', 1, require('./lib/tasks/dgfr/fetch'));
 
 var gracefulShutdown = _.once(function () {
-    q.shutdown(function (err) {
+    q.shutdown(5000, function (err) {
         console.log( 'Job queue is shut down. ', err || '');
-    }, 5000);
+    });
     process.exit();
 });
 
