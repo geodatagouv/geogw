@@ -5,9 +5,11 @@ import { exec } from 'child_process';
 import Promise from 'bluebird';
 import findit from 'findit';
 import crypto from 'crypto';
+import rimraf from 'rimraf';
 
 const tmpDirAsync = Promise.promisify(tmpDir);
 const execAsync = Promise.promisify(exec);
+const rimrafAsync = Promise.promisify(rimraf);
 
 
 export default class Checker extends Plunger {
@@ -22,10 +24,9 @@ export default class Checker extends Plunger {
     }
 
     createTempDirectory() {
-        return tmpDirAsync({ prefix: 'plunger_', unsafeCleanup: true, keep: true })
+        return tmpDirAsync({ prefix: 'plunger_', keep: true })
             .then(tmpDirResult => {
                 this.tempDirectoryPath = tmpDirResult[0];
-                this.cleanupCallback = tmpDirResult[1];
                 return this.tempDirectoryPath;
             });
     }
@@ -84,9 +85,9 @@ export default class Checker extends Plunger {
     }
 
     cleanup() {
-        if (this.cleanupCallback) {
-            this.cleanupCallback();
-            this.cleanupCallback = null;
+        if (this.tempDirectoryPath) {
+            return rimrafAsync(this.tempDirectoryPath)
+                .then(() => this.tempDirectoryPath = undefined);
         }
     }
 
