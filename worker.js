@@ -1,3 +1,5 @@
+require('babel/polyfill');
+
 var _ = require('lodash');
 require('./lib/mongoose');
 
@@ -28,6 +30,7 @@ var gracefulShutdown = _.once(function () {
     q.shutdown(function (err) {
         console.log( 'Job queue is shut down. ', err || '');
     }, 5000);
+    process.exit();
 });
 
 process.on('message', function (msg) {
