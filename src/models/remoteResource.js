@@ -36,7 +36,7 @@ var RemoteResourceSchema = new Schema({
     },
 
     archive: {
-        paths: [String],
+        files: [String],
         datasets: [String]
     }
 

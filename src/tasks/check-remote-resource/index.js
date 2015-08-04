@@ -44,11 +44,11 @@ module.exports = function (job, jobDone) {
                         .then(() => plunger.listFiles())
                         .then(files => {
                             remoteResource
-                                .set('archive.paths', files.all)
+                                .set('archive.files', files.all)
                                 .set('archive.datasets', files.datasets);
 
                             isAvailable = true;
-                            isFileDistribution = files.datasets.length === 1;
+                            isFileDistribution = files.datasets.length > 0;
                         })
                         .finally(() => plunger.cleanup());
                 } else {
