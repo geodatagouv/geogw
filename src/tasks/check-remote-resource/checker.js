@@ -19,8 +19,7 @@ export default class Checker extends Plunger {
     }
 
     isArchive() {
-        // RAR archive will be supported in the near future
-        return this.archive === 'zip' && this.fileExtension === 'zip';
+        return (this.archive === 'zip' && this.fileExtension === 'zip') || (this.archive === 'rar' && this.fileExtension === 'rar');
     }
 
     createTempDirectory() {
