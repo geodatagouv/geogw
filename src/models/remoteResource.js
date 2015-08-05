@@ -10,7 +10,8 @@ var Mixed = Schema.Types.Mixed;
 
 var REMOTE_RESOURCE_TYPES = [
     'page',
-    'file-distribution'
+    'file-distribution',
+    'unknown-archive'
 ];
 
 

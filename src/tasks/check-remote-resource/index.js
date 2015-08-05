@@ -1,113 +1,99 @@
-var mongoose = require('mongoose');
-var async = require('async');
-var Checker = require('./checker');
+import mongoose from 'mongoose';
+import Promise from 'bluebird';
+import Checker from './checker';
 
-var RemoteResource = mongoose.model('RemoteResource');
-var RelatedResource = mongoose.model('RelatedResource');
+const RemoteResource = mongoose.model('RemoteResource');
+const RelatedResource = mongoose.model('RelatedResource');
 
 
-module.exports = function (job, jobDone) {
-    // var remoteResourceId = job.data.remoteResourceId;
-    var remoteResourceLocation = job.data.remoteResourceLocation;
-    var checkResult;
-    var isAvailable;
-    var isFileDistribution;
-    var remoteResource;
+export default class RemoteResourceCheck {
 
-    /* Steps */
+    constructor(options = {}) {
+        this.options = options;
+        this.now = new Date();
+    }
 
-    function fetchModel(next) {
-        RemoteResource
-            .findOne({ location: remoteResourceLocation })
+    getRemoteResource() {
+        if (this.remoteResource) return Promise.resolve(this.remoteResource);
+
+        return RemoteResource
+            .findOne({ location: this.options.remoteResourceLocation })
             .select('-checkResult')
-            .exec(function (err, remoteResourceFound) {
-                if (err) return next(err);
-                if (!remoteResourceFound) return next(new Error('RemoteResource not found'));
-                remoteResource = remoteResourceFound;
-                next();
+            .exec()
+            .then(remoteResource => {
+                if (!remoteResource) throw new Error('RemoteResource not found');
+                this.remoteResource = remoteResource;
+                return remoteResource;
             });
     }
 
-    function checkResource(next) {
-        var plunger = new Checker(remoteResourceLocation, { abort: 'never' });
+    checkResource() {
+        if (this.checkResult) return Promise.resolve(this.checkResult);
 
-        plunger
-            .inspect()
+        this.checker = new Checker(this.options.remoteResourceLocation, { abort: 'never' });
+        return this.checker.inspect()
+            .then(() => this.remoteResource.checkResult = this.checker.toObject());
+    }
+
+    handleArchive() {
+        return this.checker.saveArchive()
+            .then(() => this.checker.decompressArchive())
+            .then(() => this.checker.listFiles())
+            .then(files => {
+                this.remoteResource
+                    .set('archive.files', files.all)
+                    .set('archive.datasets', files.datasets);
+
+                this.remoteResource
+                    .set('available', true)
+                    .set('type', files.datasets.length > 0 ? 'file-distribution' : 'unknown-archive');
+            })
+            .finally(() => this.checker.cleanup());
+    }
+
+    saveChanges() {
+        if (!this.remoteResource) return Promise.resolve();
+
+        return this.remoteResource
+            .set('updatedAt', this.now)
+            .set('touchedAt', this.now)
+            .save();
+    }
+
+    propagateChanges() {
+        return RelatedResource.find({ 'remoteResource.location': this.options.remoteResourceLocation })
+            .exec()
+            .map(relatedResource => {
+                if (relatedResource.remoteResource.available === this.remoteResource.available &&
+                    relatedResource.remoteResource.type === this.remoteResource.type) {
+                    return Promise.resolve();
+                }
+
+                return relatedResource
+                    .set('remoteResource.available', this.remoteResource.available)
+                    .set('remoteResource.type', this.remoteResource.type)
+                    .set('updatedAt', this.now)
+                    .save()
+                    .then(() => RelatedResource.triggerConsolidation(relatedResource));
+            });
+    }
+
+    exec() {
+        return this.getRemoteResource()
+            .then(() => this.checkResource())
             .then(() => {
-                checkResult = plunger.toObject();
-
-                if (plunger.isArchive()) {
-                    return plunger.saveArchive()
-                        .then(path => job.log('Saved at %s!', path))
-                        .then(() => plunger.decompressArchive())
-                        .then(path => job.log('Decompressed at %s!', path))
-                        .then(() => plunger.listFiles())
-                        .then(files => {
-                            remoteResource
-                                .set('archive.files', files.all)
-                                .set('archive.datasets', files.datasets);
-
-                            isAvailable = true;
-                            isFileDistribution = files.datasets.length > 0;
-                        })
-                        .finally(() => plunger.cleanup());
+                if (this.checker.isArchive()) {
+                    return this.handleArchive();
                 } else {
-                    plunger.closeConnection(true);
-                    isFileDistribution = false;
-                    isAvailable = plunger.statusCode === 200;
+                    this.checker.closeConnection(true);
+                    this.remoteResource
+                        .set('type', 'page') // Could be easily improved in the future
+                        .set('available', undefined);
                 }
             })
-            .nodeify(next);
+            .then(() => this.saveChanges())
+            .then(() => this.propagateChanges())
+            .return();
     }
 
-    function update(next) {
-        var now = new Date();
-
-        remoteResource
-            .set('checkResult', checkResult)
-            .set('updatedAt', now)
-            .set('touchedAt', now)
-            .set('available', isAvailable);
-
-        if (isFileDistribution) {
-            remoteResource.set('type', 'file-distribution');
-        }
-
-        remoteResource.save(next);
-    }
-
-    function propagate(next) {
-        var now = new Date();
-
-        function applyToRelated(relatedResource, done) {
-            if (relatedResource.remoteResource.available === isAvailable && relatedResource.remoteResource.type === remoteResource.type) {
-                return done();
-            }
-
-            relatedResource
-                .set('remoteResource.available', remoteResource.available)
-                .set('remoteResource.type', remoteResource.type)
-                .set('updatedAt', now)
-                .save(function (err) {
-                    if (err) return done(err);
-                    RelatedResource.triggerConsolidation(relatedResource, done);
-                });
-        }
-
-        RelatedResource.find({ 'remoteResource.location': remoteResourceLocation }, function (err, relatedResources) {
-            if (err) return next(err);
-            async.each(relatedResources, applyToRelated, next);
-        });
-    }
-
-    /* Execution */
-
-    var processSequence = [
-        fetchModel,
-        checkResource,
-        update,
-        propagate
-    ];
-
-    async.series(processSequence, jobDone);
-};
+}

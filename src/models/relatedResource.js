@@ -22,7 +22,8 @@ var RESOURCE_TYPES = [
 
 var REMOTE_RESOURCE_TYPES = [
     'page',
-    'file-distribution'
+    'file-distribution',
+    'unknown-archive'
 ];
 
 var RelatedResourceSchema = new Schema({

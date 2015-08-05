@@ -8,7 +8,8 @@ var csw = require('./lib/tasks/harvest-csw');
 var wfs = require('./lib/tasks/lookup-wfs');
 var processRecord = require('./lib/tasks/process-record');
 var consolidateDataset = require('./lib/tasks/consolidate-dataset');
-var checkRemoteResource = require('./lib/tasks/check-remote-resource');
+
+var RemoteResourceCheck = require('./lib/tasks/check-remote-resource');
 
 // To remove in the future
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -19,10 +20,14 @@ q.process('harvest-csw', 4, csw.harvest);
 q.process('lookup-wfs', 10, wfs.lookup);
 q.process('process-record', 20, processRecord);
 q.process('dataset:consolidate', 20, consolidateDataset);
-q.process('remote-resource:check', 10, checkRemoteResource);
 
 q.process('dgv:publish', 5, require('./lib/tasks/dgfr/publish'));
 q.process('dgv:fetch', 1, require('./lib/tasks/dgfr/fetch'));
+
+q.process('remote-resource:check', 10, function (kueJob, doneCallback) {
+    var job = new RemoteResourceCheck(kueJob.data);
+    job.exec().nodeify(doneCallback);
+});
 
 var gracefulShutdown = _.once(function () {
     q.shutdown(5000, function (err) {
