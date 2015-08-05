@@ -1,7 +1,7 @@
 /*
 ** Module dependencies
 */
-var es = require('event-stream');
+var through2 = require('through2');
 var mongoose = require('mongoose');
 
 var jobs = require('../kue').jobs;
@@ -29,7 +29,7 @@ exports.forceReprocessAll = function (req, res) {
         .select({ identifier: 1 })
         .lean()
         .stream()
-        .pipe(es.map(function (record, cb) {
+        .pipe(through2.obj(function (record, enc, cb) {
             jobs
                 .create('process-record', {
                     recordId: record.identifier,
@@ -38,8 +38,8 @@ exports.forceReprocessAll = function (req, res) {
                 .removeOnComplete(true)
                 .attempts(5)
                 .save(function (err) {
-                    if (err) return cb(err);
-                    count++;
+                    if (err) console.error(err);
+                    else count++;
                     cb();
                 });
         }))

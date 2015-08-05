@@ -2,9 +2,9 @@
 ** Module dependencies
 */
 var _ = require('lodash');
+var through2 = require('through2');
 var s = require('underscore.string');
 var util = require('util');
-var es = require('event-stream');
 var csw = require('csw-client');
 
 var mongoose = require('../../mongoose');
@@ -60,7 +60,7 @@ CswHarvestJob.prototype.stats = function () {
     var recordTypeStats = this.recordTypeStats = {};
     var recordStatusStats = this.recordStatusStats = {};
 
-    return es.mapSync(function (processResult) {
+    return through2.obj(function (processResult, enc, cb) {
         var parseResult = processResult.parseResult;
         var recordType = parseResult.recordType;
         var processStatus = parseResult.valid ? processResult.upsertStatus : 'not-valid';
@@ -77,7 +77,7 @@ CswHarvestJob.prototype.stats = function () {
             recordStatusStats[processStatus]++;
         }
 
-        return processResult;
+        cb(null, processResult);
     });
 };
 
@@ -85,17 +85,17 @@ CswHarvestJob.prototype.globalProgress = function () {
     this.returned = 0;
     var job = this;
 
-    return es.mapSync(function (record) {
+    return through2.obj(function (record, enc, cb) {
         job.returned++;
         job.progress(job.returned, job.matched);
-        return record;
+        cb(null, record);
     });
 };
 
 CswHarvestJob.prototype.processRecord = function () {
     var job = this;
 
-    return es.map(function (xmlElement, done) {
+    return through2.obj(function (xmlElement, enc, done) {
         var parseResult = parseRecord(xmlElement);
 
         if (!parseResult.parsedRecord || !parseResult.valid) {
