@@ -4,6 +4,9 @@
 var path = require('path');
 var mongoose = require('mongoose');
 var utils = require('./utils');
+var Promise = require('bluebird');
+
+mongoose.Promise = Promise;
 
 mongoose.connect(process.env.MONGODB_URL);
 
