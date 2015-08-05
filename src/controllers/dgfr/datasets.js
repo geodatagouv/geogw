@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var es = require('event-stream');
+var through2 = require('through2');
 var async = require('async');
 // var _ = require('lodash');
 
@@ -95,7 +95,7 @@ exports.publishAll = function (req, res) {
         })
         .lean()
         .stream()
-        .pipe(es.map(function (dataset, done) {
+        .pipe(through2.obj(function (dataset, enc, done) {
             q
                 .create('dgv:publish', {
                     organizationId: req.organization._id,
@@ -119,7 +119,7 @@ exports.unpublishAll = function (req, res) {
     Dataset
         .find({ 'publication.organization': req.organization._id })
         .stream()
-        .pipe(es.map(function (dataset, done) {
+        .pipe(through2.obj(function (dataset, enc, done) {
             dataset.unpublish(function (err) {
                 if (err) return done(err);
                 count++;
@@ -138,7 +138,7 @@ exports.syncAll = function (req, res) {
         .find({ 'publication.organization': req.organization._id })
         .lean()
         .stream()
-        .pipe(es.map(function (dataset, done) {
+        .pipe(through2.obj(function (dataset, enc, done) {
             q
                 .create('dgv:publish', {
                     organizationId: req.organization._id,
