@@ -121,9 +121,11 @@ exports.unpublishAll = function (req, res) {
         .stream()
         .pipe(through2.obj(function (dataset, enc, done) {
             dataset.unpublish(function (err) {
-                if (err) return done(err);
-                count++;
-                done(null, null);
+                if (err)
+                    console.error(err);
+                else
+                    count++;
+                done();
             });
         }))
         .on('end', function () {
