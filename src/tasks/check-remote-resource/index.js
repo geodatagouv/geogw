@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
-import Checker from './checker';
+import Plunger from '../../helpers/plunger';
 
 const RemoteResource = mongoose.model('RemoteResource');
 const RelatedResource = mongoose.model('RelatedResource');
@@ -30,7 +30,7 @@ export default class RemoteResourceCheck {
     checkResource() {
         if (this.checkResult) return Promise.resolve(this.checkResult);
 
-        this.checker = new Checker(this.options.remoteResourceLocation, { abort: 'never' });
+        this.checker = new Plunger(this.options.remoteResourceLocation, { abort: 'never' });
         return this.checker.inspect()
             .then(() => this.remoteResource.checkResult = this.checker.toObject());
     }

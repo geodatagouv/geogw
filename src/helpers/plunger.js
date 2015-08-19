@@ -12,7 +12,7 @@ const execAsync = Promise.promisify(exec);
 const rimrafAsync = Promise.promisify(rimraf);
 
 
-export default class Checker extends Plunger {
+export default class SuperPlunger extends Plunger {
 
     constructor(location, options = {}) {
         super(location, options);
