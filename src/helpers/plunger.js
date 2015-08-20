@@ -36,7 +36,7 @@ export default class SuperPlunger extends Plunger {
                 return new Promise((resolve, reject) => {
                     this.archivePath = path + '/archive.' + this.archive;
 
-                    let hash = crypto.createHash('sha1');
+                    const hash = crypto.createHash('sha1');
 
                     this
                         .pipeWithResponse(hash)
