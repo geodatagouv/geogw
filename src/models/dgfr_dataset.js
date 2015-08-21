@@ -37,6 +37,7 @@ var DatasetSchema = new Schema({
 
         withErrors: { type: Boolean },
 
+        createdAt: { type: Date },
         updatedAt: { type: Date, index: true, sparse: true }
     },
 
@@ -96,12 +97,12 @@ DatasetSchema.methods = {
 
                 if (type === 'create') {
                     datasetRef
-                        // .set('_created', now)
+                        .set('publication.createdAt', now)
                         .set('publication._id', publishedDataset.id);
                 }
 
                 datasetRef
-                    .set('updatedAt', now)
+                    .set('publication.updatedAt', now)
                     .set('publication.withErrors', withErrors)
                     .save(done);
             }
