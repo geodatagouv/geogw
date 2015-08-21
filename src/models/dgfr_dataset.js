@@ -35,6 +35,8 @@ var DatasetSchema = new Schema({
         // Published dataset revision
         revision: { type: Date },
 
+        withErrors: { type: Boolean },
+
         updatedAt: { type: Date, index: true, sparse: true }
     },
 
@@ -87,7 +89,7 @@ DatasetSchema.methods = {
             if (err) return done(err);
             if (!context.accessToken) return done(new Error('No working accessToken found'));
 
-            function requestSyncCallback(err, publishedDataset) {
+            function requestSyncCallback(err, publishedDataset, withErrors) {
                 if (err) return done(err);
 
                 var now = new Date();
@@ -100,6 +102,7 @@ DatasetSchema.methods = {
 
                 datasetRef
                     .set('updatedAt', now)
+                    .set('publication.withErrors', withErrors)
                     .save(done);
             }
 

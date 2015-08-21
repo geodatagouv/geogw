@@ -47,23 +47,30 @@ exports.getOrganization = function (id, done) {
 
 exports.createDataset = function (dataset, accessToken, done) {
     var datasetId;
+    var createdWithErrors = false;
     async.series({
         creation: function (stepDone) {
             exports.createDatasetOnly(dataset, accessToken, function (err, datasetCreated) {
                 if (err) return stepDone(err);
                 datasetId = datasetCreated.id;
-                stepDone(null, datasetCreated);
+                stepDone();
             });
         },
         resources: function (stepDone) {
-            exports.updateDatasetResources(datasetId, dataset.resources, accessToken, stepDone);
+            exports.updateDatasetResources(datasetId, dataset.resources, accessToken, function (err) {
+                if (err) {
+                    createdWithErrors = true;
+                    console.log(err);
+                }
+                stepDone();
+            });
         },
         completeDataset: function (stepDone) {
             exports.getDataset(datasetId, accessToken, stepDone);
         }
     }, function (err, result) {
         if (err) return done(err);
-        done(null, result.completeDataset);
+        done(null, result.completeDataset, createdWithErrors);
     });
 };
 
