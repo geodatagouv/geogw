@@ -35,7 +35,6 @@
     "express-session": "^1.10.2",
     "findit": "^2.0.0",
     "handlebars": "^3.0.1",
-    "hiredis": "^0.4",
     "ipaddr.js": "^1.0.1",
     "iso19139": "jdesboeufs/node-iso19139",
     "json-stable-stringify": "^1.0.0",
