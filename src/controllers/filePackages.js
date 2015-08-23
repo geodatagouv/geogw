@@ -1,5 +1,32 @@
 import Plunger from '../helpers/plunger';
 import strLeftBack from 'underscore.string/strLeftBack';
+import find from 'lodash/collection/find';
+
+
+exports.loadLayer = function (req, res, next) {
+    const notFound = message => res.status(404).send({
+        code: 404,
+        message: message || 'Layer not found in given file package'
+    });
+
+    const datasets = req.remoteResource.archive.datasets;
+
+    if (req.params.layerName) {
+        let foundLayer = find(datasets, dataset => dataset.includes(req.params.layerName));
+        if (foundLayer) {
+            req.layer = foundLayer;
+            return next();
+        }
+    }
+
+    // Compatibility
+    if (!req.params.layerName && datasets.length > 0) {
+        req.layer = datasets[0];
+        return next();
+    }
+
+    notFound();
+};
 
 exports.prepateFilePackageDownload = function (req, res, next) {
 

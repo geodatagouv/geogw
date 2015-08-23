@@ -18,7 +18,10 @@ module.exports = function(app) {
         .post(remoteResources.check);
 
     app.route('/file-packages/:remoteResourceId/download')
-        .get(filePackages.prepateFilePackageDownload, ogr2ogr.downloadDataset);
+        .get(filePackages.loadLayer, filePackages.prepateFilePackageDownload, ogr2ogr.downloadDataset);
+
+    app.route('/file-packages/:remoteResourceId/:layerName/download')
+        .get(filePackages.loadLayer, filePackages.prepateFilePackageDownload, ogr2ogr.downloadDataset);
 
 
 };
