@@ -12,18 +12,22 @@ function buildFeatureType(resource) {
 }
 
 
-function buildFile(resource) {
+function buildLayers(resource) {
     if (resource.type !== 'remote-resource') return;
     if (!resource.remoteResource) return;
+    if (!resource.remoteResource.layers || resource.remoteResource.layers.length === 0) return;
 
-    return {
-        type: 'file-package',
-        name: resource.name,
-        location: resource.remoteResource.location,
-        hashedLocation: resource.remoteResource.hashedLocation,
-        available: resource.remoteResource.available
-    };
+    return resource.remoteResource.layers.map(layer => {
+        return {
+            type: 'file-package',
+            name: resource.name,
+            location: resource.remoteResource.location,
+            hashedLocation: resource.remoteResource.hashedLocation,
+            available: resource.remoteResource.available,
+            layer: layer
+        };
+    });
 }
 
 exports.buildFeatureType = buildFeatureType;
-exports.buildFile = buildFile;
+exports.buildLayers = buildLayers;
