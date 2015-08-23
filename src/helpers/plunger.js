@@ -54,7 +54,14 @@ export default class SuperPlunger extends Plunger {
         if (this.decompressedDirectoryPath) return Promise.resolve(this.decompressedDirectoryPath);
         if (!this.archivePath) return Promise.reject(new Error('`archivePath` is not defined'));
         let decompressProcess;
-        if (this.archive === 'zip') decompressProcess = execAsync('unzip -d decompressed archive.zip', { cwd: this.tempDirectoryPath });
+        if (this.archive === 'zip') {
+            decompressProcess = new Promise((resolve, reject) => {
+                exec('unzip -d decompressed archive.zip', { cwd: this.tempDirectoryPath }, (err, stderr, stdout) => {
+                    if ((err && err.code === 1) || !err) return resolve();
+                    reject(err);
+                });
+            });
+        }
         if (this.archive === 'rar') decompressProcess = execAsync('unrar x archive.rar decompressed/', { cwd: this.tempDirectoryPath });
         if (decompressProcess) {
             return decompressProcess.then(() => {
