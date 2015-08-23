@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import Plunger from '../../helpers/plunger';
+import strRightBack from 'underscore.string/strRightBack';
 
 const RemoteResource = mongoose.model('RemoteResource');
 const RelatedResource = mongoose.model('RelatedResource');
@@ -61,6 +62,8 @@ export default class RemoteResourceCheck {
     }
 
     propagateChanges() {
+        const layers = this.remoteResource.archive.datasets.map(dataset => strRightBack(dataset, '/'));
+
         return RelatedResource.find({ 'remoteResource.location': this.options.remoteResourceLocation })
             .exec()
             .map(relatedResource => {
@@ -72,6 +75,7 @@ export default class RemoteResourceCheck {
                 return relatedResource
                     .set('remoteResource.available', this.remoteResource.available)
                     .set('remoteResource.type', this.remoteResource.type)
+                    .set('remoteResource.layers', layers)
                     .set('updatedAt', this.now)
                     .save()
                     .then(() => RelatedResource.triggerConsolidation(relatedResource));
