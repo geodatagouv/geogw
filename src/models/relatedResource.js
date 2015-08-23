@@ -56,7 +56,8 @@ var RelatedResourceSchema = new Schema({
         location: { type: String, index: true, sparse: true },
         hashedLocation: { type: String, index: true, sparse: true },
         type: { type: String, enum: REMOTE_RESOURCE_TYPES },
-        available: { type: Boolean }
+        available: { type: Boolean },
+        layers: { type: [String] }
     }
 
 });
