@@ -37,17 +37,31 @@ export default class RemoteResourceCheck {
     }
 
     handleArchive() {
+        var saveArchivePromise
+
         return this.checker.saveArchive()
             .then(() => this.checker.decompressArchive())
             .then(() => this.checker.listFiles())
             .then(files => {
                 this.remoteResource
                     .set('archive.files', files.all)
-                    .set('archive.datasets', files.datasets);
+                    .set('archive.datasets', files.datasets)
+                    .set('checkResult.digest', this.checker.digest.toString('hex'))
+                    .set('checkResult.size', this.checker.readBytes);
 
                 this.remoteResource
                     .set('available', true)
                     .set('type', files.datasets.length > 0 ? 'file-distribution' : 'unknown-archive');
+            })
+            .catch(err => {
+                if (err.message === 'Archive is too large') {
+                    this.remoteResource
+                        .set('checkResult.archiveTooLarge', true)
+                        .set('available', true)
+                        .set('type', 'unknown-archive');
+                } else {
+                    return Promise.reject(err);
+                }
             })
             .finally(() => this.checker.cleanup());
     }
