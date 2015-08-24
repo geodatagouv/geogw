@@ -45,14 +45,15 @@ ServiceSyncJob.prototype.start = function(executionDone) {
 ServiceSyncJob.prototype.fail = function(err) {
     this.clearTimeout();
     if (this._finish) this._finish();
-
-    this.serviceSync.toggleError(_.bind(function(persistError) {
-        if (persistError) {
-            console.log('Critical error: unable to persist error status on a serviceSync');
-            console.trace(persistError);
-        }
-        this.executionCallback(err);
-    }, this));
+    if (this.serviceSync) {
+        this.serviceSync.toggleError(persistError => {
+            if (persistError) {
+                console.log('Critical error: unable to persist error status on a serviceSync');
+                console.trace(persistError);
+            }
+        });
+    }
+    this.executionCallback(err);
 };
 
 ServiceSyncJob.prototype.success = function(count) {
