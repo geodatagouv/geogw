@@ -54,11 +54,11 @@ export default class SuperPlunger extends Plunger {
 
                     this
                         .pipeWithResponse(hash)
-                        .on('finish', () => this.digest = hash.read());
+                        .once('finish', () => this.digest = hash.read());
 
                     this
                         .pipeWithResponse(fs.createWriteStream(this.archivePath))
-                        .on('finish', () => resolve(this.archivePath))
+                        .once('finish', () => resolve(this.archivePath))
                         .on('error', reject);
                 });
             });
