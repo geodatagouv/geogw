@@ -1,6 +1,7 @@
 import Plunger from '../helpers/plunger';
 import strLeftBack from 'underscore.string/strLeftBack';
 import find from 'lodash/collection/find';
+import includes from 'lodash/collection/includes';
 
 
 exports.loadLayer = function (req, res, next) {
@@ -43,12 +44,6 @@ exports.prepateFilePackageDownload = function (req, res, next) {
         error: err
     });
 
-    const notImplemented = err => res.status(501).send({
-        code: 501,
-        message: 'Resource cannot be processed',
-        error: err
-    });
-
     const serverError = err => res.status(500).send({
         code: 500,
         message: 'Internal server error',
@@ -68,11 +63,11 @@ exports.prepateFilePackageDownload = function (req, res, next) {
                     .then(() => req.plunger.decompressArchive())
                     .then(() => req.plunger.listFiles())
                     .then(files => {
-                        if (files.datasets.length !== 1) {
-                            return notImplemented(new Error('Expected 1 layer in archive but found: ' + files.datasets.length));
+                        if (!includes(files, req.layer)) {
+                            return notFound(); // Should trigger remote resource refresh
                         }
-                        const layerPath = req.plunger.decompressedDirectoryPath + '/' + files.datasets[0];
-                        const layerName = strLeftBack(files.datasets[0], '.');
+                        const layerPath = req.plunger.decompressedDirectoryPath + '/' + req.layer;
+                        const layerName = strLeftBack(req.layer, '.');
                         return success(layerPath, layerName);
                     });
             }
