@@ -6,6 +6,7 @@ import Promise from 'bluebird';
 import findit from 'findit';
 import crypto from 'crypto';
 import rimraf from 'rimraf';
+import through2 from 'through2';
 
 const tmpDirAsync = Promise.promisify(tmpDir);
 const execAsync = Promise.promisify(exec);
@@ -37,6 +38,19 @@ export default class SuperPlunger extends Plunger {
                     this.archivePath = path + '/archive.' + this.archive;
 
                     const hash = crypto.createHash('sha1');
+                    let readBytes = 0;
+
+                    this
+                        .pipeWithResponse(through2.obj((chunk, enc, cb) => {
+                            readBytes += chunk.length;
+                            if (readBytes > 100 * 1024 * 1204) {
+                                this.closeConnection(true);
+                                console.log('Too large: %d', readBytes);
+                                reject(new Error('Archive is too large'));
+                            }
+                            cb();
+                        }))
+                        .once('finish', () => this.readBytes = readBytes);
 
                     this
                         .pipeWithResponse(hash)
