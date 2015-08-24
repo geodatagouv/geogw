@@ -41,7 +41,7 @@ module.exports = function (job, done) {
                 distribution = distributions.buildFeatureType(resource);
                 if (distribution) dist.push(distribution);
             } else if (resource.type === 'remote-resource' && resource.remoteResource.type === 'file-distribution') {
-                Array.prototype.push.apply(dist, distributions.buildLayers(resource))
+                Array.prototype.push.apply(dist, distributions.buildLayers(resource));
             } else {
                 alt.push({
                     name: resource.name,

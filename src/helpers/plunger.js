@@ -70,7 +70,7 @@ export default class SuperPlunger extends Plunger {
         let decompressProcess;
         if (this.archive === 'zip') {
             decompressProcess = new Promise((resolve, reject) => {
-                exec('unzip -d decompressed archive.zip', { cwd: this.tempDirectoryPath }, (err, stderr, stdout) => {
+                exec('unzip -d decompressed archive.zip', { cwd: this.tempDirectoryPath }, err => {
                     if ((err && err.code === 1) || !err) return resolve();
                     reject(err);
                 });

@@ -37,8 +37,6 @@ export default class RemoteResourceCheck {
     }
 
     handleArchive() {
-        var saveArchivePromise
-
         return this.checker.saveArchive()
             .then(() => this.checker.decompressArchive())
             .then(() => this.checker.listFiles())
