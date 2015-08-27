@@ -1,7 +1,7 @@
-import { mongoose, Schema } from 'mongoose';
+import mongoose from 'mongoose';
+import { Schema } from 'mongoose';
 import sidekick from '../helpers/sidekick';
-
-var _ = require('lodash');
+import pick from 'lodash/object/pick';
 
 var DistributionSchema = require('./schemas/distribution');
 var facets = require('../helpers/facets');
@@ -72,52 +72,48 @@ RecordSchema.index({ parentCatalog: 1, hashedId: 1 }, { unique: true });
 */
 RecordSchema.statics = {
 
-    touchExisting: function (record, done) {
-        var query = _.pick(record, 'parentCatalog', 'hashedId', 'hashedRecord');
-        var changes = { $currentDate: { touchedAt: 1 } };
+    touchExisting: function (record) {
+        const query = pick(record, 'parentCatalog', 'hashedId', 'hashedRecord');
+        const changes = { $currentDate: { touchedAt: 1 } };
 
-        this.update(query, changes, function (err, rawResponse) {
-            if (err) return done(err);
-            var touched = rawResponse.nModified === 1;
-            done(null, touched);
-        });
+        return this.update(query, changes)
+            .then(rawResponse => rawResponse.nModified === 1);
     },
 
-    doUpsert: function (record, done) {
-        var query = _.pick(record, 'parentCatalog', 'hashedId');
+    doUpsert: function (record) {
+        var query = pick(record, 'parentCatalog', 'hashedId');
         var changes = {
             $currentDate: { updatedAt: 1, touchedAt: 1 },
-            $setOnInsert: _.pick(record, 'identifier'),
-            $set: _.pick(record, 'metadata', 'dateStamp', 'hashedRecord')
+            $setOnInsert: pick(record, 'identifier'),
+            $set: pick(record, 'metadata', 'dateStamp', 'hashedRecord')
         };
 
-        this.update(query, changes, { upsert: true }, function (err, rawResponse) {
-            if (err) return done(err);
-            done(null, rawResponse.upserted ? 'created' : 'updated');
+        return this.update(query, changes, { upsert: true })
+            .then(rawResponse => rawResponse.upserted ? 'created' : 'updated');
+    },
+
+    triggerConsolidateAsDataset: function (record) {
+        return sidekick('dataset:consolidate', {
+            hashedId: record.hashedId,
+            catalogId: record.parentCatalog
         });
     },
 
-    triggerConsolidateAsDataset: function (record, done) {
-        return sidekick(
-            'dataset:consolidate',
-            { hashedId: record.hashedId, catalogId: record.parentCatalog }
-        ).nodeify(done);
+    triggerProcessRecord: function (record) {
+        return sidekick('process-record', {
+            hashedId: record.hashedId,
+            catalogId: record.parentCatalog
+        });
     },
 
-    upsert: function (record, done) {
-        var Model = this;
-
-        Model.touchExisting(record, function (err, touched) {
-            if (err) return done(err);
-            if (touched) return done(null, 'touched');
-
-            Model.doUpsert(record, function (err, upsertStatus) {
-                if (err) return done(err);
-
-                sidekick('process-record', { hashedId: record.hashedId, catalogId: record.parentCatalog })
-                    .then(() => done(null, upsertStatus), done);
+    upsert: function (record) {
+        return this
+            .touchExisting(record)
+            .then(touched => touched ? 'touched' : this.doUpsert(record))
+            .then(upsertStatus => {
+                if (upsertStatus === 'touched') return 'touched';
+                return this.triggerProcessRecord(record).return(upsertStatus);
             });
-        });
     }
 
 };

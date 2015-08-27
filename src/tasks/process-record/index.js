@@ -216,7 +216,7 @@ module.exports = function(job, done) {
     }
 
     function executeTriggers(next) {
-        Record.triggerConsolidateAsDataset(record, next);
+        return Record.triggerConsolidateAsDataset(record).nodeify(next);
     }
 
     var seq = [

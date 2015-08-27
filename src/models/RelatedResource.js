@@ -1,7 +1,6 @@
 var mongoose = require('mongoose');
 var _ = require('lodash');
 var debug = require('debug')('model:related-resource');
-var Promise = require('bluebird');
 
 var featureTypeMatchings = require('../matching/featureTypes');
 var sha1 = require('../helpers/hash').sha1;
@@ -121,16 +120,10 @@ RelatedResourceSchema.statics = {
 
         var Record = mongoose.model('Record');
 
-        // Temp promisification
-        return (new Promise((resolve, reject) => {
-            Record.triggerConsolidateAsDataset({
-                hashedId: relatedResource.record,
-                parentCatalog: relatedResource.originCatalog
-            }, err => {
-                if (err) return reject(err);
-                resolve();
-            });
-        })).nodeify(done);
+        return Record.triggerConsolidateAsDataset({
+            hashedId: relatedResource.record,
+            parentCatalog: relatedResource.originCatalog
+        }).nodeify(done);
     },
 
     upsertRemoteResource: function (relatedResource, done) {

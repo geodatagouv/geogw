@@ -111,7 +111,7 @@ CswHarvestJob.prototype.processRecord = function () {
             identifier: parseResult.id
         };
 
-        Record.upsert(record, function (err, upsertStatus) {
+        Record.upsert(record).nodeify(function (err, upsertStatus) {
             if (err) return done(err);
             done(null, { parseResult: parseResult, upsertStatus: upsertStatus });
         });
