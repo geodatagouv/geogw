@@ -8,6 +8,8 @@ var Promise = require('bluebird');
 
 mongoose.Promise = Promise;
 
+Promise.promisifyAll(mongoose.mongo);
+
 mongoose.connect(process.env.MONGODB_URL);
 
 utils.walk(path.join(__dirname, 'models'), null, function(path) {

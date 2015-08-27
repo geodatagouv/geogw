@@ -1,14 +1,11 @@
-/*
-** Module dependencies
-*/
-var mongoose = require('mongoose');
+import { mongoose, Schema } from 'mongoose';
+import sidekick from '../helpers/sidekick';
+
 var _ = require('lodash');
 
-var jobs = require('../kue').jobs;
 var DistributionSchema = require('./schemas/distribution');
 var facets = require('../helpers/facets');
 
-var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
 var Mixed = Schema.Types.Mixed;
 
@@ -100,26 +97,11 @@ RecordSchema.statics = {
         });
     },
 
-    triggerProcessRecord: function (record, done) {
-        jobs
-            .create('process-record', {
-                hashedId: record.hashedId,
-                catalogId: record.parentCatalog
-            })
-            .removeOnComplete(true)
-            .attempts(5)
-            .save(done);
-    },
-
     triggerConsolidateAsDataset: function (record, done) {
-        jobs
-            .create('dataset:consolidate', {
-                hashedId: record.hashedId,
-                catalogId: record.parentCatalog
-            })
-            .removeOnComplete(true)
-            .attempts(5)
-            .save(done);
+        return sidekick(
+            'dataset:consolidate',
+            { hashedId: record.hashedId, catalogId: record.parentCatalog }
+        ).nodeify(done);
     },
 
     upsert: function (record, done) {
@@ -132,11 +114,8 @@ RecordSchema.statics = {
             Model.doUpsert(record, function (err, upsertStatus) {
                 if (err) return done(err);
 
-                Model.triggerProcessRecord(record, function (err) {
-                    if (err) console.log(err);
-
-                    done(null, upsertStatus);
-                });
+                sidekick('process-record', { hashedId: record.hashedId, catalogId: record.parentCatalog })
+                    .then(() => done(null, upsertStatus), done);
             });
         });
     }
