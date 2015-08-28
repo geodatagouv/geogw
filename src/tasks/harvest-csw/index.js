@@ -2,10 +2,10 @@ import forEachInCollection from 'lodash/collection/forEach';
 import through2  from 'through2';
 import { inspect } from 'util';
 import csw from 'csw-client';
-
 import mongoose from '../../mongoose';
 import ServiceSyncJob from '../syncJob';
 import { parse as parseRecord } from '../../parsers/record';
+
 
 const RecordRevision = mongoose.model('Record');
 

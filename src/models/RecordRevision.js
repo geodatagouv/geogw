@@ -2,17 +2,14 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import sidekick from '../helpers/sidekick';
 import pick from 'lodash/object/pick';
+import DistributionSchema from './schemas/distribution';
+import facets from '../helpers/facets';
 
-var DistributionSchema = require('./schemas/distribution');
-var facets = require('../helpers/facets');
+const ObjectId = Schema.Types.ObjectId;
+const Mixed = Schema.Types.Mixed;
 
-var ObjectId = Schema.Types.ObjectId;
-var Mixed = Schema.Types.Mixed;
 
-/*
-** Record schema
-*/
-var RecordSchema = new Schema({
+export const schema = new Schema({
 
     /* Synchronization */
     parentCatalog: { type: ObjectId, ref: 'Service', required: true, index: true },
@@ -62,15 +59,15 @@ var textIndexDefinition = {
     'metadata.keywords': 'text'
 };
 
-RecordSchema.index(textIndexDefinition, textIndexOptions);
+schema.index(textIndexDefinition, textIndexOptions);
 
-RecordSchema.index({ 'facets.name': 1, 'facets.value': 1 });
-RecordSchema.index({ parentCatalog: 1, hashedId: 1 }, { unique: true });
+schema.index({ 'facets.name': 1, 'facets.value': 1 });
+schema.index({ parentCatalog: 1, hashedId: 1 }, { unique: true });
 
 /*
 ** Statics
 */
-RecordSchema.statics = {
+schema.statics = {
 
     touchExisting: function (record) {
         const query = pick(record, 'parentCatalog', 'hashedId', 'hashedRecord');
@@ -122,7 +119,7 @@ RecordSchema.statics = {
 /*
 ** Methods
 */
-RecordSchema.methods = {
+schema.methods = {
 
     computeFacets: function () {
         return this.set('facets', facets.compute(this));
@@ -134,4 +131,4 @@ RecordSchema.methods = {
 /*
 ** Attach model
 */
-mongoose.model('Record', RecordSchema);
+mongoose.model('Record', schema);
