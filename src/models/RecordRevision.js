@@ -99,7 +99,7 @@ RecordSchema.statics = {
         });
     },
 
-    triggerProcessRecord: function (record) {
+    triggerProcess: function (record) {
         return sidekick('process-record', {
             hashedId: record.hashedId,
             catalogId: record.parentCatalog
@@ -112,7 +112,7 @@ RecordSchema.statics = {
             .then(touched => touched ? 'touched' : this.doUpsert(record))
             .then(upsertStatus => {
                 if (upsertStatus === 'touched') return 'touched';
-                return this.triggerProcessRecord(record).return(upsertStatus);
+                return this.triggerProcess(record).return(upsertStatus);
             });
     }
 
