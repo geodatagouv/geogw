@@ -1,31 +1,22 @@
-/*
-** Module dependencies
-*/
-var mongoose = require('mongoose');
-var _ = require('lodash');
-var jobs = require('../kue').jobs;
-var async = require('async');
-var debug = require('debug')('model:service');
+import mongoose from 'mongoose';
+import { Schema } from 'mongoose';
+import pick from 'lodash/object/pick';
+import keys from 'lodash/object/keys';
+import sidekick from '../helpers/sidekick';
+import Promise from 'bluebird';
 
-var Schema = mongoose.Schema;
-var csw = require('./serviceTypes/csw');
-var wfs = require('./serviceTypes/wfs');
-var wms = require('./serviceTypes/wms');
+import csw from './serviceTypes/csw';
+import wfs from './serviceTypes/wfs';
+import wms from './serviceTypes/wms';
 
-/*
-** Supported protocols
-*/
-var supportedProtocols = { csw: csw, wfs: wfs, wms: wms };
+export const supportedProtocols = { csw: csw, wfs: wfs, wms: wms };
 
-var SYNC_STATUSES = ['new', 'successful', 'failed'];
+export const SYNC_STATUSES = ['new', 'successful', 'failed'];
 
-/*
-** Service schema
-*/
-var ServiceSchema = new Schema({
+export const schema = new Schema({
 
     location: { type: String, required: true },
-    protocol: { type: String, enum: _.keys(supportedProtocols), required: true },
+    protocol: { type: String, enum: keys(supportedProtocols), required: true },
 
     /* Context */
     name: { type: String, trim: true },
@@ -48,83 +39,65 @@ var ServiceSchema = new Schema({
 /*
 ** Statics
 */
-ServiceSchema.statics = {
+schema.statics = {
 
-    triggerSync: function (service, freshness, done) {
-        if (!done) {
-            done = freshness;
-            freshness = 0;
-        }
-
-        if (!service._id) return done(new Error('_id is not defined'));
-        if (!service.protocol) return done(new Error('protocol is not defined'));
-        if (!service.location) return done(new Error('location is not defined'));
-
-        var minFinishedAtAcceptable = new Date(Date.now() - freshness);
-
-        if (service.sync && service.sync.finishedAt && service.sync.finishedAt > minFinishedAtAcceptable) {
-            return done();
-        }
-
-        var Service = this;
-        var ServiceSync = mongoose.model('ServiceSync');
-
-        var query = {
-            _id: service._id,
+    setAsPending: function (serviceId) {
+        const query = {
+            _id: serviceId,
             syncEnabled: true,
             'sync.pending': false,
-            'sync.processing': false,
-            'sync.finishedAt': { $lt: minFinishedAtAcceptable }
+            'sync.processing': false
         };
 
-        var changes = {
+        const changes = {
             $set: { 'sync.pending': true }
         };
 
-        Service.update(query, changes, function (err, rawResult) {
-            if (err) return done(err);
-
-            var serviceName = service.name || service._id;
-
-            if (rawResult.nModified === 0) {
-                debug('synchronization ignored for %s', serviceName);
-                return done();
-            }
-
-            debug('synchronization queued for %s', serviceName);
-
-            function createServiceSync(cb) {
-                ServiceSync.create({ service: service._id, status: 'queued' }, cb);
-            }
-
-            function createJob(cb) {
-                var job = jobs.create(supportedProtocols[service.protocol].syncTask, {
-                    title: service.name || 'not defined',
-                    serviceUrl: service.location || 'not defined',
-                    serviceId: service._id,
-                    protocol: service.protocol || 'not defined'
-                });
-
-                if (process.env.NODE_ENV === 'production') {
-                    job.removeOnComplete(true);
-                }
-
-                job.save(cb);
-            }
-
-            async.series([createServiceSync, createJob], done);
-        });
+        return this.update(query, changes).then(rawResponse => rawResponse.nModified === 1);
     },
 
-    upsert: function (service, done) {
-        var Service = this;
+    triggerSync: function (serviceId, freshness = 0) {
+        let syncTask;
 
-        if (!service.protocol) return done(new Error('protocol is not defined'));
-        if (!service.location) return done(new Error('location is not defined'));
+        return this.findById(serviceId).exec()
+            .then(service => {
+                if (!service) throw new Error('service not found for id: ' + serviceId);
+                syncTask = supportedProtocols[service.protocol].syncTask;
+                return service;
+            })
+            .then(service => {
+                // Pre-check part should be moved into the sync task
+                const minFinishedAtAcceptable = new Date(Date.now() - freshness);
 
-        var query = _.pick(service, 'location', 'protocol');
+                if (service.sync && service.sync.finishedAt && service.sync.finishedAt > minFinishedAtAcceptable) {
+                    return 'ignored'; // fresh
+                }
 
-        var changes = {
+                return this.setAsPending(serviceId)
+                    .then(ok => ok ? 'ready' : 'ignored');
+            })
+            .then(status => {
+                if (status === 'ready') {
+                    return Promise.resolve()
+                        .then(() => mongoose.model('ServiceSync').create({ service: serviceId, status: 'queued' }))
+                        .then(() => sidekick(
+                            syncTask,
+                            { serviceId, freshness },
+                            { removeOnComplete: process.env.NODE_ENV === 'production' }
+                        ))
+                        .return('queued');
+                }
+                return status;
+            });
+    },
+
+    upsert: function (service) {
+        if (!service.protocol) throw new Error('protocol is not defined');
+        if (!service.location) throw new Error('location is not defined');
+
+        const query = pick(service, 'location', 'protocol');
+
+        const changes = {
             $setOnInsert: {
                 syncEnabled: true,
                 sync: {
@@ -136,19 +109,14 @@ ServiceSchema.statics = {
             }
         };
 
-        Service.update(query, changes, { upsert: true }, function (err, rawResponse) {
-            if (err) return done(err);
-            if (rawResponse.upserted) {
-                service._id = rawResponse.upserted[0]._id;
-
-                Service.triggerSync(service, function (err) {
-                    if (err) console.log(err);
-                    done(null, service._id);
-                });
-            } else {
-                done();
-            }
-        });
+        return this.update(query, changes, { upsert: true })
+            .then(rawResponse => {
+                if (rawResponse.upserted) {
+                    return this.triggerSync(rawResponse.upserted[0]._id).return('created');
+                } else {
+                    return this.triggerSync(rawResponse.upserted[0]._id, 2 * 60 * 60 * 1000).return('updated'); // 2 hours
+                }
+            });
     }
 
 };
@@ -157,11 +125,11 @@ ServiceSchema.statics = {
 /*
 ** Methods
 */
-ServiceSchema.methods.doSync = function(freshness, done) {
-    mongoose.model('Service').triggerSync(this, freshness, done);
+schema.methods.doSync = function(freshness, done) {
+    mongoose.model('Service').triggerSync(this._id, freshness).nodeify(done);
 };
 
-ServiceSchema.methods.toggleSyncStatus = function (status, itemsFound, done) {
+schema.methods.toggleSyncStatus = function (status, itemsFound, done) {
     if (!done) {
         done = itemsFound;
         itemsFound = 0;
@@ -177,7 +145,6 @@ ServiceSchema.methods.toggleSyncStatus = function (status, itemsFound, done) {
 };
 
 
-/*
-** Attach model
-*/
-mongoose.model('Service', ServiceSchema);
+export const collectionName = 'services';
+
+export const model = mongoose.model('Service', schema, collectionName);

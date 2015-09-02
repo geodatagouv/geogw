@@ -37,23 +37,17 @@ function match(candidateName, referenceName) {
 function resolveOne(relatedResource, typeName, done) {
     var RelatedResource = mongoose.model('RelatedResource');
 
-    var query = {
-        _id: relatedResource._id,
-        'featureType.matchingService': relatedResource.featureType.matchingService,
-        'featureType.matchingName': { $exists: false }
-    };
-    var changes = {
-        $set: {
-            'featureType.matchingName': typeName,
-            updatedAt: new Date()
-        }
-    };
+    const query = RelatedResource.getUniqueQuery(relatedResource);
+    query['featureType.matchingService'] = relatedResource.featureType.matchingService;
+    query['featureType.matchingName'] = { $exists: false };
+
+    const changes = { $set: { 'featureType.matchingName': typeName, updatedAt: new Date() } };
 
     RelatedResource.update(query, changes, function (err, rawResponse) {
         if (err) return done(err);
         if (rawResponse.nModified > 0) {
             debug('%s match with %s', relatedResource.featureType.candidateName, typeName);
-            return RelatedResource.triggerConsolidation(relatedResource, done);
+            return RelatedResource.triggerConsolidation(relatedResource).nodeify(done);
         }
         done();
     });

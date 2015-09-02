@@ -1,234 +1,145 @@
-/*
-** Module dependencies
-*/
-var async = require('async');
-var _ = require('lodash');
-var _s = require('underscore.string');
-var debug = require('debug')('process-record');
+import _ from 'lodash';
+import magicGet from 'lodash/object/get';
+import Promise from 'bluebird';
+import debugFactory from 'debug';
+import mongoose from 'mongoose';
+import { OnlineResource } from './onlineResources';
+import { hashRecordId } from '../../parsers/record/supportedTypes/MD_Metadata';
 
-var mongoose = require('../../mongoose');
-var organizations = require('./organizations');
-var OnlineResource = require('./onlineResources').OnlineResource;
-var hashRecordId = require('../../parsers/record/supportedTypes/MD_Metadata').hashRecordId;
-
-var Record = mongoose.model('Record');
-var RelatedResource = mongoose.model('RelatedResource');
+const debug = debugFactory('process-record');
+const RecordRevision = mongoose.model('RecordRevision');
+const RelatedResource = mongoose.model('RelatedResource');
 
 
-module.exports = function(job, done) {
-    var hashedId = job.data.hashedId;
-    var catalogId = job.data.catalogId;
-    var record;
-    var alternateResources = [];
+export function markExistingRelatedResourcesAsChecking(originId) {
+    return RelatedResource.markAsChecking({ originId });
+}
 
-    function fetchRecord(next) {
-        Record
-            .findOne({ hashedId: hashedId, parentCatalog: catalogId })
-            .exec(function (err, response) {
-                if (err) return next(err);
-                if (!response) return done(new Error('Record not found'));
-                record = response;
-                next();
-            });
-    }
+export function removeCheckingRelatedResources(originId) {
+    return RelatedResource.remove({ originId, checking: true });
+}
 
-    function applyChanges(next) {
-        // Process representationType
-        if (record.metadata.representationType === 'raster') {
-            // TODO: Warn catalog owner
-            record.metadata.representationType = 'grid';
+export function getRecordRevision(recordId, recordHash) {
+    return RecordRevision.findOne({ recordId, recordHash })
+        .then(recordRevision => {
+            if (!recordRevision) throw new Error('RecordRevision not found for: ' + { recordId, recordHash }.toJSON());
+            return recordRevision;
+        });
+}
+
+export function processOnlineResources(recordRevision) {
+    const metadata = recordRevision.content;
+
+    if (metadata.type === 'service' || !metadata.onlineResources) return [];
+
+    return Promise.each(metadata.onlineResources, resource => {
+        try {
+            resource = new OnlineResource(resource);
+        } catch (err) {
+            return;
         }
 
-        // Process organizations
-        function normalizeOrganization(contact) {
-            var originalName = contact.organizationName;
-            if (!originalName) return;
-            if (!organizations[originalName]) return originalName;
-            if (organizations[originalName].reject) return; // TODO: Warn catalog owner
-            if (organizations[originalName].rename) return organizations[originalName].rename;
-        }
+        const relatedResource = {
+            record: recordRevision.recordId,
+            originId: recordRevision.recordId,
+            originType: 'gmd:onLine',
+            originHash: recordRevision.recordHash
+        };
 
-        var normalizedOrganizations = _.chain([record.metadata.contacts, record.metadata._contacts])
-            .flatten()
-            .compact()
-            .map(normalizeOrganization)
-            .compact()
-            .uniq()
-            .valueOf();
-
-        record.set('organizations', normalizedOrganizations);
-
-        next();
-    }
-
-    function markExistingRelatedResourcesAsChecking(next) {
-        RelatedResource.markAsChecking({ originId: record._id }, next);
-    }
-
-    function removeCheckingRelatedResources(next) {
-        RelatedResource.remove({ originId: record._id, checking: true }, next);
-    }
-
-    function processOnlineResources(next) {
-        debug('process online resources');
-
-        if (record.metadata.type === 'service') return next();
-        if (!record.metadata.onlineResources) return next();
-
-        async.each(record.metadata.onlineResources, function (rawOnlineResource, done) {
-            var resource;
-            var relatedResource;
-
-            try {
-                resource = new OnlineResource(rawOnlineResource);
-            } catch (err) {
-                // console.trace(err);
-                // console.error(rawOnlineResource);
-                return done();
-            }
-
-            if (resource.isWfsFeatureType()) {
-                relatedResource = {
-                    record: record.hashedId,
-                    originId: record._id,
-                    originType: 'gmd:onLine',
-                    originCatalog: record.parentCatalog,
-
-                    featureType: {
-                        candidateName: resource.getFeatureTypeName(),
-                        candidateLocation: resource.getNormalizedWfsServiceLocation()
-                    }
-                };
-
-                return RelatedResource.upsertFeatureType(relatedResource, done);
-            }
-
-            if (resource.isWmsLayer()) {
-                // Do nothing
-                return done();
-            }
-
-            relatedResource = {
-                record: record.hashedId,
-                originId: record._id,
-                originType: 'gmd:onLine',
-                originCatalog: record.parentCatalog,
-
-                name: resource.name,
-
-                remoteResource: {
-                    location: resource.getNormalizedString()
-                }
+        if (resource.isWfsFeatureType()) {
+            relatedResource.featureType = {
+                candidateName: resource.getFeatureTypeName(),
+                candidateLocation: resource.getNormalizedWfsServiceLocation()
             };
-
-            return RelatedResource.upsertRemoteResource(relatedResource, done);
-
-        }, next);
-    }
-
-    function processCoupledResources(next) {
-        if (record.metadata.type !== 'service') return next();
-        if (!_.get(record.metadata, 'coupledResources', []).length) return next();
-
-        var keywords = _.get(record.metadata, 'keywords', []).join('').toLowerCase();
-        var serviceType = _.get(record.metadata, 'serviceType', '').toLowerCase();
-        var title = _.get(record.metadata, 'title', '').toLowerCase();
-
-        var isWfsService = serviceType === 'download' ||
-            _s.include(serviceType, 'wfs') ||
-            _s.include(title, 'wfs') ||
-            _s.include(keywords, 'wfs') ||
-            _s.include(keywords, 'infofeatureaccessservice');
-
-        if (!isWfsService) return next();
-
-        var onlineResources = _.get(record.metadata, 'onlineResources', []);
-        var wfsServiceLocation;
-
-        if (!onlineResources.length) {
-            debug('No online resources defined for this WFS service metadata');
-            return next();
-        } else if (onlineResources.length === 1) {
-            var onlineResource;
-            try {
-                onlineResource = new OnlineResource(onlineResources[0]);
-                wfsServiceLocation = onlineResource.getNormalizedWfsServiceLocation();
-            } catch (err) {
-                debug('The only one candidate location are not valid. WFS service metadata rejected.');
-                return next();
-            }
-        } else {
-            var candidateResources = _(onlineResources)
-                .map(function (candidateOnlineResource) {
-                    var onlineResource;
-                    try {
-                        onlineResource = new OnlineResource(candidateOnlineResource);
-                    } catch (err) {
-                        debug('%s: not valid online resource location: %s', candidateOnlineResource.link, err.message);
-                        return;
-                    }
-                    if (_s.include(onlineResource.sourceLocation.toLowerCase(), 'wfs') ||
-                         _s.include(onlineResource.sourceProtocol.toLowerCase(), 'wfs')) {
-                        return onlineResource;
-                    }
-                })
-                .compact()
-                .value();
-
-            if (candidateResources.length === 0) {
-                debug('No valid location found. WFS service metadata rejected.');
-                return next();
-            }
-            if (candidateResources.length > 1) {
-                debug('Too many candidate locations found!!! WFS service metadata rejected.');
-                return next();
-            }
-
-            wfsServiceLocation = candidateResources[0].getNormalizedWfsServiceLocation();
+            return RelatedResource.upsert(relatedResource);
         }
 
-        debug('process coupled resources');
+        if (resource.isWmsLayer()) {
+            // Do nothing
+            return;
+        }
 
-        async.each(record.metadata.coupledResources || [], function (coupledResource, done) {
-            if (!coupledResource.scopedName || !coupledResource.identifier) return done();
+        relatedResource.name = resource.name;
+        relatedResource.remoteResource = {
+            location: resource.getNormalizedString()
+        };
 
-            var relatedResource = {
-                record: hashRecordId(coupledResource.identifier),
-                originId: record._id,
-                originType: 'srv:coupledResource',
-                originCatalog: record.parentCatalog,
+        return RelatedResource.upsert(relatedResource);
+    });
+}
 
-                featureType: {
-                    candidateName: coupledResource.scopedName,
-                    candidateLocation: wfsServiceLocation
-                }
-            };
+export function processCoupledResources(recordRevision) {
+    const metadata = recordRevision.content;
 
-            return RelatedResource.upsertFeatureType(relatedResource, done);
-        }, next);
+    const keywords = magicGet(metadata, 'keywords', []).join('').toLowerCase();
+    const serviceType = magicGet(metadata, 'serviceType', '').toLowerCase();
+    const title = magicGet(metadata, 'title', '').toLowerCase();
+    const onlineResources = magicGet(metadata, 'onlineResources', []);
+    const coupledResources = magicGet(metadata, 'coupledResources', []);
+
+    const isWfsService = serviceType === 'download' ||
+        serviceType.includes('wfs') ||
+        title.includes('wfs') ||
+        keywords.includes('wfs') ||
+        keywords.includes('infofeatureaccessservice');
+
+    if (metadata.type !== 'service' || !coupledResources.length || !onlineResources.length || !isWfsService) return [];
+
+    const candidateResources = _.chain(onlineResources)
+        .map(resource => {
+            try {
+                resource = new OnlineResource(resource);
+            } catch (err) {
+                return;
+            }
+            if (resource.sourceLocation.toLowerCase().includes('wfs') || resource.sourceProtocol.toLowerCase().includes('wfs')) {
+                return resource;
+            }
+        })
+        .compact()
+        .value();
+
+    if (candidateResources.length === 0) {
+        debug('No valid location found. WFS service metadata rejected.');
+        return [];
+    } else if (candidateResources.length > 1) {
+        debug('Too many candidate locations found!!! WFS service metadata rejected.');
+        return [];
     }
 
-    function finalSave(next) {
-        record
-            .set('alternateResources', alternateResources)
-            .computeFacets()
-            .save(next);
-    }
+    const wfsServiceLocation = candidateResources[0].getNormalizedWfsServiceLocation();
 
-    function executeTriggers(next) {
-        return Record.triggerConsolidateAsDataset(record).nodeify(next);
-    }
+    debug('process coupled resources');
 
-    var seq = [
-        fetchRecord,
-        applyChanges,
-        markExistingRelatedResourcesAsChecking,
-        processOnlineResources,
-        processCoupledResources,
-        removeCheckingRelatedResources,
-        finalSave,
-        executeTriggers
-    ];
+    return Promise.each(coupledResources, coupledResource => {
+        if (!coupledResource.scopedName || !coupledResource.identifier) return;
 
-    async.series(seq, done);
-};
+        const relatedResource = {
+            record: hashRecordId(coupledResource.identifier),
+            originId: recordRevision.recordId,
+            originHash: recordRevision.recordHash,
+            originType: 'srv:coupledResource',
+
+            featureType: {
+                candidateName: coupledResource.scopedName,
+                candidateLocation: wfsServiceLocation
+            }
+        };
+
+        return RelatedResource.upsert(relatedResource);
+    });
+}
+
+export function exec(job, done) {
+    const { recordId, recordHash } = job.data;
+
+    return getRecordRevision(recordId, recordHash)
+        .then(recordRevision => {
+            return markExistingRelatedResourcesAsChecking(recordId)
+                .then(() => processOnlineResources(recordRevision))
+                .then(() => processCoupledResources(recordRevision));
+        })
+        .then(() => removeCheckingRelatedResources(recordId))
+        .then(() => mongoose.model('ConsolidatedRecord').triggerUpdated(recordId))
+        .nodeify(done);
+}

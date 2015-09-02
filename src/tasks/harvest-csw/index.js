@@ -1,5 +1,5 @@
 import forEachInCollection from 'lodash/collection/forEach';
-import through2  from 'through2';
+import through2 from 'through2';
 import { inspect } from 'util';
 import csw from 'csw-client';
 import mongoose from '../../mongoose';
@@ -7,7 +7,8 @@ import ServiceSyncJob from '../syncJob';
 import { parse as parseRecord } from '../../parsers/record';
 
 
-const RecordRevision = mongoose.model('Record');
+const RecordRevision = mongoose.model('RecordRevision');
+const CatalogRecord = mongoose.model('CatalogRecord');
 
 
 class CswHarvestJob extends ServiceSyncJob {
@@ -29,7 +30,7 @@ class CswHarvestJob extends ServiceSyncJob {
             retry: this.data.maxRetry || 3,
             userAgent: 'Afigeo CSW harvester',
             concurrency: 5,
-            noEncodeQs: location.indexOf('metadata.carmencarto.fr') !== -1
+            noEncodeQs: location.includes('metadata.carmencarto.fr')
         });
 
         var harvesterOptions = {
@@ -83,26 +84,24 @@ class CswHarvestJob extends ServiceSyncJob {
     }
 
     processRecord() {
-        var job = this;
-
-        return through2.obj(function (xmlElement, enc, done) {
+        return through2.obj((xmlElement, enc, done) => {
             var parseResult = parseRecord(xmlElement);
 
             if (!parseResult.parsedRecord || !parseResult.valid) {
                 return done(null, { parseResult: parseResult });
             }
 
-            var record = {
-                parentCatalog: job.service._id,
-                hashedId: parseResult.hashedId,
-                hashedRecord: parseResult.hashedRecord,
-                dateStamp: parseResult.updatedAt,
-                metadata: parseResult.parsedRecord,
-                identifier: parseResult.id
+            const catalogRecordRevision = {
+                catalogId: this.service,
+                recordId: parseResult.hashedId,
+                recordHash: parseResult.hashedRecord,
+                revisionDate: parseResult.updatedAt,
+                content: parseResult.parsedRecord
             };
 
-            RecordRevision.upsert(record)
-                .then(upsertStatus => ({ parseResult: parseResult, upsertStatus: upsertStatus }))
+            RecordRevision.upsert(catalogRecordRevision)
+                .then(() => CatalogRecord.upsert(catalogRecordRevision))
+                .then(upsertStatus => ({ upsertStatus, parseResult }))
                 .nodeify(done);
         });
     }

@@ -1,134 +1,68 @@
+/*eslint no-multi-spaces: 0, key-spacing: 0 */
 import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import sidekick from '../helpers/sidekick';
 import pick from 'lodash/object/pick';
-import DistributionSchema from './schemas/distribution';
-import facets from '../helpers/facets';
 
-const ObjectId = Schema.Types.ObjectId;
 const Mixed = Schema.Types.Mixed;
 
 
+export const collectionName = 'record_revisions';
+
 export const schema = new Schema({
 
-    /* Synchronization */
-    parentCatalog: { type: ObjectId, ref: 'Service', required: true, index: true },
-    updatedAt: { type: Date, required: true, index: true },
-    touchedAt: { type: Date, required: true },
-
     /* Identification */
-    hashedId: { type: String, required: true, index: true },
-    hashedRecord: { type: String, required: true, index: true },
-    dateStamp: { type: Date },
+    recordId:     { type: String, required: true },
+    recordHash:   { type: String, required: true },
+
+    /* Attributes */
+    revisionDate: { type: Date },
 
     /* Content */
-    metadata: { type: Mixed },
-    identifier: { type: String, required: true }, // Can be removed since it clones metadata.identifier
+    content:      { type: Mixed, required: true },
 
-    /* Dataset (preview) */
-    dataset: {
-        updatedAt: { type: Date, index: true, sparse: true },
-        distributions: [DistributionSchema]
-    },
-
-    /* Augmented content */
-    organizations: { type: [String], index: true },
-    alternateResources: [Mixed],
-
-    /* Facets */
-    facets: { type: [Schema.Types.Mixed], select: false }
+    /* Dates */
+    createdAt:    { type: Date },
+    touchedAt:    { type: Date }
 });
 
 /*
 ** Indexes
 */
-var textIndexOptions = {
-    default_language: 'french',
-    language_override: 'idioma', // To avoid conflict with `language` field of ISO-19139 JSON schema
-    name: 'default_text_index',
-    weights: {
-        'metadata.title': 10,
-        'metadata.keywords': 5,
-        'metadata.abstract': 2
-    }
-};
 
-var textIndexDefinition = {
-    'metadata.title': 'text',
-    'metadata.abstract': 'text',
-    'metadata.keywords': 'text'
-};
-
-schema.index(textIndexDefinition, textIndexOptions);
-
-schema.index({ 'facets.name': 1, 'facets.value': 1 });
-schema.index({ parentCatalog: 1, hashedId: 1 }, { unique: true });
+schema.index({ recordId: 1, recordHash: 1 }, { unique: true });
 
 /*
 ** Statics
 */
 schema.statics = {
 
-    touchExisting: function (record) {
-        const query = pick(record, 'parentCatalog', 'hashedId', 'hashedRecord');
-        const changes = { $currentDate: { touchedAt: 1 } };
-
-        return this.update(query, changes)
-            .then(rawResponse => rawResponse.nModified === 1);
+    triggerUnprocessed: function (recordRevision) {
+        return sidekick('process-record', pick(recordRevision, 'recordId', 'recordHash'));
     },
 
-    doUpsert: function (record) {
-        var query = pick(record, 'parentCatalog', 'hashedId');
+    upsert: function (recordRevision) {
+        const now = new Date();
+        var query = pick(recordRevision, 'recordId', 'recordHash');
         var changes = {
-            $currentDate: { updatedAt: 1, touchedAt: 1 },
-            $setOnInsert: pick(record, 'identifier'),
-            $set: pick(record, 'metadata', 'dateStamp', 'hashedRecord')
+            $setOnInsert: {
+                content: recordRevision.content,
+                revisionDate: recordRevision.revisionDate,
+                createdAt: now
+            },
+            $set: {
+                touchedAt: now
+            }
         };
 
         return this.update(query, changes, { upsert: true })
-            .then(rawResponse => rawResponse.upserted ? 'created' : 'updated');
-    },
-
-    triggerConsolidateAsDataset: function (record) {
-        return sidekick('dataset:consolidate', {
-            hashedId: record.hashedId,
-            catalogId: record.parentCatalog
-        });
-    },
-
-    triggerProcess: function (record) {
-        return sidekick('process-record', {
-            hashedId: record.hashedId,
-            catalogId: record.parentCatalog
-        });
-    },
-
-    upsert: function (record) {
-        return this
-            .touchExisting(record)
-            .then(touched => touched ? 'touched' : this.doUpsert(record))
+            .then(rawResponse => rawResponse.upserted ? 'created' : 'touched')
             .then(upsertStatus => {
                 if (upsertStatus === 'touched') return 'touched';
-                return this.triggerProcess(record).return(upsertStatus);
+                return this.triggerUnprocessed(recordRevision).return(upsertStatus);
             });
     }
 
 };
 
-
-/*
-** Methods
-*/
-schema.methods = {
-
-    computeFacets: function () {
-        return this.set('facets', facets.compute(this));
-    }
-
-};
-
-
-/*
-** Attach model
-*/
-mongoose.model('Record', schema);
+export const model = mongoose.model('RecordRevision', schema, collectionName);

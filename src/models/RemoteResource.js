@@ -1,21 +1,20 @@
-var mongoose = require('mongoose');
-var _ = require('lodash');
+import mongoose from 'mongoose';
+import { Schema } from 'mongoose';
+import pick from 'lodash/object/pick';
+import sidekick from '../helpers/sidekick';
+import { sha1 } from '../helpers/hash';
 
-var jobs = require('../kue').jobs;
-var sha1 = require('../helpers/hash').sha1;
-
-var Schema = mongoose.Schema;
-var Mixed = Schema.Types.Mixed;
+const Mixed = Schema.Types.Mixed;
 
 
-var REMOTE_RESOURCE_TYPES = [
+export const REMOTE_RESOURCE_TYPES = [
     'page',
     'file-distribution',
     'unknown-archive'
 ];
 
 
-var RemoteResourceSchema = new Schema({
+export const schema = new Schema({
 
     location: { type: String, required: true, unique: true },
     hashedLocation: { type: String, required: true, unique: true },
@@ -52,24 +51,25 @@ var RemoteResourceSchema = new Schema({
 /*
 ** Statics
 */
-RemoteResourceSchema.statics = {
+schema.statics = {
 
-    triggerCheck: function (remoteResource, done) {
-        jobs
-            .create('remote-resource:check', {
+    triggerCheck: function (remoteResource) {
+        return sidekick(
+            'remote-resource:check',
+            {
                 remoteResourceId: remoteResource._id,
                 remoteResourceLocation: remoteResource.location
-            })
-            .removeOnComplete(true)
-            .save(done);
+            },
+            { removeOnComplete: true }
+        );
     },
 
-    upsert: function (remoteResource, done) {
+    upsert: function (remoteResource) {
         var RemoteResource = this;
 
         var now = new Date();
         var aLongTimeAgo = new Date(1970, 1, 1);
-        var query = _.pick(remoteResource, 'location');
+        var query = pick(remoteResource, 'location');
         var changes = {
             $setOnInsert: {
                 createdAt: now,
@@ -83,20 +83,15 @@ RemoteResourceSchema.statics = {
             changes.$setOnInsert.type = remoteResource.type;
         }
 
-        RemoteResource.update(query, changes, { upsert: true }, function (err, rawResponse) {
-            if (err) return done(err);
-            if (!rawResponse.upserted) return done(null, false);
-
-            remoteResource._id = rawResponse.upserted[0]._id;
-
-            RemoteResource.triggerCheck(remoteResource, function (err) {
-                if (err) console.log(err);
-                done(null, true);
+        return RemoteResource.update(query, changes, { upsert: true })
+            .then(rawResponse => {
+                if (!rawResponse.upserted) return false;
+                remoteResource._id = rawResponse.upserted[0]._id;
+                return this.triggerCheck(remoteResource).return(true);
             });
-        });
     }
 
 };
 
-
-mongoose.model('RemoteResource', RemoteResourceSchema);
+export const collectionName = 'remote_resources';
+export const model = mongoose.model('RemoteResource', schema, collectionName);

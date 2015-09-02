@@ -1,31 +1,36 @@
-var mongoose = require('mongoose');
-var _ = require('lodash');
-var debug = require('debug')('model:related-resource');
+/*eslint no-multi-spaces: 0, key-spacing: 0 */
+import mongoose from 'mongoose';
+import { Schema } from 'mongoose';
+import Promise from 'bluebird';
+import pick from 'lodash/object/pick';
+import magicGet from 'lodash/object/get';
+import { resolveByRelatedResource } from '../matching/featureTypes';
+import { sha1 } from '../helpers/hash';
 
-var featureTypeMatchings = require('../matching/featureTypes');
-var sha1 = require('../helpers/hash').sha1;
+const resolveByRelatedResourceAsync = Promise.promisify(resolveByRelatedResource);
 
-var Schema = mongoose.Schema;
-var ObjectId = Schema.Types.ObjectId;
+const ObjectId = Schema.Types.ObjectId;
 
-var ORIGIN_TYPES = [
+export const ORIGIN_TYPES = [
     'srv:coupledResource',
     'gmd:onLine'
 ];
 
-var RESOURCE_TYPES = [
+export const RESOURCE_TYPES = [
     'feature-type',
     'remote-resource',
     'atom-feed'
 ];
 
-var REMOTE_RESOURCE_TYPES = [
+export const REMOTE_RESOURCE_TYPES = [
     'page',
     'file-distribution',
     'unknown-archive'
 ];
 
-var RelatedResourceSchema = new Schema({
+export const collectionName = 'related_resources';
+
+export const schema = new Schema({
 
     type: { type: String, required: true, index: true, enum: RESOURCE_TYPES },
 
@@ -36,10 +41,10 @@ var RelatedResourceSchema = new Schema({
 
     /* Origin */
     originType: { type: String, enum: ORIGIN_TYPES, required: true, index: true },
-    originId: { type: ObjectId, required: true, index: true },
-    originCatalog: { type: ObjectId, ref: 'Service', index: true, sparse: true },
+    originId: { type: String, required: true, index: true },
+    originHash: { type: String, index: true, sparse: true },
 
-    /* Record */
+    /* Record identification */
     record: { type: String, required: true, index: true },
 
     /* FeatureType */
@@ -65,159 +70,151 @@ var RelatedResourceSchema = new Schema({
 /*
 ** Statics
 */
-RelatedResourceSchema.statics = {
+schema.statics = {
 
-    markAsChecking: function (query, done) {
-        this.update(query, { $set: { checking: true } }, { multi: true }, done);
+    markAsChecking: function (query) {
+        return this.update(query, { $set: { checking: true } }, { multi: true });
     },
 
-    matchFeatureTypeService: function (relatedResource, done) {
-        var RelatedResource = this;
-        var Service = mongoose.model('Service');
+    triggerConsolidation: function (relatedResource) {
+        if (!relatedResource.record) throw new Error('record not found in RelatedResource');
+        return mongoose.model('ConsolidatedRecord').triggerUpdated(relatedResource.record);
+    },
+
+    validateRemoteResource: function (relatedResource) {
+        return relatedResource.remoteResource && relatedResource.remoteResource.location;
+    },
+
+    getUniqueQuery: function (relatedResource) {
+        const query = pick(relatedResource, 'originType', 'originId', 'originHash', 'record');
+        if (relatedResource.remoteResource) {
+            query.type = 'remote-resource';
+            query['remoteResource.location'] = relatedResource.remoteResource.location;
+        } else if (relatedResource.featureType) {
+            query.type = 'feature-type';
+            query['featureType.candidateName'] = relatedResource.featureType.candidateName;
+            query['featureType.candidateLocation'] = relatedResource.featureType.candidateLocation;
+        } else {
+            throw new Error('Unknown RelatedResource type');
+        }
+        return query;
+    },
+
+    upsert: function (relatedResource) {
+        const r = relatedResource;
+
+        if (!r.originHash || !r.originType || !r.originId) throw new Error('Bad RelatedResource origin');
+        if (!r.record) throw new Error('record not defined');
+
+        if (r.remoteResource) {
+            return this.upsertRemoteResource(relatedResource);
+        } else if (r.featureType) {
+            return this.upsertFeatureType(relatedResource);
+        } else {
+            throw new Error('Unknown RelatedResource format');
+        }
+    },
+
+    // Fetch data from a RemoteResource and apply to the given relatedResource
+    updateRemoteResource: function (relatedResource, remoteResourceLocation) {
+        return mongoose.model('RemoteResource').findOne({ location: remoteResourceLocation }).exec()
+            .then(remoteResource => {
+                if (!remoteResource) throw new Error('No RemoteResource found for remoteResourceLocation: ' + remoteResourceLocation);
+                const changes = {
+                    'remoteResource.available': remoteResource.available,
+                    'remoteResource.type': remoteResource.type,
+                    'remoteResource.layers': magicGet(remoteResource, 'archive.datasets', [])
+                };
+                return this.doUpdate(relatedResource, changes)
+                    .return(true);
+            });
+    },
+
+    updateFeatureType: function (relatedResource, candidateService) {
+        return mongoose.model('Service').findOne(candidateService).exec()
+            .then(service => {
+                if (!service) throw new Error('No Service found for: ' + candidateService.toJSON());
+                const changes = {
+                    'featureType.matchingService': service._id
+                };
+                return this.doUpdate(relatedResource, changes)
+                    .then(updated => {
+                        if (updated) return resolveByRelatedResourceAsync(relatedResource).return(true);
+                        return true;
+                    });
+            });
+    },
+
+    upsertRemoteResource: function (relatedResource) {
+        const r = relatedResource;
+        if (!this.validateRemoteResource(r)) throw new Error('Bad remoteResource description');
+
+        /* Changes */
+        const partialChanges = { $setOnInsert: { 'remoteResource.hashedLocation': sha1(r.remoteResource.location) } };
+        if (r.name) partialChanges.$setOnInsert.name = r.name;
+        if (r.remoteResource.type) partialChanges.$setOnInsert['remoteResource.type'] = r.remoteResource.type;
+
+        return this.doUpsert(relatedResource, partialChanges)
+            .then(upsertStatus => {
+                if (upsertStatus === 'created') {
+                    mongoose.model('RemoteResource').upsert(r.remoteResource)
+                        .then(created => {
+                            if (created) return upsertStatus;
+                            return this.updateRemoteResource(relatedResource, r.remoteResource.location);
+                        });
+                }
+                return upsertStatus;
+            });
+    },
+
+    doUpdate: function (relatedResource, additionalChanges) {
+        const query = this.getUniqueQuery(relatedResource);
+        const changes = additionalChanges;
+        if (!changes.$set) changes.$set = {};
+        changes.$set.updatedAt = new Date();
+
+        return this.update(query, changes)
+            .then(rawResponse => rawResponse.nModified === 1);
+    },
+
+    doUpsert: function (relatedResource, additionalChanges = {}) {
+        const query = this.getUniqueQuery(relatedResource);
+        const changes = additionalChanges;
+        if (!changes.$set) changes.$set = {};
+        if (!changes.$setOnInsert) changes.$setOnInsert = {};
+        changes.$set.checking = false;
+        changes.$setOnInsert.updatedAt = new Date();
+
+        return this.update(query, changes, { upsert: true })
+            .then(rawResponse => rawResponse.upserted ? 'created' : 'updated');
+    },
+
+    validateFeatureType: function (r) {
+        return r.featureType && r.featureType.candidateName && r.featureType.candidateLocation;
+    },
+
+    upsertFeatureType: function (relatedResource) {
         var r = relatedResource;
 
-        if (!r._id) return done(new Error('_id not defined'));
-        if (!r.featureType || !r.featureType.candidateLocation) return done(new Error('candidateLocation must be defined'));
-        if (r.featureType.matchingService) return done(new Error('matchingService already defined'));
+        if (!this.validateRemoteResource(r)) throw new Error('Bad featureType description');
 
-        var service = {
-            location: r.featureType.candidateLocation,
-            protocol: 'wfs'
-        };
-
-        function finish(serviceId) {
-            var query = { _id: r._id };
-            var changes = {
-                $set: { updatedAt: new Date(), 'featureType.matchingService': serviceId }
-            };
-
-            RelatedResource.update(query, changes, function (err) {
-                if (err) return done(err);
-                done(null, serviceId);
+        return this.doUpsert(relatedResource)
+            .then(upsertStatus => {
+                if (upsertStatus === 'created') {
+                    const candidateService = {
+                        location: relatedResource.featureType.candidateLocation,
+                        protocol: 'wfs'
+                    };
+                    return mongoose.model('Service').upsert(candidateService)
+                        .then(serviceUpsertStatus => {
+                            if (serviceUpsertStatus === 'created') return upsertStatus;
+                            return this.updateFeatureType(relatedResource, candidateService);
+                        });
+                }
+                return upsertStatus;
             });
-        }
-
-        Service.upsert(service, function (err, upsertedServiceId) {
-            if (err) return done(err);
-            // If inserted we already have the service id
-            if (upsertedServiceId) return finish(upsertedServiceId);
-
-            // Otherwise we have to fetch it (and triggerSync to ensure freshness)
-            Service.findOne(service).select({ _id: 1, location: 1, protocol: 1 }).exec(function (err, service) {
-                if (err) return done(err);
-                if (!service) return done(new Error('Fatal error: unable to fetch existing service'));
-
-                service.doSync(2 * 60 * 60 * 1000, function (err) { // 2 hours
-                    if (err) console.log(err);
-                    finish(service._id);
-                });
-            });
-        });
-    },
-
-    triggerConsolidation: function (relatedResource, done) {
-        if (!relatedResource.originCatalog || !relatedResource.record) return done();
-
-        var Record = mongoose.model('Record');
-
-        return Record.triggerConsolidateAsDataset({
-            hashedId: relatedResource.record,
-            parentCatalog: relatedResource.originCatalog
-        }).nodeify(done);
-    },
-
-    upsertRemoteResource: function (relatedResource, done) {
-        var RelatedResource = this;
-        var RemoteResource = mongoose.model('RemoteResource');
-        var r = relatedResource;
-
-        if (!r.originCatalog || !r.originType || !r.originId) return done(new Error('Bad RelatedResource origin'));
-        if (!r.remoteResource || !r.remoteResource.location) {
-            return done(new Error('Bad remoteResource description'));
-        }
-        if (!r.record) return done(new Error('record not defined'));
-
-        var query = _.pick(r, 'originType', 'originId', 'originCatalog', 'record', 'name');
-        query.type = 'remote-resource';
-        query['remoteResource.location'] = r.remoteResource.location;
-        if (r.remoteResource.type) query['remoteResource.type'] = r.remoteResource.type;
-
-        var changes = {
-            $set: { checking: false },
-            $setOnInsert: {
-                updatedAt: new Date(),
-                'remoteResource.hashedLocation': sha1(r.remoteResource.location)
-            }
-        };
-
-        RelatedResource.update(query, changes, { upsert: true }, function (err, rawResponse) {
-            if (err) return done(err);
-            if (!rawResponse.upserted) {
-                debug('not updated for record %s', r.record);
-                return done();
-            }
-
-            debug('new inserted for record %s', r.record);
-            r._id = rawResponse.upserted[0]._id;
-
-            RemoteResource.upsert(r.remoteResource, function (err, upserted) {
-                if (err) return done(err);
-                if (upserted) return done();
-
-                RemoteResource.findOne({ location: r.remoteResource.location }, function (err, remoteResource) {
-                    if (err) return done(err);
-                    if (!remoteResource) return done(new Error('Fatal error: unable to fetch existing remote resource'));
-
-                    RelatedResource.update(
-                        { _id: r._id },
-                        { $set: { updatedAt: new Date(), 'remoteResource.available': remoteResource.available } },
-                        done
-                    );
-                });
-            });
-        });
-    },
-
-    upsertFeatureType: function (relatedResource, done) {
-        var RelatedResource = this;
-        var r = relatedResource;
-
-        if (!r.originCatalog || !r.originType || !r.originId) return done(new Error('Bad RelatedResource origin'));
-        if (!r.featureType || !r.featureType.candidateName || !r.featureType.candidateLocation) {
-            return done(new Error('Bad featureType description'));
-        }
-        if (!r.record) return done(new Error('record not defined'));
-
-        var query = _.pick(r, 'originType', 'originId', 'originCatalog', 'record');
-        query.type = 'feature-type';
-        query['featureType.candidateName'] = r.featureType.candidateName;
-        query['featureType.candidateLocation'] = r.featureType.candidateLocation;
-
-        var changes = {
-            $set: { checking: false },
-            $setOnInsert: { updatedAt: new Date() }
-        };
-
-        RelatedResource.update(query, changes, { upsert: true }, function (err, rawResponse) {
-            if (err) return done(err);
-            if (!rawResponse.upserted) {
-                debug('not updated for record %s', r.record);
-                return done();
-            }
-
-            debug('new inserted for record %s', r.record);
-            r._id = rawResponse.upserted[0]._id;
-
-            RelatedResource.matchFeatureTypeService(r, function (err, serviceId) {
-                if (err) return done(err);
-                r.featureType.matchingService = serviceId;
-                featureTypeMatchings.resolveByRelatedResource(r, done);
-            });
-
-        });
     }
 
 };
 
-
-mongoose.model('RelatedResource', RelatedResourceSchema);
+export const model = mongoose.model('RelatedResource', schema, collectionName);

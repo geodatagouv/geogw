@@ -6,8 +6,8 @@ require('./lib/mongoose');
 var q = require('./lib/kue').jobs;
 var csw = require('./lib/tasks/harvest-csw');
 var wfs = require('./lib/tasks/lookup-wfs');
-var processRecord = require('./lib/tasks/process-record');
-var consolidateDataset = require('./lib/tasks/consolidate-dataset');
+var processRecord = require('./lib/tasks/process-record').exec;
+var consolidateDataset = require('./lib/tasks/consolidate-dataset').exec;
 
 var RemoteResourceCheck = require('./lib/tasks/check-remote-resource');
 
