@@ -119,8 +119,10 @@ export function exec(job, done) {
                 applyRecordRevisionChanges(r.record, r.recordRevision);
                 applyOrganizationsFilter(r.record); // Systematically for now
                 applyResources(r.record, r.relatedResources);
-                computeFacets(r.record);
-                return r.record.set('dataset.updatedAt', now).save()
+                return r.record
+                    .set('dataset.updatedAt', now)
+                    .set('facets', computeFacets(r.record))
+                    .save()
                     .then(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
             });
         })
