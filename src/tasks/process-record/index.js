@@ -20,7 +20,7 @@ export function removeCheckingRelatedResources(originId) {
 }
 
 export function getRecordRevision(recordId, recordHash) {
-    return RecordRevision.findOne({ recordId, recordHash })
+    return RecordRevision.findOne({ recordId, recordHash }).exec()
         .then(recordRevision => {
             if (!recordRevision) throw new Error('RecordRevision not found for: ' + { recordId, recordHash }.toJSON());
             return recordRevision;
@@ -92,7 +92,9 @@ export function processCoupledResources(recordRevision) {
             } catch (err) {
                 return;
             }
-            if (resource.sourceLocation.toLowerCase().includes('wfs') || resource.sourceProtocol.toLowerCase().includes('wfs')) {
+            const hasWfsInLocation = resource.sourceLocation && resource.sourceLocation.toLowerCase().includes('wfs');
+            const hasWfsInProtocol = resource.sourceProtocol && resource.sourceProtocol.toLowerCase().includes('wfs');
+            if (hasWfsInLocation || hasWfsInProtocol) {
                 return resource;
             }
         })

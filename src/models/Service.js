@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
+import assign from 'lodash/object/assign';
 import pick from 'lodash/object/pick';
 import keys from 'lodash/object/keys';
 import sidekick from '../helpers/sidekick';
@@ -41,27 +42,28 @@ export const schema = new Schema({
 */
 schema.statics = {
 
-    setAsPending: function (serviceId) {
-        const query = {
-            _id: serviceId,
+    setAsPending: function (uniqueQuery) {
+        const query = assign({
             syncEnabled: true,
             'sync.pending': false,
             'sync.processing': false
-        };
+        }, uniqueQuery);
 
         const changes = {
             $set: { 'sync.pending': true }
         };
 
-        return this.update(query, changes).then(rawResponse => rawResponse.nModified === 1);
+        return this.update(query, changes).exec().then(rawResponse => rawResponse.nModified === 1);
     },
 
-    triggerSync: function (serviceId, freshness = 0) {
+    triggerSync: function (uniqueQuery, freshness = 0) {
         let syncTask;
+        let service;
 
-        return this.findById(serviceId).exec()
-            .then(service => {
-                if (!service) throw new Error('service not found for id: ' + serviceId);
+        return this.findOne(uniqueQuery).exec()
+            .then(foundService => {
+                if (!foundService) throw new Error('service not found for query: ' + JSON.stringify(uniqueQuery));
+                service = foundService;
                 syncTask = supportedProtocols[service.protocol].syncTask;
                 return service;
             })
@@ -73,16 +75,16 @@ schema.statics = {
                     return 'ignored'; // fresh
                 }
 
-                return this.setAsPending(serviceId)
+                return this.setAsPending(uniqueQuery)
                     .then(ok => ok ? 'ready' : 'ignored');
             })
             .then(status => {
                 if (status === 'ready') {
                     return Promise.resolve()
-                        .then(() => mongoose.model('ServiceSync').create({ service: serviceId, status: 'queued' }))
+                        .then(() => mongoose.model('ServiceSync').create({ service: service._id, status: 'queued' }))
                         .then(() => sidekick(
                             syncTask,
-                            { serviceId, freshness },
+                            { serviceId: service._id, freshness },
                             { removeOnComplete: process.env.NODE_ENV === 'production' }
                         ))
                         .return('queued');
@@ -109,12 +111,12 @@ schema.statics = {
             }
         };
 
-        return this.update(query, changes, { upsert: true })
+        return this.update(query, changes, { upsert: true }).exec()
             .then(rawResponse => {
                 if (rawResponse.upserted) {
-                    return this.triggerSync(rawResponse.upserted[0]._id).return('created');
+                    return this.triggerSync(query).return('created');
                 } else {
-                    return this.triggerSync(rawResponse.upserted[0]._id, 2 * 60 * 60 * 1000).return('updated'); // 2 hours
+                    return this.triggerSync(query, 2 * 60 * 60 * 1000).return('updated'); // 2 hours
                 }
             });
     }
@@ -126,7 +128,7 @@ schema.statics = {
 ** Methods
 */
 schema.methods.doSync = function(freshness, done) {
-    mongoose.model('Service').triggerSync(this._id, freshness).nodeify(done);
+    mongoose.model('Service').triggerSync({ _id: this._id }, freshness).nodeify(done);
 };
 
 schema.methods.toggleSyncStatus = function (status, itemsFound, done) {

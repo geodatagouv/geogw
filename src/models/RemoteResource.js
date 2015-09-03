@@ -83,7 +83,7 @@ schema.statics = {
             changes.$setOnInsert.type = remoteResource.type;
         }
 
-        return RemoteResource.update(query, changes, { upsert: true })
+        return RemoteResource.update(query, changes, { upsert: true }).exec()
             .then(rawResponse => {
                 if (!rawResponse.upserted) return false;
                 remoteResource._id = rawResponse.upserted[0]._id;

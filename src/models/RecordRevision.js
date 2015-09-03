@@ -55,7 +55,7 @@ schema.statics = {
             }
         };
 
-        return this.update(query, changes, { upsert: true })
+        return this.update(query, changes, { upsert: true }).exec()
             .then(rawResponse => rawResponse.upserted ? 'created' : 'touched')
             .then(upsertStatus => {
                 if (upsertStatus === 'touched') return 'touched';

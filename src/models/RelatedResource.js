@@ -7,8 +7,6 @@ import magicGet from 'lodash/object/get';
 import { resolveByRelatedResource } from '../matching/featureTypes';
 import { sha1 } from '../helpers/hash';
 
-const resolveByRelatedResourceAsync = Promise.promisify(resolveByRelatedResource);
-
 const ObjectId = Schema.Types.ObjectId;
 
 export const ORIGIN_TYPES = [
@@ -73,7 +71,7 @@ export const schema = new Schema({
 schema.statics = {
 
     markAsChecking: function (query) {
-        return this.update(query, { $set: { checking: true } }, { multi: true });
+        return this.update(query, { $set: { checking: true } }, { multi: true }).exec();
     },
 
     triggerConsolidation: function (relatedResource) {
@@ -133,13 +131,14 @@ schema.statics = {
     updateFeatureType: function (relatedResource, candidateService) {
         return mongoose.model('Service').findOne(candidateService).exec()
             .then(service => {
-                if (!service) throw new Error('No Service found for: ' + candidateService.toJSON());
+                if (!service) throw new Error('No Service found for: ' + JSON.stringify());
                 const changes = {
                     'featureType.matchingService': service._id
                 };
+                relatedResource.featureType.matchingService = service._id;
                 return this.doUpdate(relatedResource, changes)
                     .then(updated => {
-                        if (updated) return resolveByRelatedResourceAsync(relatedResource).return(true);
+                        if (updated) return resolveByRelatedResource(relatedResource, service._id).return(true);
                         return true;
                     });
             });
@@ -173,7 +172,7 @@ schema.statics = {
         if (!changes.$set) changes.$set = {};
         changes.$set.updatedAt = new Date();
 
-        return this.update(query, changes)
+        return this.update(query, changes).exec()
             .then(rawResponse => rawResponse.nModified === 1);
     },
 
@@ -185,7 +184,7 @@ schema.statics = {
         changes.$set.checking = false;
         changes.$setOnInsert.updatedAt = new Date();
 
-        return this.update(query, changes, { upsert: true })
+        return this.update(query, changes, { upsert: true }).exec()
             .then(rawResponse => rawResponse.upserted ? 'created' : 'updated');
     },
 
@@ -196,7 +195,7 @@ schema.statics = {
     upsertFeatureType: function (relatedResource) {
         var r = relatedResource;
 
-        if (!this.validateRemoteResource(r)) throw new Error('Bad featureType description');
+        if (!this.validateFeatureType(r)) throw new Error('Bad featureType description: ' + JSON.stringify(r));
 
         return this.doUpsert(relatedResource)
             .then(upsertStatus => {

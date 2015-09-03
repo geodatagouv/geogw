@@ -37,7 +37,7 @@ schema.statics = {
         const query = pick(catalogRecord, 'catalogId', 'recordId', 'recordHash');
         const changes = { $set: { touchedAt: now } };
 
-        return this.update(query, changes)
+        return this.update(query, changes).exec()
             .then(rawResponse => rawResponse.nModified === 1);
     },
 
@@ -54,7 +54,7 @@ schema.statics = {
             }
         };
 
-        return this.update(query, changes, { upsert: true })
+        return this.update(query, changes, { upsert: true }).exec()
             .then(rawResponse => rawResponse.upserted ? 'created' : 'updated');
     },
 

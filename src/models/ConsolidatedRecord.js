@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import sidekick from '../helpers/sidekick';
 import DistributionSchema from './schemas/distribution';
+import Promise from 'bluebird';
 
 const ObjectId = Schema.Types.ObjectId;
 const Mixed = Schema.Types.Mixed;
@@ -78,7 +79,7 @@ schema.statics = {
             $set: { consolidating: consolidatingState },
             $setOnInsert: { createdAt: new Date() }
         };
-        return this.update(query, changes, { upsert: true })
+        return this.update(query, changes, { upsert: true }).exec()
             .then(rawResponse => !!rawResponse.upserted || rawResponse.nModified === 1);
     }
 

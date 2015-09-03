@@ -3,6 +3,7 @@ var _ = require('lodash');
 var _s = require('underscore.string');
 var mongoose = require('mongoose');
 var debug = require('debug')('matching:feature-type');
+var Promise = require('bluebird');
 
 function dropByFeatureType(featureType, done) {
     var RelatedResource = mongoose.model('RelatedResource');
@@ -34,7 +35,7 @@ function match(candidateName, referenceName) {
     return candidateName === referenceName;
 }
 
-function resolveOne(relatedResource, typeName, done) {
+function resolveOne(relatedResource, typeName, consolidateRecord = true, done) {
     var RelatedResource = mongoose.model('RelatedResource');
 
     const query = RelatedResource.getUniqueQuery(relatedResource);
@@ -47,7 +48,11 @@ function resolveOne(relatedResource, typeName, done) {
         if (err) return done(err);
         if (rawResponse.nModified > 0) {
             debug('%s match with %s', relatedResource.featureType.candidateName, typeName);
-            return RelatedResource.triggerConsolidation(relatedResource).nodeify(done);
+            if (consolidateRecord) {
+                return RelatedResource.triggerConsolidation(relatedResource).nodeify(done);
+            } else {
+                return done();
+            }
         }
         done();
     });
@@ -83,7 +88,7 @@ function resolveByFeatureType(featureType, done) {
         });
 
         function resolve(relatedResource, itemDone) {
-            resolveOne(relatedResource, featureType.name, itemDone);
+            resolveOne(relatedResource, featureType.name, true, itemDone);
         }
 
         async.each(matchingOnes, resolve, done);
@@ -93,7 +98,7 @@ function resolveByFeatureType(featureType, done) {
 
 }
 
-function resolveByRelatedResource(relatedResource, done) {
+function resolveByRelatedResource(relatedResource) {
     var FeatureType = mongoose.model('FeatureType');
 
     var referenceNormalizedTypeName = normalizeTypeName(relatedResource.featureType.candidateName);
@@ -120,14 +125,19 @@ function resolveByRelatedResource(relatedResource, done) {
         });
 
         if (matchingTypeName) {
-            resolveOne(relatedResource, matchingTypeName, done);
+            resolveOne(relatedResource, matchingTypeName, false, done);
         } else {
             debug('no matching feature type name for the following candidate: %s', relatedResource.featureType.candidateName);
             done();
         }
     }
 
-    async.series([fetchFeatureTypeNames, findMatchingAndResolve], done);
+    return new Promise(function (resolve, reject) {
+        async.series([fetchFeatureTypeNames, findMatchingAndResolve], function (err) {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
 
 }
 

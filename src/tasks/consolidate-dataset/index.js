@@ -23,7 +23,7 @@ export function getMoreRecentCatalogRecord(recordId) {
 
 export function getMoreRecentRecordRevision(recordId) {
     return getMoreRecentCatalogRecord(recordId)
-        .then(catalogRecord => RecordRevision.findOne(pick(catalogRecord, 'recordId', 'recordHash')))
+        .then(catalogRecord => RecordRevision.findOne(pick(catalogRecord, 'recordId', 'recordHash')).exec())
         .then(recordRevision => {
             if (!recordRevision) throw new Error('Record revision not found for: ' + recordRevision.toJSON());
             return recordRevision;
