@@ -7,7 +7,6 @@ var Dataset = mongoose.model('Dataset');
 module.exports = function (job, jobDone) {
     var datasetId = job.data.datasetId;
     var organizationId = job.data.organizationId;
-    var sourceCatalog = job.data.sourceCatalog;
     var publicationStatus = job.data.publicationStatus;
 
     var dataset;
@@ -33,7 +32,6 @@ module.exports = function (job, jobDone) {
         } else {
             debug('Going to publish a new dataset');
             dataset
-                .set('publication.sourceCatalog', sourceCatalog)
                 .set('publication.organization', organizationId)
                 .set('publication.status', publicationStatus)
                 .publish(done);

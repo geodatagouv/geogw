@@ -8,17 +8,27 @@ var search = require('../../helpers/search');
 var Organization = mongoose.model('Organization');
 var Producer = mongoose.model('Producer');
 var Dataset = mongoose.model('Dataset');
+var Service = mongoose.model('Service');
 
 module.exports = function (job, jobDone) {
     var organizationId = job.data.organizationId;
 
-    var organization, producers;
+    var organization, producers, catalog;
 
     function fetchOrganization(done) {
         Organization.findById(organizationId, function (err, organizationFound) {
             if (err) return done(err);
             if (!organizationFound) return done(new Error('Organization not found'));
             organization = organizationFound;
+            done();
+        });
+    }
+
+    function fetchCatalog(done) {
+        Service.findById(organization.sourceCatalog, function (err, catalogFound) {
+            if (err) return done(err);
+            if (!catalogFound) return done(new Error('Catalog not found'));
+            catalog = catalogFound;
             done();
         });
     }
@@ -46,6 +56,7 @@ module.exports = function (job, jobDone) {
     }
 
     function fetchAndSaveDatasets(done) {
+        if (!catalog.name) return done(new Error('No catalog name'));
         var datasetsProcessed = {};
 
         function fetchAndProcessByProducer(producer, producerDone) {
@@ -53,11 +64,10 @@ module.exports = function (job, jobDone) {
                 limit: 500,
                 opendata: 'yes',
                 availability: 'yes',
-                organization: producer._id,
-                catalog: organization.sourceCatalog
+                organization: producer._id
             };
 
-            search(query, function (err, result) {
+            search(query, catalog.name, function (err, result) {
                 if (err) return producerDone(err);
                 debug('%d datasets found for producer `%s`', result.count, producer._id);
 
@@ -99,6 +109,7 @@ module.exports = function (job, jobDone) {
 
     async.series([
         fetchOrganization,
+        fetchCatalog,
         fetchProducers,
         cleanMatchingDatasets,
         fetchAndSaveDatasets

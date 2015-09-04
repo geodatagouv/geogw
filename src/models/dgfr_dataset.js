@@ -29,9 +29,6 @@ var DatasetSchema = new Schema({
         // Organization on the udata platform which hold the dataset
         organization: { type: ObjectId, ref: 'Organization' },
 
-        // Source catalog on the geogw platform from which the dataset is synced
-        sourceCatalog: { type: ObjectId },
-
         // Published dataset revision
         revision: { type: Date },
 

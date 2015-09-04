@@ -58,7 +58,6 @@ exports.publish = function (req, res, next) {
     var dataset = req.dataset;
 
     if (req.body.status) dataset.set('publication.status', req.body.status);
-    if (req.body.sourceCatalog) dataset.set('publication.sourceCatalog', req.body.sourceCatalog);
 
     function onSuccess(err, updatedDataset) {
         if (err) return next(err);
@@ -68,7 +67,7 @@ exports.publish = function (req, res, next) {
     if (dataset.publication._id) {
         dataset.synchronize(onSuccess);
     } else {
-        if (!req.body.organization || !req.body.sourceCatalog) return res.sendStatus(400);
+        if (!req.body.organization) return res.sendStatus(400);
 
         dataset.set('publication.organization', req.body.organization);
         dataset.publish(onSuccess);
@@ -83,8 +82,6 @@ exports.unpublish = function (req, res, next) {
 };
 
 exports.publishAll = function (req, res) {
-    if (!req.organization.sourceCatalog) return res.sendStatus(400);
-
     var count = 0;
     Dataset
         .find({
@@ -100,7 +97,6 @@ exports.publishAll = function (req, res) {
                 .create('dgv:publish', {
                     organizationId: req.organization._id,
                     datasetId: dataset._id,
-                    sourceCatalog: req.organization.sourceCatalog,
                     publicationStatus: 'public'
                 })
                 .save(function (err) {
