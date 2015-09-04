@@ -42,7 +42,7 @@
     "libxmljs": "^0.14",
     "lodash": "^3.6.0",
     "moment": "^2.9.0",
-    "mongoose": "^4.1.1",
+    "mongoose": "^4.1.5",
     "morgan": "^1.5.1",
     "ogr2ogr": "jdesboeufs/ogr2ogr",
     "passport": "^0.2.1",
