@@ -92,7 +92,7 @@ class CswHarvestJob extends ServiceSyncJob {
             }
 
             const catalogRecordRevision = {
-                catalogId: this.service,
+                catalog: this.service,
                 recordId: parseResult.hashedId,
                 recordHash: parseResult.hashedRecord,
                 revisionDate: parseResult.updatedAt,

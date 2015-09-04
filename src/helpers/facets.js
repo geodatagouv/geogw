@@ -23,7 +23,7 @@ var markedAsOpenKeywords = [
     'open-data'
 ];
 
-function compute(record) {
+function compute(record, catalogs = []) {
 
     var facets = [];
 
@@ -60,6 +60,14 @@ function compute(record) {
 
     addToFacet('organization', 'organizations');
     addToFacet('keyword', 'metadata.keywords');
+
+    /* Catalog names */
+    _(catalogs).chain()
+        .compact()
+        .pluck('name')
+        .uniq()
+        .value()
+        .forEach(catalogName => facets.push({ name: 'catalog', value: catalogName }));
 
     var keywords = _.get(record, 'metadata.keywords', []);
     var kcKeywords = keywords.map(function (keyword) {

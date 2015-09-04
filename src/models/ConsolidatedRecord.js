@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import sidekick from '../helpers/sidekick';
 import DistributionSchema from './schemas/distribution';
-import Promise from 'bluebird';
 
 const ObjectId = Schema.Types.ObjectId;
 const Mixed = Schema.Types.Mixed;
@@ -41,7 +40,7 @@ export const schema = new Schema({
     updatedAt:             { type: Date },
 
     /* States */
-    consolidating:         { type: Boolean },
+    consolidating:         { type: Boolean }
 });
 
 /* Indexes */

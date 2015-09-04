@@ -9,32 +9,13 @@ module.exports = function(app) {
     app.param('recordId', records.record);
 
     /* Routes */
-    app.route('/services/:serviceId/records/:recordId')
-        .get(records.show);
-
-    app.route('/services/:serviceId/records')
-        .get(records.search);
-
-    app.route('/records/by-identifier/:identifier')
-        .get(records.findByIdentifier);
-
     app.route('/records/:recordId')
         .get(records.show);
 
-    app.route('/services/:serviceId/records/:recordId/force-reprocess')
-        .post(records.forceReprocess);
-
-    /* Compatibility */
-    app.route('/services/:serviceId/datasets/:recordId')
-        .get(records.show);
-
-    app.route('/services/:serviceId/datasets')
+    app.route('/records')
         .get(records.search);
 
-    app.route('/datasets/by-identifier/:identifier')
-        .get(records.findByIdentifier);
-
-    app.route('/services/:serviceId/datasets/:recordId/force-reprocess')
-        .post(records.forceReprocess);
+    app.route('/services/:serviceId/records')
+        .get(records.search);
 
 };

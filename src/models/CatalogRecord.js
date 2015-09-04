@@ -12,7 +12,7 @@ export const collectionName = 'catalog_records';
 export const schema = new Schema({
 
     /* Identification */
-    catalogId:      { type: ObjectId,  required: true },
+    catalog:        { type: ObjectId,  ref: 'Service', required: true },
     recordId:       { type: String,    required: true },
 
     /* Attributes */
@@ -27,14 +27,14 @@ export const schema = new Schema({
 });
 
 /* Indexes */
-schema.index({ catalogId: 1, recordId: 1 }, { unique: true });
+schema.index({ catalog: 1, recordId: 1 }, { unique: true });
 
 /* Statics */
 schema.statics = {
 
     touchExisting: function (catalogRecord) {
         const now = new Date();
-        const query = pick(catalogRecord, 'catalogId', 'recordId', 'recordHash');
+        const query = pick(catalogRecord, 'catalog', 'recordId', 'recordHash');
         const changes = { $set: { touchedAt: now } };
 
         return this.update(query, changes).exec()
@@ -43,7 +43,7 @@ schema.statics = {
 
     doUpsert: function (catalogRecord) {
         const now = new Date();
-        const query = pick(catalogRecord, 'catalogId', 'recordId');
+        const query = pick(catalogRecord, 'catalog', 'recordId');
         var changes = {
             $setOnInsert: { createdAt: now },
             $set: {

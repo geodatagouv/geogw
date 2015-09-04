@@ -10,7 +10,7 @@ var ObjectId = Schema.Types.ObjectId;
 
 var DatasetSchema = new Schema({
     _id: { type: String },
-    hashedId: String, // TEMP
+    recordId: String, // TEMP
 
     // Last known title
     title: { type: String }, // May be overriden by alternative revision
@@ -50,10 +50,10 @@ DatasetSchema.methods = {
 
     fetchAndConvert: function (done) {
         var datasetRef = this;
-        var Record = mongoose.model('Record');
+        var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 
-        Record
-            .findOne({ hashedId: datasetRef._id, parentCatalog: datasetRef.publication.sourceCatalog })
+        ConsolidatedRecord
+            .findOne({ recordId: datasetRef._id })
             .exec(function (err, sourceDataset) {
                 if (err) return done(err);
                 var uDataset;

@@ -1,7 +1,6 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
 import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
-import Promise from 'bluebird';
 import pick from 'lodash/object/pick';
 import magicGet from 'lodash/object/get';
 import { resolveByRelatedResource } from '../matching/featureTypes';

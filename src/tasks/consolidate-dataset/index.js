@@ -13,17 +13,22 @@ const ConsolidatedRecord    = mongoose.model('ConsolidatedRecord');
 const RelatedResource       = mongoose.model('RelatedResource');
 
 
-export function getMoreRecentCatalogRecord(recordId) {
-    return CatalogRecord.findOne({ recordId }).sort({ revisionDate: -1 }).exec()
-        .then(catalogRecord => {
-            if (!catalogRecord) throw new Error('No catalog record found for recordId: ' + recordId);
-            return catalogRecord;
+export function getCatalogRecords(recordId) {
+    return CatalogRecord
+        .find({ recordId })
+        .sort('-revisionDate')
+        .populate('catalog', 'name')
+        .lean()
+        .exec()
+        .then(catalogRecords => {
+            if (catalogRecords.length === 0) throw new Error('No catalog record found for recordId: ' + recordId);
+            return catalogRecords;
         });
 }
 
-export function getMoreRecentRecordRevision(recordId) {
-    return getMoreRecentCatalogRecord(recordId)
-        .then(catalogRecord => RecordRevision.findOne(pick(catalogRecord, 'recordId', 'recordHash')).exec())
+export function getBestRecordRevision(catalogRecordsPromise) {
+    return catalogRecordsPromise
+        .then(catalogRecords => RecordRevision.findOne(pick(catalogRecords[0], 'recordId', 'recordHash')).exec())
         .then(recordRevision => {
             if (!recordRevision) throw new Error('Record revision not found for: ' + recordRevision.toJSON());
             return recordRevision;
@@ -110,18 +115,21 @@ export function exec(job, done) {
 
     return ConsolidatedRecord.toggleConsolidating(recordId, true)
         .then(marked => {
+            const catalogRecordsPromise = getCatalogRecords(recordId);
             if (!marked) return true;
             return Promise.props({
+                catalogRecords: catalogRecordsPromise,
                 record: getConsolidatedRecord(recordId),
                 relatedResources: fetchRelatedResources(recordId),
-                recordRevision: getMoreRecentRecordRevision(recordId)
+                recordRevision: getBestRecordRevision(catalogRecordsPromise)
             }).then(r => {
                 applyRecordRevisionChanges(r.record, r.recordRevision);
                 applyOrganizationsFilter(r.record); // Systematically for now
                 applyResources(r.record, r.relatedResources);
                 return r.record
+                    .set('catalogs', r.catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
                     .set('dataset.updatedAt', now)
-                    .set('facets', computeFacets(r.record))
+                    .set('facets', computeFacets(r.record, r.catalogRecords.map(catalogRecord => catalogRecord.catalog)))
                     .save()
                     .then(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
             });

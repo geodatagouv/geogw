@@ -61,7 +61,7 @@ exports.map = function (sourceDataset) {
         description: bodyTemplate(sourceDataset),
         extras: {
             inspire_file_identifier: sourceDataset.identifier,
-            geogw_hashed_id: sourceDataset.hashedId
+            geogw_record_id: sourceDataset.recordId
         },
         license: 'fr-lo',
         supplier: {},
@@ -142,7 +142,7 @@ exports.map = function (sourceDataset) {
     }
 
     if (!out.resources.length) {
-        debug('No publishable resources for %s (%s)', sourceDataset.metadata.title, sourceDataset.hashedId);
+        debug('No publishable resources for %s (%s)', sourceDataset.metadata.title, sourceDataset.recordId);
     }
 
     if (out.title.length === 0) throw new Error('title is a required field');

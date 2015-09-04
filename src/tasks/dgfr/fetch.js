@@ -62,11 +62,11 @@ module.exports = function (job, jobDone) {
                 debug('%d datasets found for producer `%s`', result.count, producer._id);
 
                 async.eachLimit(result.results, 20, function (dataset, datasetDone) {
-                    if (dataset.hashedId in datasetsProcessed) {
-                        debug('Dataset %s already processed', dataset.hashedId);
+                    if (dataset.recordId in datasetsProcessed) {
+                        debug('Dataset %s already processed', dataset.recordId);
                         datasetDone();
                     } else {
-                        datasetsProcessed[dataset.hashedId] = true;
+                        datasetsProcessed[dataset.recordId] = true;
 
                         var updateOperations = {
                             $push: { matchingFor: organizationId },
@@ -74,19 +74,19 @@ module.exports = function (job, jobDone) {
                         };
                         var opts = { upsert: true };
 
-                        Dataset.findByIdAndUpdate(dataset.hashedId, updateOperations, opts, function (err) {
+                        Dataset.findByIdAndUpdate(dataset.recordId, updateOperations, opts, function (err) {
                             if (err) {
-                                debug('Unable to upsert matching dataset %s', dataset.hashedId);
+                                debug('Unable to upsert matching dataset %s', dataset.recordId);
                                 return datasetDone(err);
                             }
                             datasetDone();
                         });
 
-                        // q.create('dgv:publish', { datasetId: dataset.hashedId, organizationId: organizationId })
+                        // q.create('dgv:publish', { datasetId: dataset.recordId, organizationId: organizationId })
                         //     .attempts(5)
                         //     .removeOnComplete(true)
                         //     .save(function () {
-                        //         debug('Dataset %s added to queue', dataset.hashedId);
+                        //         debug('Dataset %s added to queue', dataset.recordId);
                         //         datasetDone();
                         //     });
                     }

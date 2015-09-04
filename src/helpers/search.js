@@ -1,16 +1,21 @@
 var mongoose = require('mongoose');
-var Record = mongoose.model('Record');
+var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 var async = require('async');
 var _ = require('lodash');
 
-module.exports = function (searchQuery, done) {
+module.exports = function (searchQuery, catalogName, done) {
+    if (!done) {
+        done = catalogName;
+        catalogName = undefined;
+    }
+
     var q = searchQuery.q && _.isString(searchQuery.q) && searchQuery.q.length ? searchQuery.q : null;
     var limit = parseInt(searchQuery.limit);
     limit = _.isNumber(limit) && limit > 0 && limit <= 500 ? Math.floor(limit) : 20;
     var offset = parseInt(searchQuery.offset);
     offset = _.isNumber(offset) && offset > 0 ? Math.floor(offset) : 0;
 
-    var query = { parentCatalog: mongoose.Types.ObjectId(searchQuery.catalog) };
+    var query = {};
 
     // Text search
     if (q) {
@@ -18,7 +23,7 @@ module.exports = function (searchQuery, done) {
     }
 
     // Facets
-    var facetKeys = ['organization', 'type', 'keyword', 'representationType', 'opendata', 'distributionFormat', 'availability'];
+    var facetKeys = ['organization', 'type', 'keyword', 'representationType', 'opendata', 'distributionFormat', 'availability', 'catalog'];
     var facets = [];
     facetKeys.forEach(function (facetKey) {
         if (!(facetKey in searchQuery)) return;
@@ -28,6 +33,9 @@ module.exports = function (searchQuery, done) {
             facets.push({ name: facetKey, value: value });
         });
     });
+    if (catalogName) {
+        facets.push({ name: 'catalog', value: catalogName });
+    }
 
     if (facets.length > 0) {
         query.facets = {
@@ -39,18 +47,19 @@ module.exports = function (searchQuery, done) {
 
     async.parallel({
         results: function (callback) {
-            Record.find(query)
+            ConsolidatedRecord.find(query)
                 .select({ score: { $meta: 'textScore' }, facets: 0 }) // TODO: $meta seems to break selection :/
+                .populate('catalogs', 'name')
                 .sort({ score: { $meta: 'textScore' } })
                 .skip(offset)
                 .limit(limit)
                 .exec(callback);
         },
         count: function (callback) {
-            Record.count(query).exec(callback);
+            ConsolidatedRecord.count(query).exec(callback);
         },
         facets: function (cb) {
-            Record
+            ConsolidatedRecord
                 .aggregate([
                     { $match: query },
                     { $unwind: '$facets' },
@@ -61,13 +70,14 @@ module.exports = function (searchQuery, done) {
                     if (err) return cb(err);
                     var outputFacets = {};
                     result.forEach(function (facet) {
+                        if (catalogName && facet._id.name === 'catalog') return;
                         if (!outputFacets[facet._id.name]) outputFacets[facet._id.name] = [];
                         outputFacets[facet._id.name].push({
                             value: facet._id.value,
                             count: facet.count
                         });
                     });
-                    if (!searchQuery.facets) searchQuery.facets = { organization: 20, keyword: 20 };
+                    if (!searchQuery.facets) searchQuery.facets = { organization: 20, keyword: 20, catalog: 20 };
                     _.forEach(outputFacets, function (facetList, facetName) {
                         if (facetName in searchQuery.facets) {
                             if (parseInt(searchQuery.facets[facetName]) === 0) {
