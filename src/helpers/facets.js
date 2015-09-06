@@ -82,9 +82,9 @@ function compute(record, catalogs = []) {
     markedAsOpen = markedAsOpen || _.find(kcKeywords, function (keyword) {
         return markedAsOpenKeywords.indexOf(keyword) >= 0;
     });
-    var parentCatalogId = record.parentCatalog.toString();
+    //var parentCatalogId = record.parentCatalog.toString();
     // Specific detection for Data EauFrance catalog (TO BE REMOVED)
-    markedAsOpen = markedAsOpen || parentCatalogId === '53a01c3c23a9836106440e0f';
+    // markedAsOpen = markedAsOpen || parentCatalogId === '53a01c3c23a9836106440e0f';
     facets.push({ name: 'opendata', value: markedAsOpen ? 'yes' : 'not-determined' });
 
     // Distribution formats
