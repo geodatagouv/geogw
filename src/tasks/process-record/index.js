@@ -11,12 +11,12 @@ const RecordRevision = mongoose.model('RecordRevision');
 const RelatedResource = mongoose.model('RelatedResource');
 
 
-export function markExistingRelatedResourcesAsChecking(originId) {
-    return RelatedResource.markAsChecking({ originId });
+export function markExistingRelatedResourcesAsChecking(originId, originHash) {
+    return RelatedResource.markAsChecking({ originId, originHash });
 }
 
-export function removeCheckingRelatedResources(originId) {
-    return RelatedResource.remove({ originId, checking: true });
+export function removeCheckingRelatedResources(originId, originHash) {
+    return RelatedResource.remove({ originId, originHash, checking: true });
 }
 
 export function getRecordRevision(recordId, recordHash) {
@@ -137,11 +137,11 @@ export function exec(job, done) {
 
     return getRecordRevision(recordId, recordHash)
         .then(recordRevision => {
-            return markExistingRelatedResourcesAsChecking(recordId)
+            return markExistingRelatedResourcesAsChecking(recordId, recordHash)
                 .then(() => processOnlineResources(recordRevision))
                 .then(() => processCoupledResources(recordRevision));
         })
-        .then(() => removeCheckingRelatedResources(recordId))
-        .then(() => mongoose.model('ConsolidatedRecord').triggerUpdated(recordId))
+        .then(() => removeCheckingRelatedResources(recordId, recordHash))
+        .then(() => mongoose.model('ConsolidatedRecord').triggerUpdated(recordId)) // Only useful for dataset records
         .nodeify(done);
 }
