@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import Plunger from '../../helpers/plunger';
 import strRightBack from 'underscore.string/strRightBack';
+import omit from 'lodash/object/omit';
 
 const RemoteResource = mongoose.model('RemoteResource');
 const RelatedResource = mongoose.model('RelatedResource');
@@ -33,7 +34,11 @@ export default class RemoteResourceCheck {
 
         this.checker = new Plunger(this.options.remoteResourceLocation, { abort: 'never' });
         return this.checker.inspect()
-            .then(() => this.remoteResource.checkResult = this.checker.toObject());
+            .then(() => {
+                const checkResult = this.checker.toObject();
+                checkResult.headers = omit(checkResult.headers, 'set-cookie', 'connection');
+                this.remoteResource.checkResult = checkResult;
+            });
     }
 
     handleArchive() {
