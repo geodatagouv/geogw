@@ -3,6 +3,8 @@ var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 var async = require('async');
 var _ = require('lodash');
 
+import { formatOne as formatOneRecord } from '../formatters/records';
+
 module.exports = function (searchQuery, catalogName, done) {
     if (!done) {
         done = catalogName;
@@ -49,10 +51,10 @@ module.exports = function (searchQuery, catalogName, done) {
         results: function (callback) {
             ConsolidatedRecord.find(query)
                 .select({ score: { $meta: 'textScore' }, facets: 0 }) // TODO: $meta seems to break selection :/
-                .populate('catalogs', 'name')
                 .sort({ score: { $meta: 'textScore' } })
                 .skip(offset)
                 .limit(limit)
+                .lean()
                 .exec(callback);
         },
         count: function (callback) {
@@ -92,6 +94,9 @@ module.exports = function (searchQuery, catalogName, done) {
         }
     }, function(err, output) {
         if (err) return done(err);
+        _.forEach(output.results, function (record, i) {
+            output.results[i] = formatOneRecord(record);
+        });
         output.query = { q: q, facets: facets, limit: limit, offset: offset };
         done(null, output);
     });

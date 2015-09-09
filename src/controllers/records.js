@@ -5,6 +5,8 @@ var mongoose = require('mongoose');
 var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 var _ = require('lodash');
 
+import { formatOne as formatOneRecord } from '../formatters/records';
+
 var search = require('../helpers/search');
 
 /*
@@ -25,7 +27,7 @@ exports.record = function(req, res, next, id) {
 ** Actions
 */
 exports.show = function(req, res) {
-    res.send(req.record);
+    res.send(formatOneRecord(req.record));
 };
 
 exports.search = function(req, res, next) {
