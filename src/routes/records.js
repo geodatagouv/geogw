@@ -18,4 +18,6 @@ module.exports = function(app) {
     app.route('/services/:serviceId/records')
         .get(records.search);
 
+    app.get('/records/:recordId/related-resources', records.showRelatedResources);
+
 };

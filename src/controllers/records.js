@@ -1,13 +1,11 @@
-/*
-** Module dependencies
-*/
-var mongoose = require('mongoose');
-var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
-var _ = require('lodash');
-
+import mongoose from 'mongoose';
 import { formatOne as formatOneRecord } from '../formatters/records';
 
+var _ = require('lodash');
 var search = require('../helpers/search');
+
+const ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
+const RelatedResource = mongoose.model('RelatedResource');
 
 /*
 ** Middlewares
@@ -40,3 +38,12 @@ exports.search = function(req, res, next) {
     });
 };
 
+exports.showRelatedResources = function (req, res, next) {
+    RelatedResource
+        .find({ record: req.record.recordId })
+        .lean()
+        .exec(function (err, foundRelatedResources) {
+            if (err) return next(err);
+            res.send(foundRelatedResources);
+        });
+};
