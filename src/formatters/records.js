@@ -45,3 +45,7 @@ export function formatOne(record) {
 
     return omit(record, omittingKeys);
 }
+
+export function formatMany(records) {
+    return records.map(record => formatOne(record));
+}
