@@ -132,14 +132,22 @@ exports.unpublishAll = function (req, res) {
 
 exports.syncAll = function (req, res) {
     var count = 0;
-    Dataset
-        .find({ 'publication.organization': req.organization._id })
+    var query;
+    if (req.organization && req.organization._id) {
+        query = Dataset.find({ 'publication.organization': req.organization._id });
+    } else if (req.query.confirm === 'yes') {
+        query = Dataset.find({ 'publication': { $exists: true }});
+    } else {
+        return res.sendStatus(400);
+    }
+    query
         .lean()
         .stream()
         .pipe(through2.obj(function (dataset, enc, done) {
+            if (!dataset.publication || !dataset.publication.organization) return done();
             q
                 .create('dgv:publish', {
-                    organizationId: req.organization._id,
+                    organizationId: dataset.publication.organization,
                     datasetId: dataset._id
                 })
                 .save(function (err) {

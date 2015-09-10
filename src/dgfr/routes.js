@@ -8,6 +8,8 @@ var organizations = require('../controllers/dgfr/organizations');
 var producers = require('../controllers/dgfr/producers');
 var datasets = require('../controllers/dgfr/datasets');
 
+import { isMaintenance } from '../routes/middlewares/auth';
+
 var mongoose = require('mongoose');
 
 var Service = mongoose.model('Service');
@@ -148,5 +150,7 @@ module.exports = function (app) {
 
     app.route('/api/organizations/:organizationId/datasets/synchronize-all')
         .post(ensureLoggedIn, isAdmin, datasets.syncAll);
+
+    app.post('/api/datasets/synchronize-all', isMaintenance, datasets.syncAll);
 
 };
