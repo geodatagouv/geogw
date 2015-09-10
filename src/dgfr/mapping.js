@@ -7,35 +7,35 @@ var debug = require('debug')('mapping');
 moment.locale('fr');
 
 var bodyTemplate = Handlebars.compile(
-    `{{metadata.abstract}}
+`{{metadata.abstract}}
 
-    {{#if metadata.lineage}}
-    __Origine__
+{{#if metadata.lineage}}
+__Origine__
 
-    {{metadata.lineage}}
-    {{/if}}
+{{metadata.lineage}}
+{{/if}}
 
-    {{#if history}}
-    __Historique__
+{{#if history}}
+__Historique__
 
-    {{#each history}}
-     * {{date}} : {{description}}
-    {{/each}}
-    {{/if}}
+{{#each history}}
+ * {{date}} : {{description}}
+{{/each}}
+{{/if}}
 
-    {{#if inlineOrganizations}}
-    __Organisations partenaires__
+{{#if inlineOrganizations}}
+__Organisations partenaires__
 
-    {{inlineOrganizations}}
-    {{/if}}
+{{inlineOrganizations}}
+{{/if}}
 
-    {{#if alternateResources}}
-    __Liens annexes__
+{{#if alternateResources}}
+__Liens annexes__
 
-    {{#each alternateResources}}
-     * [{{name}}]({{location}})
-    {{/each}}
-    {{/if}}`
+{{#each alternateResources}}
+ * [{{name}}]({{location}})
+{{/each}}
+{{/if}}`
 );
 
 exports.map = function (sourceDataset) {
