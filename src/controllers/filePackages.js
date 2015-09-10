@@ -63,7 +63,7 @@ exports.prepateFilePackageDownload = function (req, res, next) {
                     .then(() => req.plunger.decompressArchive())
                     .then(() => req.plunger.listFiles())
                     .then(files => {
-                        if (!includes(files, req.layer)) {
+                        if (!includes(files.datasets, req.layer)) {
                             return notFound(); // Should trigger remote resource refresh
                         }
                         const layerPath = req.plunger.decompressedDirectoryPath + '/' + req.layer;
