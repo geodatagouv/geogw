@@ -8,6 +8,10 @@ var organizations = require('../controllers/dgfr/organizations');
 var producers = require('../controllers/dgfr/producers');
 var datasets = require('../controllers/dgfr/datasets');
 
+var mongoose = require('mongoose');
+
+var Service = mongoose.model('Service');
+
 function ensureLoggedIn(req, res, next) {
     if (!req.user) return res.sendStatus(401);
     next();
@@ -24,6 +28,16 @@ module.exports = function (app) {
 
     app.get('/api/me', function (req, res) {
         res.send(req.user);
+    });
+
+    app.param('catalogId', function (req, res, next, id) {
+        Service.findById(id).exec(function (err, foundService) {
+            if (err) return next(err);
+            if (!foundService) return res.sendStatus(404);
+            if (foundService.protocol !== 'csw') return res.sendStatus(404);
+            req.catalog = foundService;
+            next();
+        });
     });
 
     app.get('/api/catalogs/:catalogId/producers', function (req, res, next) {
