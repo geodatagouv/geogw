@@ -42,14 +42,13 @@ module.exports = function (app) {
 
     app.get('/api/catalogs/:catalogId/producers', function (req, res, next) {
         var query = {
-            catalog: req.params.catalogId,
             limit: 1,
             opendata: 'yes',
             availability: 'yes',
             facets: { keyword: 0, opendata: 0, availability: 0, representationType: 0 }
         };
 
-        search(query, function (err, result) {
+        search(query, req.catalog.name, function (err, result) {
             if (err) return next(err);
             res.send(result.facets.organization || []);
         });
