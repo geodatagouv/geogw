@@ -5,7 +5,7 @@ function downloadDataset(req, res) {
     var layerName = req.ogr2ogr.layerName;
     var options = layerName ? [layerName] : [];
 
-    var ogr2ogrTask = ogr2ogr(req.ogr2ogr.src)
+    var ogr2ogrTask = ogr2ogr(req.method === 'HEAD' ? 'fake' : req.ogr2ogr.src)
         .timeout(20000);
 
     // Projection
