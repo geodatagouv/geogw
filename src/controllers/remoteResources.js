@@ -4,6 +4,10 @@
 var mongoose = require('mongoose');
 
 var RemoteResource = mongoose.model('RemoteResource');
+var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
+
+import { formatOne as formatOneRemoteResource } from '../formatters/remoteResources';
+import { formatMany as formatManyRecords } from '../formatters/records';
 
 /*
 ** Middlewares
@@ -11,6 +15,7 @@ var RemoteResource = mongoose.model('RemoteResource');
 exports.remoteResource = function(req, res, next, id) {
     RemoteResource
     .findOne({ hashedLocation: id })
+    .lean()
     .exec(function(err, remoteResource) {
         if (err) return next(err);
         if (!remoteResource) return res.status(404).end();
@@ -23,7 +28,7 @@ exports.remoteResource = function(req, res, next, id) {
 ** Actions
 */
 exports.show = function (req, res) {
-    res.send(req.remoteResource);
+    res.send(formatOneRemoteResource(req.remoteResource));
 };
 
 exports.check = function (req, res, next) {
@@ -31,4 +36,15 @@ exports.check = function (req, res, next) {
         if (err) return next(err);
         res.sendStatus(200);
     });
+};
+
+exports.records = function (req, res, next) {
+    ConsolidatedRecord
+        .find({ 'dataset.distributions.hashedLocation': req.remoteResource.hashedLocation })
+        .select('recordId metadata.title catalogs')
+        .lean()
+        .exec(function (err, recordsFound) {
+            if (err) return next(err);
+            res.send(formatManyRecords(recordsFound));
+        });
 };

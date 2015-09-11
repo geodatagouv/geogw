@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { formatOne as formatOneRecord } from '../formatters/records';
+import { formatMany as formatManyRelatedResources } from '../formatters/relatedResources';
 
 var _ = require('lodash');
 var search = require('../helpers/search');
@@ -44,6 +45,6 @@ exports.showRelatedResources = function (req, res, next) {
         .lean()
         .exec(function (err, foundRelatedResources) {
             if (err) return next(err);
-            res.send(foundRelatedResources);
+            res.send(formatManyRelatedResources(foundRelatedResources));
         });
 };

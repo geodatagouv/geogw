@@ -1,14 +1,13 @@
 import { formatOneBase } from '../helpers/formatters';
 
 
-export function resourceUrl(rootUrl, record) {
-    if (!record.recordId) throw new Error('recordId not found in record object');
-    return rootUrl + '/records/' + record.recordId.substring(0, 12);
+export function resourceUrl(rootUrl, remoteResource) {
+    if (!remoteResource.hashedLocation) throw new Error('hashedLocation not found in remote resource object');
+    return rootUrl + '/file-packages/' + remoteResource.hashedLocation;
 }
 
 export const linkMapping = {
-    '@relatedResources': { basePath: '/related-resources', sub: true },
-    '@catalogs': { basePath: '/services', array: true, id: 'catalogs' }
+    '@records': { basePath: '/records', sub: true }
 };
 
 export const omitKeys = ['_id', '__v'];
