@@ -37,7 +37,10 @@ app.use(passport.session());
 
 /* Passport */
 
-app.get('/login', passport.authenticate('data.gouv.fr', { scope: 'default' }));
+app.get('/login', function (req, res) {
+    res.redirect('http://sorry.data.gouv.fr');
+});
+// app.get('/login', passport.authenticate('data.gouv.fr', { scope: 'default' }));
 
 app.get('/dgv/oauth/callback', function (req, res) {
     passport.authenticate('data.gouv.fr', {
