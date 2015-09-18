@@ -83,7 +83,7 @@ exports.createDatasetOnly = function (dataset, accessToken, done) {
 };
 
 exports.addDatasetResources = function (datasetId, resources, accessToken, done) {
-    async.eachSeries(resources, function (resource, stepDone) {
+    async.eachSeries(resources || [], function (resource, stepDone) {
         exports.createDatasetResource(datasetId, resource, accessToken, stepDone);
     }, done);
 };
@@ -143,7 +143,7 @@ exports.getDatasetResources = function (id, accessToken, done) {
 
 exports.cleanDatasetResources = function (id, accessToken, done) {
     exports.getDatasetResources(id, accessToken, function (err, resources) {
-        async.eachSeries(resources, function (resource, stepDone) {
+        async.eachSeries(resources || [], function (resource, stepDone) {
             exports.deleteDatasetResource(id, resource.id, accessToken, stepDone);
         }, done);
     });

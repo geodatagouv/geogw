@@ -53,6 +53,8 @@ DatasetSchema.methods = {
             .findOne({ recordId: datasetRef._id })
             .exec(function (err, sourceDataset) {
                 if (err) return done(err);
+                if (!sourceDataset) return done(new Error('Record not found: ' + datasetRef._id));
+                if (!sourceDataset.metadata) return done(new Error('Record found but empty metadata: ' + datasetRef._id));
                 var uDataset;
 
                 datasetRef
