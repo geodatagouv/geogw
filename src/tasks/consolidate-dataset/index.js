@@ -105,8 +105,8 @@ export function applyResources(record, relatedResources) {
     });
 
     return record
-        .set('dataset.distributions', dist)
-        .set('alternateResources', alt);
+        .set('dataset.distributions', _.uniq(dist, 'uniqueId'))
+        .set('alternateResources', _.uniq(alt, 'location'));
 }
 
 export function exec(job, done) {

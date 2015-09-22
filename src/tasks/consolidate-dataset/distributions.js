@@ -7,7 +7,8 @@ function buildFeatureType(resource) {
         type: 'wfs-featureType',
         service: resource.featureType.matchingService,
         typeName: resource.featureType.matchingName || resource.featureType.candidateName,
-        available: !!resource.featureType.matchingName
+        available: !!resource.featureType.matchingName,
+        uniqueId: resource.featureType.matchingService + '@@' + (resource.featureType.matchingName || resource.featureType.candidateName)
     };
 }
 
@@ -24,7 +25,8 @@ function buildLayers(resource) {
             location: resource.remoteResource.location,
             hashedLocation: resource.remoteResource.hashedLocation,
             available: resource.remoteResource.available,
-            layer: layer
+            layer: layer,
+            uniqueId: resource.remoteResource.hashedLocation + '@@' + layer
         };
     });
 }
