@@ -1,5 +1,5 @@
 /* Module dependencies */
-var URI = require('URIjs');
+var URI = require('urijs');
 var ipaddr = require('ipaddr.js');
 var _ = require('lodash');
 var _s = require('underscore.string');
