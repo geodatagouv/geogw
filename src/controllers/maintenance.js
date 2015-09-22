@@ -20,7 +20,7 @@ export function processAllRecords(req, res) {
                     cb(err);
                 });
         }))
-        .on('end', () => {
+        .on('finish', () => {
             res.send({ task: 'process-all-records', status: 'ok', count });
         });
 }
@@ -39,7 +39,7 @@ export function consolidateAllRecords(req, res) {
                     cb(err);
                 });
         }))
-        .on('end', () => {
+        .on('finish', () => {
             res.send({ task: 'consolidate-all-records', status: 'ok', count });
         });
 }
