@@ -1,64 +1,88 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var mongoose = require('mongoose');
-var passport = require('passport');
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
-var cors = require('cors');
-var path = require('path');
+import express from 'express';
+import passport from 'passport';
+import mongoose from 'mongoose';
+import kue from 'kue';
+import session from 'express-session';
+import { json as parseJson } from 'body-parser';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import path from 'path';
+import sessionMongo from 'connect-mongo';
+import { walk } from './utils';
 
-var utils = require('./utils');
+const MongoStore = sessionMongo(session);
 
-// Configure passport
-require('./passport');
+class Server {
 
-// Configure kue
-require('./kue');
+    constructor() {
+        this.app = express();
+    }
 
-var app = express();
+    // private
+    mountTopMiddlewares() {
+        this.app.use(cors());
+        this.app.use(parseJson());
+        this.app.use(cookieParser());
+    }
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(cookieParser());
+    // private
+    mountSessionMiddleware() {
+        this.app.use(session({
+            secret: process.env.COOKIE_SECRET,
+            name: 'sid',
+            saveUninitialized: false,
+            resave: false,
+            store: new MongoStore({
+                mongooseConnection: mongoose.connection
+            })
+        }));
+    }
 
-app.use(session({
-    secret: process.env.COOKIE_SECRET,
-    name: 'sid',
-    saveUninitialized: false,
-    resave: false,
-    store: new MongoStore({
-        mongooseConnection: mongoose.connection
-    })
-}));
+    // private
+    mountAuth() {
+        // Middlewares
+        this.app.use(passport.initialize());
+        this.app.use(passport.session());
 
-app.use(passport.initialize());
-app.use(passport.session());
+        // Login route
+        this.app.get('/login', passport.authenticate('data.gouv.fr', { scope: 'default' }));
 
-/* Passport */
+        // OAuth callback
+        this.app.get('/dgv/oauth/callback', function (req, res) {
+            passport.authenticate('data.gouv.fr', {
+                successRedirect: '/account/organizations',
+                failureRedirect: '/'
+            })(req, res);
+        });
 
-app.get('/login', passport.authenticate('data.gouv.fr', { scope: 'default' }));
+        // Logout route
+        this.app.get('/logout', (req, res) => {
+            req.logout();
+            res.redirect('/');
+        });
+    }
 
-app.get('/dgv/oauth/callback', function (req, res) {
-    passport.authenticate('data.gouv.fr', {
-        successRedirect: '/account/organizations',
-        failureRedirect: '/'
-    })(req, res);
-});
+    // private
+    mountRoutes() {
+        this.geogwRouter = new express.Router();
+        walk(path.join(__dirname, 'routes'), 'middlewares', path => require(path)(this.geogwRouter));
+        this.app.use('/api/geogw', this.geogwRouter);
+        require('./dgfr/routes')(this.app);
+        this.app.use('/kue', kue.app);
+    }
 
-app.get('/logout', function (req, res){
-    req.logout();
-    res.redirect('/');
-});
+    getHandler() {
+        if (this.handlerReady) return this.app;
 
-/* API */
-var geogwRouter = new express.Router();
-utils.walk(path.join(__dirname, 'routes'), 'middlewares', function(path) {
-    require(path)(geogwRouter);
-});
-app.use('/api/geogw', geogwRouter);
-require('./dgfr/routes')(app);
+        this.mountTopMiddlewares();
+        this.mountSessionMiddleware();
+        this.mountAuth();
+        this.mountRoutes();
 
-app.use('/kue', require('kue').app);
+        this.handlerReady = true;
+        return this.app;
+    }
 
-module.exports = app;
+}
+
+export default (new Server()).getHandler();
