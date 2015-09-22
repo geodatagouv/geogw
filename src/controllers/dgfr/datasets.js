@@ -156,7 +156,7 @@ exports.syncAll = function (req, res) {
                     done(null, null);
                 });
         }))
-        .on('end', function () {
+        .on('finish', function () {
             res.send({ status: 'ok', count: count });
         });
 };
