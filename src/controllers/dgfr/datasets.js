@@ -134,9 +134,10 @@ exports.syncAll = function (req, res) {
     var count = 0;
     var query;
     if (req.organization && req.organization._id) {
-        query = Dataset.find({ 'publication.organization': req.organization._id });
+        query = Dataset.where('publication.organization', req.organization._id);
     } else if (req.query.confirm === 'yes') {
-        query = Dataset.find({ 'publication': { $exists: true }});
+        query = Dataset.where('publication').exists();
+        if (req.query.before) query.where('publication.updatedAt').lt(new Date(req.query.before));
     } else {
         return res.sendStatus(400);
     }
