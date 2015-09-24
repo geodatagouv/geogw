@@ -38,7 +38,7 @@
     "ipaddr.js": "^1.0.1",
     "iso19139": "jdesboeufs/node-iso19139",
     "json-stable-stringify": "^1.0.0",
-    "kue": "Automattic/kue#c018872",
+    "kue": "^0.9.5",
     "libxmljs": "^0.14",
     "lodash": "^3.6.0",
     "moment": "^2.9.0",
