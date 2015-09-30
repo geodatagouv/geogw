@@ -3,7 +3,6 @@ import mongoose                     from 'mongoose';
 import pick                         from 'lodash/object/pick';
 import _                            from 'lodash';
 import distributions                from './distributions';
-import organizations                from './organizations';
 import { compute as computeFacets } from '../../helpers/facets';
 import Promise                      from 'bluebird';
 
@@ -11,6 +10,7 @@ const RecordRevision        = mongoose.model('RecordRevision');
 const CatalogRecord         = mongoose.model('CatalogRecord');
 const ConsolidatedRecord    = mongoose.model('ConsolidatedRecord');
 const RelatedResource       = mongoose.model('RelatedResource');
+const OrganizationSpelling  = mongoose.model('OrganizationSpelling');
 
 
 export function getCatalogRecords(recordId) {
@@ -48,7 +48,7 @@ export function getConsolidatedRecord(recordId) {
 }
 
 export function applyRecordRevisionChanges(record, recordRevision) {
-    if (record.recordHash && record.recordHash === recordRevision.recordHash) return record;
+    if (record.recordHash && record.recordHash === recordRevision.recordHash) return Promise.resolve(record);
     record
         .set('recordHash', recordRevision.recordHash)
         .set('metadata', recordRevision.content)
@@ -60,28 +60,35 @@ export function applyRecordRevisionChanges(record, recordRevision) {
         record.metadata.representationType = 'grid';
     }
 
-    return record;
+    return Promise.resolve(record);
 }
 
 export function applyOrganizationsFilter(record) {
 
-    function normalizeOrganization(contact) {
-        const originalName = contact.organizationName;
-        if (!originalName) return;
-        if (!organizations[originalName]) return originalName;
-        if (organizations[originalName].reject) return; // TODO: Warn catalog owner
-        if (organizations[originalName].rename) return organizations[originalName].rename;
-    }
-
-    const normalizedOrganizations = _.chain([record.metadata.contacts, record.metadata._contacts])
+    let organizationSpellingsSource = _.chain([record.metadata.contacts, record.metadata._contacts])
         .flatten()
-        .compact()
-        .map(normalizeOrganization)
+        .pluck('organizationName')
         .compact()
         .uniq()
         .valueOf();
 
-    return record.set('organizations', normalizedOrganizations);
+    return OrganizationSpelling.find().where('_id').in(organizationSpellingsSource).populate('organization').lean().exec()
+        .then(organizationSpellingsFound => {
+            organizationSpellingsFound = _.indexBy(organizationSpellingsFound, '_id');
+            return _.chain(organizationSpellingsSource)
+                .map(organizationSpelling => {
+                    if (organizationSpelling in organizationSpellingsFound) {
+                        let foundOne = organizationSpellingsFound[organizationSpelling];
+                        if (foundOne.rejected) return;
+                        if (foundOne.organization && foundOne.organization.name) return foundOne.organization.name;
+                    }
+                    return organizationSpelling;
+                })
+                .compact()
+                .uniq()
+                .valueOf();
+        })
+        .then(normalizedOrganizations => record.set('organizations', normalizedOrganizations));
 }
 
 export function applyResources(record, relatedResources) {
@@ -104,9 +111,9 @@ export function applyResources(record, relatedResources) {
         }
     });
 
-    return record
+    return Promise.resolve(record
         .set('dataset.distributions', _.uniq(dist, 'uniqueId'))
-        .set('alternateResources', _.uniq(alt, 'location'));
+        .set('alternateResources', _.uniq(alt, 'location')));
 }
 
 export function exec(job, done) {
@@ -123,15 +130,18 @@ export function exec(job, done) {
                 relatedResources: fetchRelatedResources(recordId),
                 recordRevision: getBestRecordRevision(catalogRecordsPromise)
             }).then(r => {
-                applyRecordRevisionChanges(r.record, r.recordRevision);
-                applyOrganizationsFilter(r.record); // Systematically for now
-                applyResources(r.record, r.relatedResources);
-                return r.record
-                    .set('catalogs', r.catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
-                    .set('dataset.updatedAt', now)
-                    .set('facets', computeFacets(r.record, r.catalogRecords.map(catalogRecord => catalogRecord.catalog)))
-                    .save()
-                    .then(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
+                return applyRecordRevisionChanges(r.record, r.recordRevision)
+                    .then(() => applyOrganizationsFilter(r.record))
+                    .then(() => applyResources(r.record, r.relatedResources))
+                    .then(() => {
+                        return r.record
+                            .set('catalogs', r.catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
+                            .set('dataset.updatedAt', now)
+                            .set('facets', computeFacets(r.record, r.catalogRecords.map(catalogRecord => catalogRecord.catalog)))
+                            .save();
+                    })
+                    .then(() => ConsolidatedRecord.toggleConsolidating(recordId, false))
+
             });
         })
         .nodeify(done);
