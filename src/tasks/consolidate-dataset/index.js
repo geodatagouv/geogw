@@ -140,7 +140,7 @@ export function exec(job, done) {
                             .set('facets', computeFacets(r.record, r.catalogRecords.map(catalogRecord => catalogRecord.catalog)))
                             .save();
                     })
-                    .then(() => ConsolidatedRecord.toggleConsolidating(recordId, false))
+                    .then(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
 
             });
         })

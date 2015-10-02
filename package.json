@@ -35,7 +35,6 @@
     "findit": "^2.0.0",
     "handlebars": "^3.0.1",
     "ipaddr.js": "^1.0.1",
-    "iso19139": "jdesboeufs/node-iso19139",
     "json-stable-stringify": "^1.0.0",
     "kue": "^0.9.5",
     "libxmljs": "^0.14",
