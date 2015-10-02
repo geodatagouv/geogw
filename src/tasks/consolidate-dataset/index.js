@@ -65,30 +65,30 @@ export function applyRecordRevisionChanges(record, recordRevision) {
 
 export function applyOrganizationsFilter(record) {
 
-    let organizationSpellingsSource = _.chain([record.metadata.contacts, record.metadata._contacts])
+    const spellings = _.chain([record.metadata.contacts, record.metadata._contacts])
         .flatten()
         .pluck('organizationName')
         .compact()
         .uniq()
         .valueOf();
 
-    return OrganizationSpelling.find().where('_id').in(organizationSpellingsSource).populate('organization').lean().exec()
-        .then(organizationSpellingsFound => {
-            organizationSpellingsFound = _.indexBy(organizationSpellingsFound, '_id');
-            return _.chain(organizationSpellingsSource)
-                .map(organizationSpelling => {
-                    if (organizationSpelling in organizationSpellingsFound) {
-                        let foundOne = organizationSpellingsFound[organizationSpelling];
-                        if (foundOne.rejected) return;
-                        if (foundOne.organization && foundOne.organization.name) return foundOne.organization.name;
-                    }
-                    return organizationSpelling;
-                })
-                .compact()
-                .uniq()
-                .valueOf();
-        })
-        .then(normalizedOrganizations => record.set('organizations', normalizedOrganizations));
+    return Promise.map(spellings, spelling => {
+        return OrganizationSpelling
+            .findByIdAndUpdate(spelling, {}, { upsert: true })
+            .populate('organization')
+            .lean()
+            .exec()
+            .then(organizationSpelling => {
+                if (organizationSpelling.rejected) return;
+                if (organizationSpelling.organization && organizationSpelling.organization.name)
+                    return organizationSpelling.organization.name;
+                return spelling;
+            });
+    })
+    .then(organizationNames => {
+        organizationNames = _.chain(organizationNames).compact().uniq().valueOf();
+        return record.set('organizations', organizationNames);
+    });
 }
 
 export function applyResources(record, relatedResources) {
