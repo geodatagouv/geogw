@@ -16,7 +16,7 @@ const OrganizationSpelling  = mongoose.model('OrganizationSpelling');
 export function getCatalogRecords(recordId) {
     return CatalogRecord
         .find({ recordId })
-        .sort('-revisionDate')
+        .sort('-createdAt -revisionDate')
         .populate('catalog', 'name')
         .lean()
         .exec()
