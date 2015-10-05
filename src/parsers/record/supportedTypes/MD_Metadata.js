@@ -36,7 +36,7 @@ var definitions = {
         './/gmd:identificationInfo//gmd:keyword': { dest: 'keywords', multi: true },
         './/gmd:identificationInfo//gmd:topicCategory': { dest: 'topicCategories', multi: true },
 
-        './/gmd:distributionInfo//gmd:transferOptions//gmd:onLine': { dest: 'onlineResources', type: 'Link', multi: true },
+        './/gmd:distributionInfo//gmd:transferOptions//gmd:CI_OnlineResource': { dest: 'onlineResources', type: 'Link', multi: true },
         './/gmd:contact': { dest: '_contacts', type: 'Contact', multi: true },
         './/gmd:identificationInfo//gmd:pointOfContact': { dest: 'contacts', type: 'Contact', multi: true },
         './/gmd:identificationInfo//gmd:graphicOverview': { dest: 'graphicOverviews', type: 'GraphicOverview', multi: true },
