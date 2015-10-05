@@ -2,6 +2,7 @@
 ** Module dependencies
 */
 var mongoose = require('mongoose');
+var _s = require('underscore.string');
 
 var FeatureType = mongoose.model('FeatureType');
 
@@ -42,7 +43,7 @@ exports.prepateFeatureTypeDownload = function (req, res, next) {
         });
     }
     req.ogr2ogr = {};
-    req.ogr2ogr.layerName = req.featureType.name;
+    req.ogr2ogr.layerName = _s.strRight(req.featureType.name, ':');
     req.ogr2ogr.src = 'WFS:' + req.service.location + (req.service.location.indexOf('?') >= 0 ? '&' : '?') + 'version=1.0.0';
     next();
 };
