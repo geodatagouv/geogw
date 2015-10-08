@@ -23,6 +23,9 @@ var definitions = {
 
     Main: {
         './/gmd:identificationInfo//gmd:citation//gmd:title': 'title',
+        './/gmd:identificationInfo//gmd:citation//gmd:alternateTitle': 'alternateTitle',
+        './/gmd:identificationInfo//gmd:citation//gmd:date': { dest: 'history', type: 'Date', multi: true },
+
         './/gmd:identificationInfo//gmd:abstract': 'abstract',
         './/gmd:fileIdentifier': 'fileIdentifier',
         './/gmd:identificationInfo//gmd:identifier': 'identifier',
@@ -31,8 +34,9 @@ var definitions = {
         './/gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue': 'type',
         './/gmd:identificationInfo//gmd:MD_SpatialRepresentationTypeCode/@codeListValue': 'representationType',
         './/gmd:dateStamp': '_updated',
+        './/gmd:identificationInfo//gmd:extent': { dest: 'extents', type: 'Extent', multi: true },
+        './/gmd:identificationInfo//gmd:maintenanceAndUpdateFrequency//gmd:MD_MaintenanceFrequencyCode/@codeListValue': 'updateFrequency',
 
-        './/gmd:identificationInfo//gmd:citation//gmd:date': { dest: 'history', type: 'Date', multi: true },
         './/gmd:identificationInfo//gmd:keyword': { dest: 'keywords', multi: true },
         './/gmd:identificationInfo//gmd:topicCategory': { dest: 'topicCategories', multi: true },
 
@@ -83,6 +87,14 @@ var definitions = {
         './/srv:operationName': 'operationName',
         './/srv:identifier': 'identifier',
         './/gco:ScopedName': 'scopedName'
+    },
+
+    Extent: {
+        './/gmd:description': 'description',
+        './/gmd:westBoundLongitude': { dest: 'minX', convert: 'float' },
+        './/gmd:eastBoundLongitude': { dest: 'maxX', convert: 'float' },
+        './/gmd:southBoundLatitude': { dest: 'minY', convert: 'float' },
+        './/gmd:northBoundLatitude': { dest: 'maxY', convert: 'float' }
     }
 
 };
@@ -93,17 +105,20 @@ var definitions = {
 */
 var buildObject, buildArray, buildTextValue;
 
-buildTextValue = function(node) {
-    if (!node) return undefined;
+buildTextValue = function(node, type = 'string') {
+    if (!node) return;
     var value;
     if (node.type() === 'attribute') value = node.value();
     if (node.type() === 'element') value = node.text();
     if (!value || value.length === 0) return undefined;
+    if (type === 'string') return value;
+    if (type === 'integer') return parseInt(value, 10);
+    if (type === 'float') return parseFloat(value);
     return value;
 };
 
 buildArray = function(nodes, type) {
-    if (!nodes || nodes.length === 0) return undefined;
+    if (!nodes || nodes.length === 0) return;
     var result = [];
     nodes.forEach(function(node) {
         var value = type ? buildObject(node, type) : buildTextValue(node);
@@ -113,13 +128,14 @@ buildArray = function(nodes, type) {
 };
 
 buildObject = function(node, type) {
+    if (!node) return;
     var result = {};
     _.forEach(definitions[type], function(params, xpath) {
         if (_.isString(params)) params = { dest: params };
         var value;
         if (params.multi) value = buildArray(node.find(xpath, ns), params.type);
         else if (params.type) value = buildObject(node.get(xpath, ns), params.type);
-        else value = buildTextValue(node.get(xpath, ns));
+        else value = buildTextValue(node.get(xpath, ns), params.convert);
         if (value) result[params.dest] = value;
     });
     return _.size(result) ? result : undefined;
@@ -135,12 +151,6 @@ function parseIso(xmlDoc, options) {
         debug('Unable to parse record (name: %s, namespace:%s: %s)', name, namespace.prefix(), namespace.href());
         return;
     }
-
-    /*
-    ** TODO
-    ** Unique resource identifier ? identificationInfo/citation/identifier ! Attention code/codeSpace => merdique
-    ** BBOX
-    */
 
     var result = buildObject(xmlDoc, 'Main');
     if (result && options.keepXml) result._xml = xmlDoc;
