@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd"
+                 xmlns:gco="http://www.isotc211.org/2005/gco"
+                 xmlns:xlink="http://www.w3.org/1999/xlink"
+                 xmlns:gmx="http://www.isotc211.org/2005/gmx"
+                 xmlns:gts="http://www.isotc211.org/2005/gts"
+                 xmlns:gml="http://www.opengis.net/gml"
+                 xmlns:geonet="http://www.fao.org/geonetwork"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.isotc211.org/2005/gmd http://www.isotc211.org/2005/gmd/gmd.xsd http://www.isotc211.org/2005/srv http://schemas.opengis.net/iso/19139/20060504/srv/srv.xsd">
+  <gmd:fileIdentifier>
+      <gco:CharacterString>ff65bbd1-ab5c-4118-8b1a-2cae338efacf</gco:CharacterString>
+  </gmd:fileIdentifier>
+  <gmd:language>
+      <gmd:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="fre"/>
+  </gmd:language>
+  <gmd:characterSet>
+      <gmd:MD_CharacterSetCode codeListValue="utf8"
+                               codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_CharacterSetCode"/>
+  </gmd:characterSet>
+  <gmd:hierarchyLevel>
+      <gmd:MD_ScopeCode codeListValue="dataset"
+                        codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_ScopeCode"/>
+  </gmd:hierarchyLevel>
+  <gmd:contact>
+      <gmd:CI_ResponsibleParty>
+         <gmd:organisationName>
+            <gco:CharacterString>GéoPicardie</gco:CharacterString>
+         </gmd:organisationName>
+         <gmd:contactInfo>
+            <gmd:CI_Contact>
+               <gmd:address>
+                  <gmd:CI_Address>
+                     <gmd:electronicMailAddress>
+                        <gco:CharacterString>contact@geopicardie.fr</gco:CharacterString>
+                     </gmd:electronicMailAddress>
+                  </gmd:CI_Address>
+               </gmd:address>
+            </gmd:CI_Contact>
+         </gmd:contactInfo>
+         <gmd:role>
+            <gmd:CI_RoleCode codeListValue="pointOfContact"
+                             codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_RoleCode"/>
+         </gmd:role>
+      </gmd:CI_ResponsibleParty>
+  </gmd:contact>
+  <gmd:dateStamp>
+      <gco:DateTime>2015-06-19T16:39:42</gco:DateTime>
+  </gmd:dateStamp>
+  <gmd:metadataStandardName>
+      <gco:CharacterString>ISO 19115:2003/19139</gco:CharacterString>
+  </gmd:metadataStandardName>
+  <gmd:metadataStandardVersion>
+      <gco:CharacterString>1.0</gco:CharacterString>
+  </gmd:metadataStandardVersion>
+  <gmd:spatialRepresentationInfo>
+      <gmd:MD_VectorSpatialRepresentation>
+         <gmd:geometricObjects>
+            <gmd:MD_GeometricObjects>
+               <gmd:geometricObjectType>
+                  <gmd:MD_GeometricObjectTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_GeometricObjectTypeCode"
+                                                  codeListValue="surface"/>
+               </gmd:geometricObjectType>
+            </gmd:MD_GeometricObjects>
+         </gmd:geometricObjects>
+      </gmd:MD_VectorSpatialRepresentation>
+  </gmd:spatialRepresentationInfo>
+  <gmd:referenceSystemInfo>
+      <gmd:MD_ReferenceSystem>
+         <gmd:referenceSystemIdentifier>
+            <gmd:RS_Identifier>
+               <gmd:code>
+                  <gco:CharacterString>RGF93 / Lambert-93 (EPSG:2154)</gco:CharacterString>
+               </gmd:code>
+               <gmd:codeSpace>
+                  <gco:CharacterString>EPSG</gco:CharacterString>
+               </gmd:codeSpace>
+               <gmd:version>
+                  <gco:CharacterString>7.4</gco:CharacterString>
+               </gmd:version>
+            </gmd:RS_Identifier>
+         </gmd:referenceSystemIdentifier>
+      </gmd:MD_ReferenceSystem>
+  </gmd:referenceSystemInfo>
+  <gmd:identificationInfo>
+      <gmd:MD_DataIdentification>
+         <gmd:citation>
+            <gmd:CI_Citation>
+               <gmd:title>
+                  <gco:CharacterString>Tâche urbaine - Oise-la-Vallée (1947)</gco:CharacterString>
+               </gmd:title>
+               <gmd:date>
+                  <gmd:CI_Date>
+                     <gmd:date>
+                        <gco:Date>2011-06-01</gco:Date>
+                     </gmd:date>
+                     <gmd:dateType>
+                        <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
+                                             codeListValue="creation"/>
+                     </gmd:dateType>
+                  </gmd:CI_Date>
+               </gmd:date>
+               <gmd:identifier>
+                  <gmd:MD_Identifier>
+                     <gmd:code gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:code>
+                  </gmd:MD_Identifier>
+               </gmd:identifier>
+            </gmd:CI_Citation>
+         </gmd:citation>
+         <gmd:abstract>
+            <gco:CharacterString>Étendue de la tâche urbaine en 1947 sur les territoires suivants : Communauté de communes des Trois Forêts, Communauté de communes Pierre - Sud - Oise, Communauté de l'agglomération Creilloise, Communauté de communes des Pays d’Oise et d’Halatte, Communauté de communes du Liancourtois, Communauté de communes de la Plaine d'Estrées, Communauté de Communes de la Basse Automne, Agglomération de la région de Compiègne.</gco:CharacterString>
+         </gmd:abstract>
+         <gmd:pointOfContact>
+            <gmd:CI_ResponsibleParty>
+               <gmd:organisationName>
+                  <gco:CharacterString>Oise-la-Vallée</gco:CharacterString>
+               </gmd:organisationName>
+               <gmd:contactInfo>
+                  <gmd:CI_Contact>
+                     <gmd:address>
+                        <gmd:CI_Address/>
+                     </gmd:address>
+                     <gmd:contactInstructions>
+                        <gmx:FileName src="http://www.geopicardie.fr/geonetwork/images/harvesting/logo_olv.jpg"/>
+                     </gmd:contactInstructions>
+                  </gmd:CI_Contact>
+               </gmd:contactInfo>
+               <gmd:role>
+                  <gmd:CI_RoleCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_RoleCode"
+                                   codeListValue="custodian"/>
+               </gmd:role>
+            </gmd:CI_ResponsibleParty>
+         </gmd:pointOfContact>
+         <gmd:graphicOverview xmlns:srv="http://www.isotc211.org/2005/srv">
+            <gmd:MD_BrowseGraphic>
+               <gmd:fileName>
+                  <gco:CharacterString>http://www.geopicardie.fr:80/geonetwork-private/srv/eng/resources.get?uuid=ff65bbd1-ab5c-4118-8b1a-2cae338efacf&amp;fname=apercu_olv_tache_urbaine_1947.png</gco:CharacterString>
+               </gmd:fileName>
+               <gmd:fileDescription>
+                  <gco:CharacterString>large_thumbnail</gco:CharacterString>
+               </gmd:fileDescription>
+               <gmd:fileType>
+                  <gco:CharacterString>png</gco:CharacterString>
+               </gmd:fileType>
+            </gmd:MD_BrowseGraphic>
+         </gmd:graphicOverview>
+         <gmd:descriptiveKeywords>
+            <gmd:MD_Keywords xmlns:srv="http://www.isotc211.org/2005/srv">
+               <gmd:keyword>
+                  <gco:CharacterString>CC des Pays d'Oise et d'Halatte</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>CC des Trois Forêts</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>CC du Liancourtois</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>CA Creilloise</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>CA de la Région de Compiègne</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>CC Pierre - Sud - Oise</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>CC de la Basse Automne</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>CC de la Plaine d'Estrées</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:type>
+                  <gmd:MD_KeywordTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_KeywordTypeCode"
+                                          codeListValue="place"/>
+               </gmd:type>
+               <gmd:thesaurusName>
+                  <gmd:CI_Citation>
+                     <gmd:title>
+                        <gco:CharacterString>EPCI</gco:CharacterString>
+                     </gmd:title>
+                     <gmd:date>
+                        <gmd:CI_Date>
+                           <gmd:date>
+                              <gco:Date>2013-03-11</gco:Date>
+                           </gmd:date>
+                           <gmd:dateType>
+                              <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
+                                                   codeListValue="publication"/>
+                           </gmd:dateType>
+                        </gmd:CI_Date>
+                     </gmd:date>
+                     <gmd:identifier>
+                        <gmd:MD_Identifier>
+                           <gmd:code>
+                              <gmx:Anchor xlink:href="http://www.geopicardie.fr/geonetwork-private/srv/eng/thesaurus.download?ref=external.place.geopicardie-epci">geonetwork.thesaurus.external.place.geopicardie-epci</gmx:Anchor>
+                           </gmd:code>
+                        </gmd:MD_Identifier>
+                     </gmd:identifier>
+                  </gmd:CI_Citation>
+               </gmd:thesaurusName>
+            </gmd:MD_Keywords>
+         </gmd:descriptiveKeywords>
+         <gmd:descriptiveKeywords>
+            <gmd:MD_Keywords xmlns:srv="http://www.isotc211.org/2005/srv">
+               <gmd:keyword>
+                  <gco:CharacterString>zone urbaine</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:keyword>
+                  <gco:CharacterString>occupation du sol</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:type>
+                  <gmd:MD_KeywordTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_KeywordTypeCode"
+                                          codeListValue="theme"/>
+               </gmd:type>
+               <gmd:thesaurusName>
+                  <gmd:CI_Citation>
+                     <gmd:title>
+                        <gco:CharacterString>GEMET - Concepts, version 2.4</gco:CharacterString>
+                     </gmd:title>
+                     <gmd:date>
+                        <gmd:CI_Date>
+                           <gmd:date>
+                              <gco:Date>2010-01-13</gco:Date>
+                           </gmd:date>
+                           <gmd:dateType>
+                              <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
+                                                   codeListValue="publication"/>
+                           </gmd:dateType>
+                        </gmd:CI_Date>
+                     </gmd:date>
+                     <gmd:identifier>
+                        <gmd:MD_Identifier>
+                           <gmd:code>
+                              <gmx:Anchor xlink:href="http://www.geopicardie.fr/geonetwork-private/srv/eng/thesaurus.download?ref=external.theme.gemet">geonetwork.thesaurus.external.theme.gemet</gmx:Anchor>
+                           </gmd:code>
+                        </gmd:MD_Identifier>
+                     </gmd:identifier>
+                  </gmd:CI_Citation>
+               </gmd:thesaurusName>
+            </gmd:MD_Keywords>
+         </gmd:descriptiveKeywords>
+         <gmd:descriptiveKeywords>
+            <gmd:MD_Keywords xmlns:srv="http://www.isotc211.org/2005/srv">
+               <gmd:keyword>
+                  <gco:CharacterString>Occupation des terres</gco:CharacterString>
+               </gmd:keyword>
+               <gmd:type>
+                  <gmd:MD_KeywordTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_KeywordTypeCode"
+                                          codeListValue="theme"/>
+               </gmd:type>
+               <gmd:thesaurusName>
+                  <gmd:CI_Citation>
+                     <gmd:title>
+                        <gco:CharacterString>GEMET - INSPIRE themes, version 1.0 INSPIRE themes</gco:CharacterString>
+                     </gmd:title>
+                     <gmd:date>
+                        <gmd:CI_Date>
+                           <gmd:date>
+                              <gco:Date>2008-06-01</gco:Date>
+                           </gmd:date>
+                           <gmd:dateType>
+                              <gmd:CI_DateTypeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_DateTypeCode"
+                                                   codeListValue="publication"/>
+                           </gmd:dateType>
+                        </gmd:CI_Date>
+                     </gmd:date>
+                     <gmd:identifier>
+                        <gmd:MD_Identifier>
+                           <gmd:code>
+                              <gmx:Anchor xlink:href="http://www.geopicardie.fr/geonetwork/srv/eng/thesaurus.download?ref=external.theme.inspire-theme">geonetwork.thesaurus.external.theme.inspire-theme</gmx:Anchor>
+                           </gmd:code>
+                        </gmd:MD_Identifier>
+                     </gmd:identifier>
+                  </gmd:CI_Citation>
+               </gmd:thesaurusName>
+            </gmd:MD_Keywords>
+         </gmd:descriptiveKeywords>
+         <gmd:resourceConstraints>
+            <gmd:MD_LegalConstraints>
+               <gmd:useLimitation>
+                  <gco:CharacterString>Utilisation libre sous réserve de mentionner la source et le millésime des données : SIGOVal’[2011] - Oise-la-Vallée</gco:CharacterString>
+               </gmd:useLimitation>
+               <gmd:accessConstraints>
+                  <gmd:MD_RestrictionCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_RestrictionCode"
+                                          codeListValue="otherRestrictions"/>
+               </gmd:accessConstraints>
+               <gmd:otherConstraints>
+                  <gco:CharacterString>Pas de restriction d’accès public</gco:CharacterString>
+               </gmd:otherConstraints>
+            </gmd:MD_LegalConstraints>
+         </gmd:resourceConstraints>
+         <gmd:spatialResolution>
+            <gmd:MD_Resolution>
+               <gmd:equivalentScale>
+                  <gmd:MD_RepresentativeFraction>
+                     <gmd:denominator>
+                        <gco:Integer>5000</gco:Integer>
+                     </gmd:denominator>
+                  </gmd:MD_RepresentativeFraction>
+               </gmd:equivalentScale>
+            </gmd:MD_Resolution>
+         </gmd:spatialResolution>
+         <gmd:language>
+            <gco:CharacterString>fre</gco:CharacterString>
+         </gmd:language>
+         <gmd:characterSet>
+            <gmd:MD_CharacterSetCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_CharacterSetCode"
+                                     codeListValue="8859part1"/>
+         </gmd:characterSet>
+         <gmd:topicCategory>
+            <gmd:MD_TopicCategoryCode>imageryBaseMapsEarthCover</gmd:MD_TopicCategoryCode>
+         </gmd:topicCategory>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CC des Pays d'Oise et d'Halatte</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.48302188904224</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.7161891493348334</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.2426356903796</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.39528872551829</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CC des Trois Forêts</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.5244509624880678</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.655732054287982</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.1753122065756</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.27950123379009</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CC du Liancourtois</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.396762036959161</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.5334661147872968</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.28192034844968</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.36223005164863</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CA Creilloise</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.4019487246742974</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.5129313952499537</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.23685825986413</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.30275345953062</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CA de la Région de Compiègne</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.71624316357964</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.970309911400828</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.308062952667235</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.461275131981594</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CC Pierre - Sud - Oise</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.3525868060722352</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.4871059459167637</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.202662175076306</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.30941802472581</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CC de la Basse Automne</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.704325920282371</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.838215776478177</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.24583337036559</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.34365283878711</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+         <gmd:extent xmlns:srv="http://www.isotc211.org/2005/srv"
+                     xmlns:java="java:org.fao.geonet.util.XslUtil"
+                     xmlns:saxon="http://saxon.sf.net/">
+            <gmd:EX_Extent xmlns:xs="http://www.w3.org/2001/XMLSchema">
+               <gmd:description>
+                  <gco:CharacterString>CC de la Plaine d'Estrées</gco:CharacterString>
+               </gmd:description>
+               <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                     <gmd:westBoundLongitude>
+                        <gco:Decimal>2.5322820734773956</gco:Decimal>
+                     </gmd:westBoundLongitude>
+                     <gmd:eastBoundLongitude>
+                        <gco:Decimal>2.758099339847574</gco:Decimal>
+                     </gmd:eastBoundLongitude>
+                     <gmd:southBoundLatitude>
+                        <gco:Decimal>49.31187011715845</gco:Decimal>
+                     </gmd:southBoundLatitude>
+                     <gmd:northBoundLatitude>
+                        <gco:Decimal>49.488305975299824</gco:Decimal>
+                     </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+               </gmd:geographicElement>
+            </gmd:EX_Extent>
+         </gmd:extent>
+      </gmd:MD_DataIdentification>
+  </gmd:identificationInfo>
+  <gmd:contentInfo xmlns:srv="http://www.isotc211.org/2005/srv"
+                    xmlns:date="http://exslt.org/dates-and-times">
+      <gmd:MD_FeatureCatalogueDescription>
+         <gmd:includedWithDataset/>
+         <gmd:featureCatalogueCitation/>
+      </gmd:MD_FeatureCatalogueDescription>
+  </gmd:contentInfo>
+  <gmd:distributionInfo xmlns:srv="http://www.isotc211.org/2005/srv"
+                         xmlns:date="http://exslt.org/dates-and-times">
+      <gmd:MD_Distribution>
+         <gmd:distributionFormat>
+            <gmd:MD_Format>
+               <gmd:name>
+                  <gco:CharacterString>ESRI Shapefile</gco:CharacterString>
+               </gmd:name>
+               <gmd:version>
+                  <gco:CharacterString>1.0</gco:CharacterString>
+               </gmd:version>
+            </gmd:MD_Format>
+         </gmd:distributionFormat>
+         <gmd:transferOptions>
+            <gmd:MD_DigitalTransferOptions>
+               <gmd:onLine>
+                  <gmd:CI_OnlineResource>
+                     <gmd:linkage>
+                        <gmd:URL>http://www.geopicardie.fr/geoserver/wms</gmd:URL>
+                     </gmd:linkage>
+                     <gmd:protocol>
+                        <gco:CharacterString>OGC:WMS</gco:CharacterString>
+                     </gmd:protocol>
+                     <gmd:name>
+                        <gco:CharacterString>olv:fon_tu_geo_tacheurbaine_p_5_1947</gco:CharacterString>
+                     </gmd:name>
+                     <gmd:description>
+                        <gco:CharacterString>Tâche urbaine - Oise-la-Vallée (1947) - couche WMS du portail de GéoPicardie</gco:CharacterString>
+                     </gmd:description>
+                  </gmd:CI_OnlineResource>
+               </gmd:onLine>
+               <gmd:onLine>
+                  <gmd:CI_OnlineResource>
+                     <gmd:linkage>
+                        <gmd:URL>http://www.geopicardie.fr/geonetwork/apps/georchestra/?uuid=ff65bbd1-ab5c-4118-8b1a-2cae338efacf</gmd:URL>
+                     </gmd:linkage>
+                     <gmd:protocol>
+                        <gco:CharacterString>WWW:LINK-1.0-http--link</gco:CharacterString>
+                     </gmd:protocol>
+                     <gmd:name>
+                        <gco:CharacterString>Lien vers la fiche de métadonnées d'origine</gco:CharacterString>
+                     </gmd:name>
+                     <gmd:description>
+                        <gco:CharacterString>Lien vers la fiche de métadonnées d'origine</gco:CharacterString>
+                     </gmd:description>
+                  </gmd:CI_OnlineResource>
+               </gmd:onLine>
+            </gmd:MD_DigitalTransferOptions>
+         </gmd:transferOptions>
+      </gmd:MD_Distribution>
+  </gmd:distributionInfo>
+  <gmd:dataQualityInfo>
+      <gmd:DQ_DataQuality>
+         <gmd:scope>
+            <gmd:DQ_Scope>
+               <gmd:level>
+                  <gmd:MD_ScopeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_ScopeCode"
+                                    codeListValue="dataset"/>
+               </gmd:level>
+            </gmd:DQ_Scope>
+         </gmd:scope>
+         <gmd:lineage>
+            <gmd:LI_Lineage>
+               <gmd:statement>
+                  <gco:CharacterString>Données saisies sur la base des données IGN SCAN25 et IGN BDOrtho.</gco:CharacterString>
+               </gmd:statement>
+            </gmd:LI_Lineage>
+         </gmd:lineage>
+      </gmd:DQ_DataQuality>
+  </gmd:dataQualityInfo>
+  <gmd:metadataMaintenance>
+      <gmd:MD_MaintenanceInformation>
+         <gmd:maintenanceAndUpdateFrequency>
+            <gmd:MD_MaintenanceFrequencyCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#MD_MaintenanceFrequencyCode"
+                                             codeListValue="asNeeded"/>
+         </gmd:maintenanceAndUpdateFrequency>
+      </gmd:MD_MaintenanceInformation>
+  </gmd:metadataMaintenance>
+</gmd:MD_Metadata>

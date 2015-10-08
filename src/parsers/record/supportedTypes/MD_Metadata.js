@@ -201,3 +201,4 @@ function parse(xmlElement) {
 exports.parse = parse;
 exports.hashRecordId = hashRecordId;
 exports.hashRecord = hashRecord;
+exports.parseIso = parseIso;
