@@ -58,7 +58,7 @@
     "wfs-client": "jdesboeufs/wfs-client"
   },
   "devDependencies": {
-    "eslint": "^0.24.1"
+    "eslint": "^0.24.1",
     "expect.js": "^0.3.1",
     "mocha": "^2.3.3"
   }
