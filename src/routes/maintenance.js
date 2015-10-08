@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { processAllRecords, consolidateAllRecords } from '../controllers/maintenance';
+import { processAllRecords, consolidateAllRecords, checkAllRemoteResources } from '../controllers/maintenance';
 import { isMaintenance } from './middlewares/auth';
 
 export default function (app) {
@@ -9,6 +9,7 @@ export default function (app) {
     /* Routes */
     router.post('/process-all-records', processAllRecords);
     router.post('/consolidate-all-records', consolidateAllRecords);
+    router.post('/check-all-remote-resources', checkAllRemoteResources);
 
     app.use('/maintenance', isMaintenance, router);
 }
