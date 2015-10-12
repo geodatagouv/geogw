@@ -1,7 +1,5 @@
 var bodyParser = require('body-parser');
 var _ = require('lodash');
-
-var q = require('../kue').jobs;
 var search = require('../helpers/search');
 
 var organizations = require('../controllers/dgfr/organizations');
@@ -96,15 +94,6 @@ module.exports = function (app) {
 
     app.route('/api/organizations/:organizationId/producers/:producerId')
         .delete(ensureLoggedIn, ensureUserCanEditOrganization, producers.dissociate);
-
-    app.route('/api/organizations/:organizationId/synchronize')
-        .post(ensureLoggedIn, ensureUserCanEditOrganization, function (req, res, next) {
-            q.create('dgv:fetch', { organizationId: req.organization._id })
-                .save(function (err) {
-                    if (err) return next(err);
-                    res.send({ code: 200, message: 'Job started' });
-                });
-        });
 
     /* Datasets */
 
