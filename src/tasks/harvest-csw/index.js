@@ -24,19 +24,13 @@ class CswHarvestJob extends ServiceSyncJob {
         location.replace('metadata.carmencarto.fr/geosource-', 'metadata.carmencarto.fr/geosource/');
 
         var client = csw(location, {
-            // Removed since redirections may break agent definition (example: http > https)
-            // maxSockets: this.data.maxSockets || 5,
-            // keepAlive: true,
-            retry: this.data.maxRetry || 3,
             userAgent: 'Afigeo CSW harvester',
             concurrency: 5,
-            noEncodeQs: location.includes('metadata.carmencarto.fr')
+            encodeQs: !location.includes('metadata.carmencarto.fr')
         });
 
         var harvesterOptions = {
-            typeNames: 'gmd:MD_Metadata',
-            outputSchema: 'http://www.isotc211.org/2005/gmd',
-            elementSetName: 'full',
+            schema: 'inspire',
             constraintLanguage: 'CQL_TEXT'
         };
 
