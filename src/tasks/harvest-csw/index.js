@@ -24,7 +24,7 @@ class CswHarvestJob extends ServiceSyncJob {
         location.replace('metadata.carmencarto.fr/geosource-', 'metadata.carmencarto.fr/geosource/');
 
         var client = csw(location, {
-            userAgent: 'Afigeo CSW harvester',
+            userAgent: 'InspireBot',
             concurrency: 5,
             encodeQs: !location.includes('metadata.carmencarto.fr')
         });
