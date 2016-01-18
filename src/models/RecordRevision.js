@@ -19,6 +19,7 @@ export const schema = new Schema({
     revisionDate: { type: Date },
 
     /* Content */
+    recordType:    { type: String, enum: ['MD_Metadata', 'Record', 'FC_FeatureCatalog'] },
     content:      { type: Mixed, required: true },
 
     /* Dates */

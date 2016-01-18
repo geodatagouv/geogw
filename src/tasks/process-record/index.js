@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import debugFactory from 'debug';
 import mongoose from 'mongoose';
 import { OnlineResource } from './onlineResources';
-import { hashRecordId } from '../../parsers/record/supportedTypes/MD_Metadata';
+import { sha1 as hashRecordId } from '../../helpers/hash';
 
 const debug = debugFactory('process-record');
 const RecordRevision = mongoose.model('RecordRevision');

@@ -1,6 +1,7 @@
 var _ = require('lodash');
-var sha1 = require('../../../helpers/hash').sha1;
+var sha1 = require('../../helpers/hash').sha1;
 var stringify = require('json-stable-stringify');
+const debug = require('debug')('geogw:harvester-parse');
 
 function hashRecordId(recordId) {
     return sha1(recordId);
@@ -14,6 +15,7 @@ var supportedTypes = {
         // var warnings = [];
 
         function error(message) {
+            debug(message);
             errors.push({ message: message });
         }
 

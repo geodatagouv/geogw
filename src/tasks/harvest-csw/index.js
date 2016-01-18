@@ -4,7 +4,7 @@ import { inspect } from 'util';
 import csw from 'csw-client';
 import mongoose from '../../mongoose';
 import ServiceSyncJob from '../syncJob';
-import { parse as parseRecord } from '../../parsers/record';
+import { parse as parseRecord } from './parse';
 
 
 const RecordRevision = mongoose.model('RecordRevision');
@@ -78,8 +78,8 @@ class CswHarvestJob extends ServiceSyncJob {
     }
 
     processRecord() {
-        return through2.obj((xmlElement, enc, done) => {
-            var parseResult = parseRecord(xmlElement);
+        return through2.obj((record, enc, done) => {
+            var parseResult = parseRecord(record);
 
             if (!parseResult.parsedRecord || !parseResult.valid) {
                 return done(null, { parseResult: parseResult });
@@ -89,6 +89,7 @@ class CswHarvestJob extends ServiceSyncJob {
                 catalog: this.service,
                 recordId: parseResult.hashedId,
                 recordHash: parseResult.hashedRecord,
+                recordType: parseResult.recordType,
                 revisionDate: parseResult.updatedAt,
                 content: parseResult.parsedRecord
             };
