@@ -1,11 +1,9 @@
-import forEachInCollection from 'lodash/collection/forEach';
 import through2 from 'through2';
 import { inspect } from 'util';
-import csw from 'csw-client';
 import mongoose from '../../mongoose';
 import ServiceSyncJob from '../syncJob';
 import { parse as parseRecord } from './parse';
-
+const Harvester = require('../../utils/CSWHarvester').Harvester;
 
 const RecordRevision = mongoose.model('RecordRevision');
 const CatalogRecord = mongoose.model('CatalogRecord');
@@ -17,68 +15,11 @@ class CswHarvestJob extends ServiceSyncJob {
         super(job, options);
     }
 
-
-    createCswHarvester() {
-        var location = this.service.location;
-
-        location.replace('metadata.carmencarto.fr/geosource-', 'metadata.carmencarto.fr/geosource/');
-
-        var client = csw(location, {
-            userAgent: 'InspireBot',
-            concurrency: 5,
-            encodeQs: !location.includes('metadata.carmencarto.fr')
-        });
-
-        var harvesterOptions = {
-            schema: 'inspire',
-            constraintLanguage: 'CQL_TEXT'
-        };
-
-        if (location.includes('isogeo')) harvesterOptions.namespace = 'xmlns(gmd=http://www.isotc211.org/2005/gmd)';
-        if (location.includes('geoportal/csw/discovery')) delete harvesterOptions.constraintLanguage;
-        if (location.includes('tigeo')) delete harvesterOptions.constraintLanguage;
-
-        return client.harvest(harvesterOptions);
-    }
-
-    stats() {
-        var recordTypeStats = this.recordTypeStats = {};
-        var recordStatusStats = this.recordStatusStats = {};
-
-        return through2.obj(function (processResult, enc, cb) {
-            var parseResult = processResult.parseResult;
-            var recordType = parseResult.recordType;
-            var processStatus = parseResult.valid ? processResult.upsertStatus : 'not-valid';
-
-            if (!(recordType in recordTypeStats)) {
-                recordTypeStats[recordType] = 1;
-            } else {
-                recordTypeStats[recordType]++;
-            }
-
-            if (!(processStatus in recordStatusStats)) {
-                recordStatusStats[processStatus] = 1;
-            } else {
-                recordStatusStats[processStatus]++;
-            }
-
-            cb(null, processResult);
-        });
-    }
-
-    globalProgress() {
-        this.returned = 0;
-        var job = this;
-
-        return through2.obj(function (record, enc, cb) {
-            job.returned++;
-            job.progress(job.returned, job.matched);
-            cb(null, record);
-        });
-    }
-
     processRecord() {
         return through2.obj((record, enc, done) => {
+            this.returned++;
+            if (this.harvester.allStarted) this.progress(this.returned, this.harvester.matched);
+
             var parseResult = parseRecord(record);
 
             if (!parseResult.parsedRecord || !parseResult.valid) {
@@ -102,38 +43,32 @@ class CswHarvestJob extends ServiceSyncJob {
     }
 
     _sync() {
-        var job = this;
-        var harvester = this.harvester = this.createCswHarvester();
+        this.returned = 0;
 
-        harvester.on('error', function(err) {
-            job.log(inspect(err));
-        });
+        const location = this.service.location;
+        location.replace('metadata.carmencarto.fr/geosource-', 'metadata.carmencarto.fr/geosource/');
 
-        harvester.on('failed', function () {
-            job.fail(new Error('Harvesting has failed'));
-        });
+        const harvesterOptions = {
+            encodeQs: !location.includes('metadata.carmencarto.fr'),
+            forceConstraintLanguage: true,
+            dublinCoreFallback: location.includes('grandlyon')
+        };
+        if (location.includes('isogeo')) harvesterOptions.defineNamespace = true;
+        if (location.includes('geoportal/csw/discovery') || location.includes('tigeo')) {
+            harvesterOptions.forceConstraintLanguage = false;
+        }
 
-        harvester.on('started', function() {
-            job.matched = this.matched;
-            job.log('Records matched: %d', this.matched);
-        });
+        this.harvester = new Harvester(location, harvesterOptions);
 
-        harvester
+        this.harvester
+            .on('error', err => this.log(inspect(err)))
+            .once('failed', () => this.fail(new Error('Harvesting has failed')))
+            .once('started', () => this.log('Records matched: %d', this.harvester.matched))
             .pipe(this.processRecord())
-            .pipe(this.stats())
-            .pipe(this.globalProgress())
-            .on('end', function () {
-                job.log('Records returned: %d', harvester.returned);
-                job.log('Statistics by record type:');
-                forEachInCollection(job.recordTypeStats, function(count, recordType) {
-                    job.log('* %s: %d', recordType, count);
-                });
-                job.log('Statistics by record status:');
-                forEachInCollection(job.recordStatusStats, function(count, recordStatus) {
-                    job.log('* %s: %d', recordStatus, count);
-                });
-                job.success(harvester.returned);
-            })
+                .on('end', () => {
+                    this.log('Records returned: %d', this.harvester.returned);
+                    this.success(this.harvester.returned);
+                })
             .resume();
     }
 

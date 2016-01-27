@@ -15,11 +15,10 @@
   "homepage": "https://github.com/jdesboeufs/geogw",
   "scripts": {
     "compile": "babel src -d lib",
-    "lint": "eslint *.js src",
+    "lint": "eslint *.js src/**/*.js",
     "postinstall": "npm run compile"
   },
   "dependencies": {
-    "urijs": "^1.16.1",
     "async": "^0.9.0",
     "babel": "^5.8.19",
     "bluebird": "^2.9.34",
@@ -40,6 +39,7 @@
     "moment": "^2.9.0",
     "mongoose": "^4.1.5",
     "morgan": "^1.5.1",
+    "multistream": "^2.0.2",
     "ogr2ogr": "jdesboeufs/ogr2ogr",
     "passport": "^0.2.1",
     "passport-oauth2": "^1.1.2",
@@ -52,6 +52,7 @@
     "tmp": "0.0.26",
     "turf": "^2.0.2",
     "underscore.string": "^3.0",
+    "urijs": "^1.16.1",
     "wfs-client": "jdesboeufs/wfs-client"
   },
   "devDependencies": {

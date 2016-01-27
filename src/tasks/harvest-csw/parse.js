@@ -19,23 +19,19 @@ var supportedTypes = {
             errors.push({ message: message });
         }
 
-        if (!parsedRecord.fileIdentifier) {
-            error('no fileIdentifier found');
-        } else {
-            result.id = parsedRecord.fileIdentifier;
+        result.id = parsedRecord.fileIdentifier;
 
-            if (parsedRecord.fileIdentifier.length > 256) {
-                error('fileIdentifier too long (more than 256 characters)');
-            } else {
-                result.hashedId = hashRecordId(parsedRecord.fileIdentifier);
-            }
+        if (parsedRecord.fileIdentifier.length > 256) {
+            error('fileIdentifier too long (more than 256 characters)');
+        } else {
+            result.hashedId = hashRecordId(parsedRecord.fileIdentifier);
         }
 
         if (!parsedRecord.dateStamp) {
             error('no dateStamp found');
         } else {
             if (!_.isDate(parsedRecord.dateStamp)) {
-                error('dateStamp not valid');
+                error(`dateStamp not valid: ${parsedRecord.dateStamp}`);
             } else {
                 result.updatedAt = parsedRecord.dateStamp;
             }
@@ -43,6 +39,44 @@ var supportedTypes = {
 
         result.parsedRecord = parsedRecord;
         result.hashedRecord = sha1(stringify(_.omit(parsedRecord, 'dateStamp')));
+        result.validationErrors = errors;
+        result.valid = errors.length === 0;
+
+        return result;
+    },
+    Record: function parse(record) {
+        var result = {};
+        var parsedRecord = record.body;
+        var errors = [];
+        // var warnings = [];
+
+        function error(message) {
+            debug(message);
+            errors.push({ message: message });
+        }
+
+        result.id = parsedRecord.identifier;
+
+        if (parsedRecord.identifier.length > 256) {
+            error('identifier too long (more than 256 characters)');
+        } else {
+            result.hashedId = hashRecordId(parsedRecord.identifier);
+        }
+
+        const updatedAt = parsedRecord.modified || parsedRecord.created;
+
+        if (!updatedAt) {
+            error('no modification date found');
+        } else {
+            if (!_.isDate(updatedAt)) {
+                error('modification date not valid');
+            } else {
+                result.updatedAt = updatedAt;
+            }
+        }
+
+        result.parsedRecord = parsedRecord;
+        result.hashedRecord = sha1(stringify(_.omit(parsedRecord, 'modified')));
         result.validationErrors = errors;
         result.valid = errors.length === 0;
 
