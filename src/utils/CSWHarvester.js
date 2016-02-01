@@ -3,7 +3,9 @@ const MultiStream = require('multistream');
 const through = require('through2').obj;
 const csw = require('csw-client');
 const _ = require('lodash');
+const stringify = require('json-stable-stringify');
 const debug = require('debug')('geogw:csw-harvester');
+const sha1 = require('../helpers/hash').sha1;
 
 class Harvester extends EventEmitter {
 
@@ -70,21 +72,35 @@ class Harvester extends EventEmitter {
         const recordIds = new Set();
 
         this.innerStream = MultiStream(internalHarvesters, { objectMode: true }).pipe(through((record, enc, cb) => {
-            if (record.type === 'MD_Metadata') record.id = record.body.fileIdentifier;
-            if (record.type === 'Record') record.id = record.body.identifier;
-
-            if (!record.id) {
-                record.ignoreReason = 'No identifier';
+            const ignore = (reason) => {
+                record.ignoreReason = reason;
                 this.ignored++;
                 this.emit('ignore', record);
-                return cb();
-            }
+                cb();
+            };
 
-            if (recordIds.has(record.id)) {
-                record.ignoreReason = 'Record already seen';
-                this.ignored++;
-                this.emit('ignore', record);
-                return cb();
+            const supportedTypes = {
+                MD_Metadata: { modifiedKey: 'dateStamp', idKey: 'fileIdentifier' },
+                Record: { modifiedKey: 'modified', idKey: 'identifier' }
+            };
+
+            if (!(record.type in supportedTypes)) return ignore('Not supported type');
+
+            const typeOptions = supportedTypes[record.type];
+
+            record.id = record.body[typeOptions.idKey];
+
+            // Technical checks
+            if (!record.id) return ignore('No identifier');
+            if (record.id.length < 10) return ignore('Identifier too short');
+            if (record.id.length > 255) return ignore('Identifier too long');
+            if (recordIds.has(record.id)) return ignore('Record already seen');
+
+            // Augment record meta
+            record.hashedId = sha1(record.id);
+            record.hash = sha1(stringify(_.omit(record.body, typeOptions.modifiedKey)));
+            if (_.isDate(record.body[typeOptions.modifiedKey])) {
+                record.modified = record.body[typeOptions.modifiedKey];
             }
 
             recordIds.add(record.id);

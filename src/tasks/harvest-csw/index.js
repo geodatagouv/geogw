@@ -2,7 +2,6 @@ import through2 from 'through2';
 import { inspect } from 'util';
 import mongoose from '../../mongoose';
 import ServiceSyncJob from '../syncJob';
-import { parse as parseRecord } from './parse';
 const Harvester = require('../../utils/CSWHarvester').Harvester;
 
 const RecordRevision = mongoose.model('RecordRevision');
@@ -20,24 +19,17 @@ class CswHarvestJob extends ServiceSyncJob {
             this.returned++;
             if (this.harvester.allStarted) this.progress(this.returned, this.harvester.matched);
 
-            var parseResult = parseRecord(record);
-
-            if (!parseResult.parsedRecord || !parseResult.valid) {
-                return done(null, { parseResult: parseResult });
-            }
-
             const catalogRecordRevision = {
                 catalog: this.service,
-                recordId: parseResult.hashedId,
-                recordHash: parseResult.hashedRecord,
-                recordType: parseResult.recordType,
-                revisionDate: parseResult.updatedAt,
-                content: parseResult.parsedRecord
+                recordId: record.hashedId,
+                recordHash: record.hash,
+                recordType: record.type,
+                revisionDate: record.modified,
+                content: record.body
             };
 
             RecordRevision.upsert(catalogRecordRevision)
                 .then(() => CatalogRecord.upsert(catalogRecordRevision))
-                .then(upsertStatus => ({ upsertStatus, parseResult }))
                 .nodeify(done);
         });
     }
