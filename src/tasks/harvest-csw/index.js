@@ -2,7 +2,7 @@ import through2 from 'through2';
 import { inspect } from 'util';
 import mongoose from '../../mongoose';
 import ServiceSyncJob from '../syncJob';
-const Harvester = require('../../utils/CSWHarvester').Harvester;
+const Harvester = require('../../helpers/CSWHarvester').Harvester;
 
 const RecordRevision = mongoose.model('RecordRevision');
 const CatalogRecord = mongoose.model('CatalogRecord');
