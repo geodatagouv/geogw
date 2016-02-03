@@ -22,8 +22,13 @@ function convertFromDublinCore(record) {
     // Links
     const candidateLinks = [record.relation, record.references];
     dataset.links = getUniformArray(candidateLinks).map(link => {
+        const candidateName = getFileNameFromHref(link);
+        const lcName = candidateName.toLowerCase();
+        if (lcName.includes('licence') && lcName.includes('ouverte')) {
+            dataset.license = 'fr-lo';
+        }
         return {
-            name: getFileNameFromHref(link),
+            name: candidateName,
             href: link,
         };
     });

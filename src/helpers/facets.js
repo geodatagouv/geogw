@@ -85,6 +85,7 @@ function compute(record, catalogs = []) {
     });
     var catalogsKnownAsOpen = ['54f5a39a62781800bf6db9e6', '53a01c3c23a9836106440e0f', '560015bf7cb6bdf9d0422ae7']; // TO BE REMOVED
     markedAsOpen = markedAsOpen || _.find(catalogs, catalog => catalogsKnownAsOpen.includes(catalog._id.toString()));
+    markedAsOpen = markedAsOpen || record.metadata.license === 'fr-lo';
     facets.push({ name: 'opendata', value: markedAsOpen ? 'yes' : 'not-determined' });
 
     // Distribution formats
