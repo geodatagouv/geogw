@@ -1,6 +1,13 @@
+/* eslint comma-dangle: [2, "always-multiline"] */
 const _ = require('lodash');
+const parseUrl = require('url').parse;
 
 const getUniformArray = src => _.uniq(_.compact(_.flatten(src)));
+
+function getFileNameFromHref(href) {
+    const fullPath = parseUrl(href).pathname.split('/');
+    return fullPath[fullPath.length - 1];
+}
 
 function convertFromDublinCore(record) {
     const dataset = _.pick(record, 'title', 'description', 'type');
@@ -11,6 +18,15 @@ function convertFromDublinCore(record) {
     // Contributors
     const candidateContributors = [record.publisher, record.creator, record.contributor];
     dataset.contributors = getUniformArray(candidateContributors);
+
+    // Links
+    const candidateLinks = [record.relation, record.references];
+    dataset.links = getUniformArray(candidateLinks).map(link => {
+        return {
+            name: getFileNameFromHref(link),
+            href: link,
+        };
+    });
 
     // Additional rules (custom)
     // ...placeholder...
@@ -39,6 +55,18 @@ function convertFromIso(record) {
     const pointsOfContact = _.get(record, 'identificationInfo.pointOfContact') || [];
     pointsOfContact.forEach(poc => candidateContributors.push(poc.organisationName));
     dataset.contributors = getUniformArray(candidateContributors);
+
+    // Links
+    const candidateLinks = [];
+    const transferOptions = _.get(record, 'distributionInfo.transferOptions') || [];
+    transferOptions.forEach(to => (to.onLine || []).forEach(resource => {
+        candidateLinks.push({
+            name: resource.name || getFileNameFromHref(resource.linkage),
+            href: resource.linkage,
+            protocol: resource.protocol
+        });
+    }));
+    dataset.links = getUniformArray(candidateLinks);
 
     // Additional rules (custom)
     // ...placeholder...
