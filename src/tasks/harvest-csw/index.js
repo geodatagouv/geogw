@@ -56,6 +56,7 @@ class CswHarvestJob extends ServiceSyncJob {
             .on('error', err => this.log(inspect(err)))
             .once('failed', () => this.fail(new Error('Harvesting has failed')))
             .once('started', () => this.log('Records matched: %d', this.harvester.matched))
+            .on('ignore', () => this.returned++)
             .pipe(this.processRecord())
                 .on('end', () => {
                     this.log('Records returned: %d', this.harvester.returned);
