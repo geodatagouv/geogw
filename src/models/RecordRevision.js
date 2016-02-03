@@ -48,6 +48,7 @@ schema.statics = {
         var changes = {
             $setOnInsert: {
                 content: recordRevision.content,
+                recordType: recordRevision.recordType,
                 revisionDate: recordRevision.revisionDate,
                 createdAt: now
             },

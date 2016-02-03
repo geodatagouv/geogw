@@ -1,17 +1,16 @@
-/*eslint no-multi-spaces: 0, key-spacing: 0 */
-import mongoose                     from 'mongoose';
-import pick                         from 'lodash/object/pick';
-import _                            from 'lodash';
-import distributions                from './distributions';
-import { compute as computeFacets } from '../../helpers/facets';
-import Promise                      from 'bluebird';
+const mongoose = require('mongoose');
+const pick = require('lodash').pick;
+const _ = require('lodash');
+const distributions = require('./distributions');
+const computeFacets = require('../../helpers/facets').compute;
+const Promise = require('bluebird');
+const convertDataset = require('../../helpers/convertDataset');
 
-const RecordRevision        = mongoose.model('RecordRevision');
-const CatalogRecord         = mongoose.model('CatalogRecord');
-const ConsolidatedRecord    = mongoose.model('ConsolidatedRecord');
-const RelatedResource       = mongoose.model('RelatedResource');
-const OrganizationSpelling  = mongoose.model('OrganizationSpelling');
-
+const RecordRevision = mongoose.model('RecordRevision');
+const CatalogRecord = mongoose.model('CatalogRecord');
+const ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
+const RelatedResource = mongoose.model('RelatedResource');
+const OrganizationSpelling = mongoose.model('OrganizationSpelling');
 
 export function getCatalogRecords(recordId) {
     return CatalogRecord
@@ -47,30 +46,32 @@ export function getConsolidatedRecord(recordId) {
         });
 }
 
+function createDatasetFromRecord(recordRevision) {
+    if (recordRevision.recordType === 'Record') {
+        return convertDataset.fromDublinCore(recordRevision.content);
+    }
+    if (recordRevision.recordType === 'MD_Metadata') {
+        return convertDataset.fromIso(recordRevision.content);
+    }
+    throw new Error('Not supported record type: ' + recordRevision.recordType);
+}
+
 export function applyRecordRevisionChanges(record, recordRevision) {
-    if (record.recordHash && record.recordHash === recordRevision.recordHash) return Promise.resolve(record);
+    // if (record.recordHash && record.recordHash === recordRevision.recordHash) return Promise.resolve(record);
     record
         .set('recordHash', recordRevision.recordHash)
-        .set('metadata', recordRevision.content)
         .set('revisionDate', recordRevision.revisionDate);
-
-    // Process representationType
-    if (record.metadata.representationType === 'raster') {
-        // TODO: Warn catalog owner
-        record.metadata.representationType = 'grid';
+    try {
+        record.set('metadata', createDatasetFromRecord(recordRevision));
+    } catch (err) {
+        console.error(err);
     }
-
     return Promise.resolve(record);
 }
 
 export function applyOrganizationsFilter(record) {
 
-    const spellings = _.chain([record.metadata.contacts, record.metadata._contacts])
-        .flatten()
-        .pluck('organizationName')
-        .compact()
-        .uniq()
-        .valueOf();
+    const spellings = record.metadata.contributors;
 
     return Promise.map(spellings, spelling => {
         return OrganizationSpelling
@@ -132,7 +133,7 @@ export function exec(job, done) {
             }).then(r => {
                 return applyRecordRevisionChanges(r.record, r.recordRevision)
                     .then(() => applyOrganizationsFilter(r.record))
-                    .then(() => applyResources(r.record, r.relatedResources))
+                    //.then(() => applyResources(r.record, r.relatedResources))
                     .then(() => {
                         return r.record
                             .set('catalogs', r.catalogRecords.map(catalogRecord => catalogRecord.catalog._id))

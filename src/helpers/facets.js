@@ -4,14 +4,15 @@ var _s = require('underscore.string');
 var types = {
     dataset: 'dataset',
     map: 'map',
-    nonGeographicDataset: 'dataset',
+    nonGeographicDataset: 'nonGeographicDataset',
     series: 'dataset',
     service: 'service'
 };
 
 var representationTypes = {
     grid: 'grid',
-    vector: 'vector'
+    vector: 'vector',
+    raster: 'grid'
 };
 
 var markedAsOpenKeywords = [
