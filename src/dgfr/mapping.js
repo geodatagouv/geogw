@@ -63,7 +63,7 @@ exports.map = function (sourceDataset) {
             inspire_fileIdentifier: sourceDataset.metadata.fileIdentifier,
             geogw_recordId: sourceDataset.recordId
         },
-        license: 'fr-lo',
+        license: sourceDataset.metadata.license,
         supplier: {},
         resources: []
     };

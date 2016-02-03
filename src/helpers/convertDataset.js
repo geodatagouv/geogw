@@ -27,6 +27,9 @@ function convertFromDublinCore(record) {
         if (lcName.includes('licence') && lcName.includes('ouverte')) {
             dataset.license = 'fr-lo';
         }
+        if (lcName.includes('odbl')) {
+            dataset.license = 'odc-odbl';
+        }
         return {
             name: candidateName,
             href: link,
