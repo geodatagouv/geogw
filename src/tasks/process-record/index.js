@@ -1,12 +1,11 @@
-import _ from 'lodash';
-import magicGet from 'lodash/object/get';
-import Promise from 'bluebird';
-import debugFactory from 'debug';
-import mongoose from 'mongoose';
-import { OnlineResource } from './onlineResources';
-import { sha1 as hashRecordId } from '../../helpers/hash';
+const _ = require('lodash');
+const Promise = require('bluebird');
+const debug = require('debug')('geogw:process-record');
+const mongoose = require('mongoose');
+const OnlineResource = require('./onlineResources').OnlineResource;
+const hashRecordId = require('../../helpers/hash').sha1;
+const iso19139helpers = require('../../helpers/iso19139');
 
-const debug = debugFactory('process-record');
 const RecordRevision = mongoose.model('RecordRevision');
 const RelatedResource = mongoose.model('RelatedResource');
 
@@ -28,11 +27,11 @@ export function getRecordRevision(recordId, recordHash) {
 }
 
 export function processOnlineResources(recordRevision) {
-    const metadata = recordRevision.content;
+    const record = recordRevision.content;
 
-    if (metadata.type === 'service' || !metadata.onlineResources) return [];
+    if (record.hierarchyLevel === 'service') return [];
 
-    return Promise.each(metadata.onlineResources, resource => {
+    return Promise.each(iso19139helpers.getAllOnLineResources(record), resource => {
         try {
             resource = new OnlineResource(resource);
         } catch (err) {
@@ -69,21 +68,21 @@ export function processOnlineResources(recordRevision) {
 }
 
 export function processCoupledResources(recordRevision) {
-    const metadata = recordRevision.content;
+    const record = recordRevision.content;
 
-    const keywords = magicGet(metadata, 'keywords', []).join('').toLowerCase();
-    const serviceType = magicGet(metadata, 'serviceType', '').toLowerCase();
-    const title = magicGet(metadata, 'title', '').toLowerCase();
-    const onlineResources = magicGet(metadata, 'onlineResources', []);
-    const coupledResources = magicGet(metadata, 'coupledResources', []);
+    const keywordsStr = iso19139helpers.getAllKeywords(record).join('').toLowerCase();
+    const serviceType = _.get(record, 'identificationInfo.serviceType', '').toLowerCase();
+    const title = _.get(record, 'identificationInfo.citation.title', '').toLowerCase();
+    const onlineResources = iso19139helpers.getAllOnLineResources(record);
+    const coupledResources = _.get(record, 'identificationInfo.coupledResource', []);
 
     const isWfsService = serviceType === 'download' ||
         serviceType.includes('wfs') ||
         title.includes('wfs') ||
-        keywords.includes('wfs') ||
-        keywords.includes('infofeatureaccessservice');
+        keywordsStr.includes('wfs') ||
+        keywordsStr.includes('infofeatureaccessservice');
 
-    if (metadata.type !== 'service' || !coupledResources.length || !onlineResources.length || !isWfsService) return [];
+    if (record.hierarchyLevel !== 'service' || !coupledResources.length || !onlineResources.length || !isWfsService) return [];
 
     const candidateResources = _.chain(onlineResources)
         .map(resource => {

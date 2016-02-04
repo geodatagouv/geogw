@@ -1,12 +1,15 @@
 /* eslint comma-dangle: [2, "always-multiline"] */
 const _ = require('lodash');
+const iso19139helpers = require('./iso19139');
 const parseUrl = require('url').parse;
-
-const getUniformArray = src => _.uniq(_.compact(_.flatten(src)));
 
 function getFileNameFromHref(href) {
     const fullPath = parseUrl(href).pathname.split('/');
     return fullPath[fullPath.length - 1];
+}
+
+function getUniformArray(src) {
+    return _.uniq(_.compact(_.flatten(src)));
 }
 
 function convertFromDublinCore(record) {
@@ -53,28 +56,17 @@ function convertFromIso(record) {
     dataset.lineage = _.get(record, 'dataQualityInfo.lineage.statement');
 
     // Keywords
-    const candidateKeywords = [_.get(record, 'identificationInfo.topicCategory')];
-    const descriptiveKeywords = _.get(record, 'identificationInfo.descriptiveKeywords') || [];
-    descriptiveKeywords.forEach(dk => candidateKeywords.push(dk.keyword));
-    dataset.keywords = getUniformArray(candidateKeywords);
+    dataset.keywords = iso19139helpers.getAllKeywords(record);
 
     // Contributors
-    const candidateContributors = [_.get(record, 'contact.organisationName')];
-    const pointsOfContact = _.get(record, 'identificationInfo.pointOfContact') || [];
-    pointsOfContact.forEach(poc => candidateContributors.push(poc.organisationName));
-    dataset.contributors = getUniformArray(candidateContributors);
+    dataset.contributors = iso19139helpers.getAllOrganizationNames(record);
 
     // Links
-    const candidateLinks = [];
-    const transferOptions = _.get(record, 'distributionInfo.transferOptions') || [];
-    transferOptions.forEach(to => (to.onLine || []).forEach(resource => {
-        candidateLinks.push({
-            name: resource.name || getFileNameFromHref(resource.linkage),
-            href: resource.linkage,
-            protocol: resource.protocol
-        });
+    dataset.links = iso19139helpers.getAllOnLineResources(record).map(resource => ({
+        name: resource.name || getFileNameFromHref(resource.linkage),
+        href: resource.linkage,
+        protocol: resource.protocol,
     }));
-    dataset.links = getUniformArray(candidateLinks);
 
     // Additional rules (custom)
     // ...placeholder...

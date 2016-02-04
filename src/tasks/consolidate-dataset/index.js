@@ -64,7 +64,7 @@ export function applyRecordRevisionChanges(record, recordRevision) {
     try {
         record.set('metadata', createDatasetFromRecord(recordRevision));
     } catch (err) {
-        console.error(err);
+        throw err;
     }
     return Promise.resolve(record);
 }
@@ -133,7 +133,7 @@ export function exec(job, done) {
             }).then(r => {
                 return applyRecordRevisionChanges(r.record, r.recordRevision)
                     .then(() => applyOrganizationsFilter(r.record))
-                    //.then(() => applyResources(r.record, r.relatedResources))
+                    .then(() => applyResources(r.record, r.relatedResources))
                     .then(() => {
                         return r.record
                             .set('catalogs', r.catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
