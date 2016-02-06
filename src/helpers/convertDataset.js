@@ -94,6 +94,7 @@ function convertFromIso(record) {
     dataset.alternateTitle = _.get('identificationInfo.citation.alternateTitle');
     dataset.description = _.get(record, 'identificationInfo.abstract');
     dataset.type = _.get(record, 'hierarchyLevel');
+    dataset.spatialRepresentationType = _.get(record, 'identificationInfo.spatialRepresentationType');
 
     // Lineage
     dataset.lineage = _.get(record, 'dataQualityInfo.lineage.statement');

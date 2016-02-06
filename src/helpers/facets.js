@@ -34,7 +34,7 @@ function compute(record, catalogs = []) {
     }
 
     mapToFacet('type', types, 'metadata.type');
-    mapToFacet('representationType', representationTypes, 'metadata.representationType');
+    mapToFacet('representationType', representationTypes, 'metadata.spatialRepresentationType');
 
     function addToFacet(name, recordAttribute) {
         var values = _.get(record, recordAttribute);
