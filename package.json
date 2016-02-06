@@ -16,7 +16,8 @@
   "scripts": {
     "compile": "babel src -d lib",
     "lint": "eslint *.js src/**/*.js",
-    "postinstall": "npm run compile"
+    "postinstall": "npm run compile",
+    "test": "mocha --compilers js:babel/register"
   },
   "dependencies": {
     "async": "^0.9.0",
@@ -56,6 +57,8 @@
     "wfs-client": "jdesboeufs/wfs-client"
   },
   "devDependencies": {
-    "eslint": "^0.24.1"
+    "eslint": "^0.24.1",
+    "expect.js": "^0.3.1",
+    "mocha": "^2.4.5"
   }
 }

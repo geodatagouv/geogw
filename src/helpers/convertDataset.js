@@ -123,3 +123,4 @@ function convertFromIso(record) {
 
 exports.fromIso = convertFromIso;
 exports.fromDublinCore = convertFromDublinCore;
+exports.getLicenseFromLinks = getLicenseFromLinks;
