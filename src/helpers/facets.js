@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var _s = require('underscore.string');
 
 var types = {
     dataset: 'dataset',
@@ -14,15 +13,6 @@ var representationTypes = {
     vector: 'vector',
     raster: 'grid'
 };
-
-var markedAsOpenKeywords = [
-    'donnee-ouverte',
-    'donnees-ouvertes',
-    'donnee-ouvertes',
-    'donnees-ouverte',
-    'opendata',
-    'open-data'
-];
 
 function compute(record, catalogs = []) {
 
@@ -70,23 +60,9 @@ function compute(record, catalogs = []) {
         .value()
         .forEach(catalogName => facets.push({ name: 'catalog', value: catalogName }));
 
-    var keywords = _.get(record, 'metadata.keywords', []);
-    var kcKeywords = keywords.map(function (keyword) {
-        return _.kebabCase(keyword);
-    });
-
     /* Dataset marked as open */
-    // Detect PRODIGE usual keywords
-    var markedAsOpen = _s.include(kcKeywords, 'grand-public') &&
-        (_s.include(kcKeywords, 'non-restreint') || _s.include(kcKeywords, 'ouvert'));
-    // Detect official keyword and variations (CNIG)
-    markedAsOpen = markedAsOpen || _.find(kcKeywords, function (keyword) {
-        return markedAsOpenKeywords.indexOf(keyword) >= 0;
-    });
-    var catalogsKnownAsOpen = ['54f5a39a62781800bf6db9e6', '53a01c3c23a9836106440e0f', '560015bf7cb6bdf9d0422ae7']; // TO BE REMOVED
-    markedAsOpen = markedAsOpen || _.find(catalogs, catalog => catalogsKnownAsOpen.includes(catalog._id.toString()));
-    markedAsOpen = markedAsOpen || record.metadata.license === 'fr-lo' || record.metadata.license === 'odc-odbl';
-    facets.push({ name: 'opendata', value: markedAsOpen ? 'yes' : 'not-determined' });
+    const openDataLicense = record.metadata.license === 'fr-lo' || record.metadata.license === 'odc-odbl';
+    facets.push({ name: 'opendata', value: openDataLicense ? 'yes' : 'not-determined' });
 
     // Distribution formats
     _(_.get(record, 'dataset.distributions', []))
