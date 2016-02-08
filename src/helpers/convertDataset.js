@@ -65,6 +65,7 @@ function getLicenseFromCatalogs(catalogs) {
 
 function convertFromDublinCore(record) {
     const dataset = _.pick(record, 'title', 'description', 'type');
+    dataset.id = record.identifier;
     dataset.metadataType = 'Dublin Core';
 
     // Keywords
@@ -93,6 +94,7 @@ function convertFromDublinCore(record) {
 
 function convertFromIso(record) {
     const dataset = { metadataType: 'ISO 19139' };
+    dataset.id = record.fileIdentifier;
     dataset.title = _.get(record, 'identificationInfo.citation.title');
     dataset.alternateTitle = _.get('identificationInfo.citation.alternateTitle');
     dataset.description = _.get(record, 'identificationInfo.abstract');
