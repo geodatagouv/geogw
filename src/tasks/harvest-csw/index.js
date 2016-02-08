@@ -43,7 +43,7 @@ class CswHarvestJob extends ServiceSyncJob {
         const harvesterOptions = {
             encodeQs: !location.includes('metadata.carmencarto.fr'),
             forceConstraintLanguage: true,
-            dublinCoreFallback: location.includes('grandlyon')
+            dublinCoreFallback: location.includes('grandlyon') || location.includes('adour-garonne.eaufrance.fr')
         };
         if (location.includes('isogeo')) harvesterOptions.defineNamespace = true;
         if (location.includes('geoportal/csw/discovery') || location.includes('tigeo')) {
