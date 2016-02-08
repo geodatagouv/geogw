@@ -1,3 +1,4 @@
+/* eslint comma-dangle: [2, "always-multiline"] */
 var mongoose = require('mongoose');
 var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 var async = require('async');
@@ -25,7 +26,16 @@ module.exports = function (searchQuery, catalogName, done) {
     }
 
     // Facets
-    var facetKeys = ['organization', 'type', 'keyword', 'representationType', 'opendata', 'distributionFormat', 'availability', 'catalog'];
+    var facetKeys = [
+        'organization',
+        'type', 'keyword',
+        'representationType',
+        'opendata',
+        'distributionFormat',
+        'availability',
+        'catalog',
+        'metadataType',
+    ];
     var facets = [];
     facetKeys.forEach(function (facetKey) {
         if (!(facetKey in searchQuery)) return;
@@ -43,7 +53,7 @@ module.exports = function (searchQuery, catalogName, done) {
         query.facets = {
             $all: facets.map(function (facet) {
                 return { $elemMatch: facet };
-            })
+            }),
         };
     }
 
@@ -66,7 +76,7 @@ module.exports = function (searchQuery, catalogName, done) {
                     { $match: query },
                     { $unwind: '$facets' },
                     { $group: { _id: { name: '$facets.name', value: '$facets.value' }, count: { $sum: 1 } } },
-                    { $sort: { count: -1 } }
+                    { $sort: { count: -1 } },
                 ])
                 .exec(function (err, result) {
                     if (err) return cb(err);
@@ -76,7 +86,7 @@ module.exports = function (searchQuery, catalogName, done) {
                         if (!outputFacets[facet._id.name]) outputFacets[facet._id.name] = [];
                         outputFacets[facet._id.name].push({
                             value: facet._id.value,
-                            count: facet.count
+                            count: facet.count,
                         });
                     });
                     if (!searchQuery.facets) searchQuery.facets = { organization: 20, keyword: 20, catalog: 20 };
@@ -91,7 +101,7 @@ module.exports = function (searchQuery, catalogName, done) {
                     });
                     cb(null, outputFacets);
                 });
-        }
+        },
     }, function(err, output) {
         if (err) return done(err);
         output.results = formatManyRecords(output.results);

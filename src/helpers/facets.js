@@ -52,6 +52,8 @@ function compute(record, catalogs = []) {
     addToFacet('organization', 'organizations');
     addToFacet('keyword', 'metadata.keywords');
 
+    facets.push({ name: 'metadataType', value: record.metadata.metadataType });
+
     /* Catalog names */
     _(catalogs).chain()
         .compact()
