@@ -5,6 +5,8 @@ const iso19139helpers = require('./iso19139');
 const parseUrl = require('url').parse;
 
 function getFileNameFromHref(href) {
+    const pathname = parseUrl(href).pathname;
+    if (!pathname) return null;
     const fullPath = parseUrl(href).pathname.split('/');
     return fullPath[fullPath.length - 1];
 }
@@ -16,7 +18,7 @@ function getUniformArray(src) {
 function getLicenseFromLinks(links) {
     let license;
     links.forEach(link => {
-        const lcName = link.name.toLowerCase();
+        const lcName = (link.name || '').toLowerCase();
         if (lcName.includes('licence') && lcName.includes('ouverte')) {
             license = 'fr-lo'; return;
         }
