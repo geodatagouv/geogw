@@ -60,12 +60,9 @@ export function applyRecordRevisionChanges(record, recordRevision) {
     // if (record.recordHash && record.recordHash === recordRevision.recordHash) return Promise.resolve(record);
     record
         .set('recordHash', recordRevision.recordHash)
-        .set('revisionDate', recordRevision.revisionDate);
-    try {
-        record.set('metadata', createDatasetFromRecord(recordRevision));
-    } catch (err) {
-        throw err;
-    }
+        .set('revisionDate', recordRevision.revisionDate)
+        .set('metadata', createDatasetFromRecord(recordRevision));
+
     return Promise.resolve(record);
 }
 
@@ -124,14 +121,14 @@ export function exec(job, done) {
     return ConsolidatedRecord.toggleConsolidating(recordId, true)
         .then(marked => {
             const catalogRecordsPromise = getCatalogRecords(recordId);
-            if (!marked) return true;
+            if (!marked) throw new Error('Already consolidating...');
             return Promise.props({
                 catalogRecords: catalogRecordsPromise,
                 record: getConsolidatedRecord(recordId),
                 relatedResources: fetchRelatedResources(recordId),
                 recordRevision: getBestRecordRevision(catalogRecordsPromise)
             }).then(r => {
-                return applyRecordRevisionChanges(r.record, r.recordRevision)
+                const process = Promise.try(() => applyRecordRevisionChanges(r.record, r.recordRevision))
                     .then(() => applyOrganizationsFilter(r.record))
                     .then(() => applyResources(r.record, r.relatedResources))
                     .then(() => {
@@ -140,9 +137,9 @@ export function exec(job, done) {
                             .set('dataset.updatedAt', now)
                             .set('facets', computeFacets(r.record, r.catalogRecords.map(catalogRecord => catalogRecord.catalog)))
                             .save();
-                    })
-                    .then(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
-
+                    });
+                process.finally(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
+                return process;
             });
         })
         .nodeify(done);
