@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const OnlineResource = require('./onlineResources').OnlineResource;
 const hashRecordId = require('../../helpers/hash').sha1;
 const iso19139helpers = require('../../helpers/iso19139');
+const convertDataset = require('../../helpers/convertDataset');
 
 const RecordRevision = mongoose.model('RecordRevision');
 const RelatedResource = mongoose.model('RelatedResource');
@@ -26,12 +27,19 @@ export function getRecordRevision(recordId, recordHash) {
         });
 }
 
-export function processOnlineResources(recordRevision) {
+export function processLinks(recordRevision) {
     const record = recordRevision.content;
+    const recordType = recordRevision.recordType;
 
-    if (record.hierarchyLevel === 'service') return [];
+    // Conversion into unified model
+    if (!['Record', 'MD_Metadata'].includes(recordType)) return;
+    const convert = recordType === 'Record' ? convertDataset.fromDublinCore : convertDataset.fromIso;
+    const unifiedRecord = convert(record);
 
-    return Promise.each(iso19139helpers.getAllOnLineResources(record), resource => {
+    // Ignore services
+    if (unifiedRecord.type === 'service') return;
+
+    return Promise.each(unifiedRecord.links || [], resource => {
         try {
             resource = new OnlineResource(resource);
         } catch (err) {
@@ -137,7 +145,7 @@ export function exec(job, done) {
     return getRecordRevision(recordId, recordHash)
         .then(recordRevision => {
             return markExistingRelatedResourcesAsChecking(recordId, recordHash)
-                .then(() => processOnlineResources(recordRevision))
+                .then(() => processLinks(recordRevision))
                 .then(() => processCoupledResources(recordRevision));
         })
         .then(() => removeCheckingRelatedResources(recordId, recordHash))

@@ -17,7 +17,7 @@ function cleanLocation(location) {
 
 function OnlineResource(onlineResource) {
     this.name = onlineResource.name;
-    this.sourceLocation = onlineResource.linkage;
+    this.sourceLocation = onlineResource.href;
     this.sourceProtocol = onlineResource.protocol;
     this.description = onlineResource.description;
 
