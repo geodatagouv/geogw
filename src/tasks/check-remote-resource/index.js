@@ -123,6 +123,10 @@ export default class RemoteResourceCheck {
                         this.remoteResource.set({ type: 'file-distribution', available: true });
                         return;
                     }
+                    if (checkResult.fileExtension === 'csv') {
+                        this.remoteResource.set({ type: 'file-distribution', available: true });
+                        return;
+                    }
                     this.remoteResource
                         .set('type', 'page') // Could be easily improved in the future
                         .set('available', undefined);
