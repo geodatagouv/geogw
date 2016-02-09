@@ -22,7 +22,8 @@ var DistributionSchema = new Schema({
     /* File package */
     location: { type: String },
     hashedLocation: { type: String },
-    layer: { type: String }
+    layer: { type: String },
+    originalDistribution: Boolean
 });
 
 module.exports = DistributionSchema;

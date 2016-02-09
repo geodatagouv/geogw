@@ -98,8 +98,13 @@ export function applyResources(record, relatedResources) {
         if (resource.type === 'feature-type') {
             distribution = distributions.buildFeatureType(resource);
             if (distribution) dist.push(distribution);
-        } else if (resource.type === 'remote-resource' && resource.remoteResource.type === 'file-distribution') {
-            Array.prototype.push.apply(dist, distributions.buildLayers(resource));
+        } else if (resource.type === 'remote-resource' && ['file-distribution', 'unknown-archive'].includes(resource.remoteResource.type)) {
+            const layers = distributions.buildLayers(resource);
+            if (layers) {
+                Array.prototype.push.apply(dist, layers);
+            } else {
+                dist.push(distributions.buildOriginalDistribution(resource));
+            }
         } else {
             alt.push({
                 name: resource.name,

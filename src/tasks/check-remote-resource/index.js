@@ -38,7 +38,19 @@ export default class RemoteResourceCheck {
                 const checkResult = this.checker.toObject();
                 checkResult.headers = omit(checkResult.headers, 'set-cookie', 'connection');
                 this.remoteResource.checkResult = checkResult;
+                return checkResult;
             });
+    }
+
+    archiveIsTooLarge() {
+        this.archiveMixedContent();
+        this.remoteResource.set('checkResult.archiveTooLarge', true);
+    }
+
+    archiveMixedContent() {
+        this.remoteResource
+            .set('available', true)
+            .set('type', 'unknown-archive');
     }
 
     handleArchive() {
@@ -52,19 +64,13 @@ export default class RemoteResourceCheck {
                     .set('checkResult.digest', this.checker.digest.toString('hex'))
                     .set('checkResult.size', this.checker.readBytes);
 
+                if (files.datasets.length === 0) {
+                    return this.archiveMixedContent();
+                }
+
                 this.remoteResource
                     .set('available', true)
-                    .set('type', files.datasets.length > 0 ? 'file-distribution' : 'unknown-archive');
-            })
-            .catch(err => {
-                if (err.message === 'Archive is too large') {
-                    this.remoteResource
-                        .set('checkResult.archiveTooLarge', true)
-                        .set('available', true)
-                        .set('type', 'unknown-archive');
-                } else {
-                    return Promise.reject(err);
-                }
+                    .set('type', 'file-distribution');
             })
             .finally(() => this.checker.cleanup());
     }
@@ -102,11 +108,21 @@ export default class RemoteResourceCheck {
     exec() {
         return this.getRemoteResource()
             .then(() => this.checkResource())
-            .then(() => {
+            .then(checkResult => {
                 if (this.checker.isArchive()) {
-                    return this.handleArchive();
+                    // Only handle if archive size < 100 MB
+                    if (checkResult.headers['content-length'] && parseInt(checkResult.headers['content-length'], 10) > (100 * 1024 * 1024)) {
+                        this.checker.closeConnection(true);
+                        return this.archiveIsTooLarge();
+                    } else {
+                        return this.handleArchive();
+                    }
                 } else {
                     this.checker.closeConnection(true);
+                    if (checkResult.fileExtension === 'ecw') {
+                        this.remoteResource.set({ type: 'file-distribution', available: true });
+                        return;
+                    }
                     this.remoteResource
                         .set('type', 'page') // Could be easily improved in the future
                         .set('available', undefined);

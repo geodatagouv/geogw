@@ -13,6 +13,21 @@ function buildFeatureType(resource) {
 }
 
 
+function buildOriginalDistribution(resource) {
+    if (resource.type !== 'remote-resource') return;
+    if (!resource.remoteResource) return;
+
+    return {
+        type: 'file-package',
+        originalDistribution: true,
+        name: resource.name,
+        location: resource.remoteResource.location,
+        hashedLocation: resource.remoteResource.hashedLocation,
+        available: resource.remoteResource.available
+    };
+}
+
+
 function buildLayers(resource) {
     if (resource.type !== 'remote-resource') return;
     if (!resource.remoteResource) return;
@@ -33,3 +48,4 @@ function buildLayers(resource) {
 
 exports.buildFeatureType = buildFeatureType;
 exports.buildLayers = buildLayers;
+exports.buildOriginalDistribution = buildOriginalDistribution;
