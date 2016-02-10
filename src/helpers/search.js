@@ -33,25 +33,29 @@ module.exports = function (searchQuery, catalogName, done) {
         'opendata',
         'distributionFormat',
         'availability',
-        'catalog',
         'metadataType',
     ];
-    var facets = [];
+    if (!catalogName) facetKeys.push('catalog');
+
+    var facetsFromQuery = [];
     facetKeys.forEach(function (facetKey) {
         if (!(facetKey in searchQuery)) return;
 
         var values = _.isArray(searchQuery[facetKey]) ? searchQuery[facetKey] : [searchQuery[facetKey]];
         values.forEach(function (value) {
-            facets.push({ name: facetKey, value: value });
+            facetsFromQuery.push({ name: facetKey, value: value });
         });
     });
+
+    const facetsToUse = _.clone(facetsFromQuery);
+
     if (catalogName) {
-        facets.push({ name: 'catalog', value: catalogName });
+        facetsToUse.push({ name: 'catalog', value: catalogName });
     }
 
-    if (facets.length > 0) {
+    if (facetsToUse.length > 0) {
         query.facets = {
-            $all: facets.map(function (facet) {
+            $all: facetsToUse.map(function (facet) {
                 return { $elemMatch: facet };
             }),
         };
@@ -105,7 +109,7 @@ module.exports = function (searchQuery, catalogName, done) {
     }, function(err, output) {
         if (err) return done(err);
         output.results = formatManyRecords(output.results);
-        output.query = { q: q, facets: facets, limit: limit, offset: offset };
+        output.query = { q: q, facets: facetsFromQuery, limit: limit, offset: offset };
         done(null, output);
     });
 };
