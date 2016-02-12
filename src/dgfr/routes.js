@@ -1,16 +1,16 @@
-var bodyParser = require('body-parser');
-var _ = require('lodash');
-var search = require('../helpers/search');
+const bodyParser = require('body-parser');
+const _ = require('lodash');
+const search = require('../helpers/search');
 
-var organizations = require('../controllers/dgfr/organizations');
-var producers = require('../controllers/dgfr/producers');
-var datasets = require('../controllers/dgfr/datasets');
+const organizations = require('../controllers/dgfr/organizations');
+const producers = require('../controllers/dgfr/producers');
+const datasets = require('../controllers/dgfr/datasets');
 
-import { isMaintenance } from '../routes/middlewares/auth';
+const isMaintenance = require('../routes/middlewares/auth').isMaintenance;
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var Service = mongoose.model('Service');
+const Service = mongoose.model('Service');
 
 function ensureLoggedIn(req, res, next) {
     if (!req.user) return res.sendStatus(401);
@@ -133,6 +133,8 @@ module.exports = function (app) {
 
     app.route('/api/organizations/:organizationId/datasets/publication')
         .delete(ensureLoggedIn, isAdmin, datasets.unpublishAll);
+
+    app.get('/api/organizations/:organizationId/datasets/metrics', datasets.metrics);
 
     app.route('/api/organizations/:organizationId/datasets/publish-all')
         .post(ensureLoggedIn, isAdmin, datasets.publishAll);

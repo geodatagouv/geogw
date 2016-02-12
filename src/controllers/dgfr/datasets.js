@@ -1,12 +1,13 @@
-var mongoose = require('mongoose');
-var through2 = require('through2');
-var async = require('async');
-// var _ = require('lodash');
+const mongoose = require('mongoose');
+const through2 = require('through2');
+const async = require('async');
+const _ = require('lodash');
+const Promise = require('bluebird');
 
-// var dgv = require('../dgv');
-var q = require('../../kue').jobs;
+const q = require('../../kue').jobs;
 
-var Dataset = mongoose.model('Dataset');
+const Dataset = mongoose.model('Dataset');
+const Record = mongoose.model('ConsolidatedRecord');
 
 exports.list = function (req, res, next) {
     Dataset
@@ -79,6 +80,54 @@ exports.unpublish = function (req, res, next) {
         if (err) return next(err);
         res.sendStatus(204);
     });
+};
+
+function computePublicationMetrics(organization) {
+    const fetchPublishedQuery = {
+        //'publication.organization': req.organization._id,
+        'publication.status': { $exists: true }
+    };
+
+    const fetchMatchingQuery = {
+        facets: { $all: [
+            { $elemMatch: { name: 'availability', value: 'yes'} },
+            { $elemMatch: { name: 'opendata', value: 'yes'} }
+        ] }
+    };
+
+    if (organization) {
+        fetchPublishedQuery['publication.organization'] = organization._id;
+        fetchMatchingQuery.organizations = { $in: _.pluck(organization.producers, '_id') };
+        fetchMatchingQuery.catalogs = organization.sourceCatalog;
+    }
+
+    return Promise.join(
+        Dataset.find(fetchPublishedQuery, 'publication.status').exec(),
+        Record.find(fetchMatchingQuery, '-_id recordId').exec(),
+        // handler
+        function (publishedDatasets, matchingDatasets) {
+            const published = _.pluck(publishedDatasets, '_id');
+            const publicationStatusesCount = _.chain(publishedDatasets)
+                .groupBy(item => item.publication.status)
+                .mapValues(publicationStatus => publicationStatus.length)
+                .value();
+            const matching = _.pluck(matchingDatasets, 'recordId');
+            const notMatchingAnymore = _.difference(published, matching);
+            const notPublishedYet = _.difference(matching, published);
+            return {
+                notPublishedYet: notPublishedYet.length,
+                notMatchingAnymore: notMatchingAnymore.length,
+                published: publicationStatusesCount,
+                matching: matching.length
+            };
+        }
+    );
+}
+
+exports.metrics = function (req, res, next) {
+    computePublicationMetrics(req.organization)
+        .then(metrics => res.send(metrics))
+        .catch(next);
 };
 
 exports.publishAll = function (req, res) {

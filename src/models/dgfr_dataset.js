@@ -10,7 +10,6 @@ var ObjectId = Schema.Types.ObjectId;
 
 var DatasetSchema = new Schema({
     _id: { type: String },
-    recordId: String, // TEMP
 
     // Last known title
     title: { type: String }, // May be overriden by alternative revision
