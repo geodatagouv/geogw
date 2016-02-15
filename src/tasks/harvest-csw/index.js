@@ -46,7 +46,7 @@ class CswHarvestJob extends ServiceSyncJob {
             dublinCoreFallback: location.includes('grandlyon') || location.includes('adour-garonne.eaufrance.fr')
         };
         if (location.includes('isogeo')) harvesterOptions.defineNamespace = true;
-        if (location.includes('geoportal/csw/discovery') || location.includes('tigeo')) {
+        if (location.includes('geoportal/csw/discovery') || location.includes('tigeo') || location.includes('bdt.gers')) {
             harvesterOptions.forceConstraintLanguage = false;
         }
 
