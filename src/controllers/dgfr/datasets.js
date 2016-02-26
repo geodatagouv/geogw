@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const through2 = require('through2');
-const async = require('async');
 const _ = require('lodash');
 const Promise = require('bluebird');
 
@@ -28,30 +27,6 @@ exports.fetch = function (req, res, next, id) {
         if (!datasetFound) return res.sendStatus(404);
         req.dataset = datasetFound;
         next();
-    });
-};
-
-exports.statistics = function (req, res, next) {
-    async.parallel({
-        published: function (cb) {
-            Dataset.count({ 'publication.status': 'public' }, cb);
-        // },
-        // organizations: function (cb) {
-        //     Dataset.distinct('publication.organization', { 'publication.status': 'public' }, function (err, organizations) {
-        //         if (err) return cb(err);
-        //         async.map(organizations, function (organizationId, iterDone) {
-        //             dgv.getOrganization(organizationId, function (err, result) {
-        //                 if (err) return iterDone(err);
-        //                 var organization = _.pick(result, 'id', 'name', 'page', 'logo');
-        //                 organization.featured = organization.id !== '54a13044c751df096c04805a';
-        //                 iterDone(null, organization);
-        //             });
-        //         }, cb);
-        //     });
-        }
-    }, function (err, result) {
-        if (err) return next(err);
-        res.send(result);
     });
 };
 
@@ -84,7 +59,6 @@ exports.unpublish = function (req, res, next) {
 
 function computePublicationMetrics(organization) {
     const fetchPublishedQuery = {
-        //'publication.organization': req.organization._id,
         'publication.status': { $exists: true }
     };
 

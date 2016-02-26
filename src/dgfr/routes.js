@@ -124,7 +124,7 @@ module.exports = function (app) {
     app.route('/api/organizations/:organizationId/datasets')
         .get(datasets.list);
 
-    app.get('/api/datasets/statistics', datasets.statistics);
+    app.get('/api/datasets/metrics', datasets.metrics);
 
     app.route('/api/datasets/:datasetId/publication')
         .all(ensureLoggedIn)
