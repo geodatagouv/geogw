@@ -22,6 +22,9 @@ export const schema = new Schema({
     /* Catalogs */
     catalogs:             [{ type: ObjectId, ref: 'Service', index: true }],
 
+    /* Publications */
+    publications:         [Mixed],
+
     /* Content */
     metadata:              { type: Mixed },
     dataset: {

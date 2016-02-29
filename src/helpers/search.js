@@ -34,6 +34,7 @@ module.exports = function (searchQuery, catalogName, done) {
         'distributionFormat',
         'availability',
         'metadataType',
+        'dgvPublication',
     ];
     if (!catalogName) facetKeys.push('catalog');
 

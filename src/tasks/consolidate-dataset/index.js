@@ -11,6 +11,7 @@ const CatalogRecord = mongoose.model('CatalogRecord');
 const ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 const RelatedResource = mongoose.model('RelatedResource');
 const OrganizationSpelling = mongoose.model('OrganizationSpelling');
+const Dataset = mongoose.model('Dataset');
 
 export function getCatalogRecords(recordId) {
     return CatalogRecord
@@ -43,6 +44,19 @@ export function getConsolidatedRecord(recordId) {
         .then(record => {
             if (!record) throw new Error('ConsolidatedRecord not found for ' + recordId);
             return record;
+        });
+}
+
+function fetchPublications(datasetId) {
+    return Dataset.findById(datasetId).exec()
+        .then(publicationInfo => {
+            if (!publicationInfo || !publicationInfo.publication.status) return [];
+            return [{
+                website: 'data.gouv.fr',
+                id: publicationInfo.publication._id,
+                status: publicationInfo.publication.status,
+                owner: publicationInfo.publication.organization.toString()
+            }];
         });
 }
 
@@ -89,6 +103,10 @@ export function applyOrganizationsFilter(record) {
     });
 }
 
+function applyPublications(record, publications) {
+    record.set('publications', publications);
+}
+
 export function applyResources(record, relatedResources) {
     const dist = [];
     const alt = [];
@@ -131,11 +149,13 @@ export function exec(job, done) {
                 catalogRecords: catalogRecordsPromise,
                 record: getConsolidatedRecord(recordId),
                 relatedResources: fetchRelatedResources(recordId),
-                recordRevision: getBestRecordRevision(catalogRecordsPromise)
+                recordRevision: getBestRecordRevision(catalogRecordsPromise),
+                publications: fetchPublications(recordId)
             }).then(r => {
                 const process = Promise.try(() => applyRecordRevisionChanges(r.record, r.recordRevision))
                     .then(() => applyOrganizationsFilter(r.record))
                     .then(() => applyResources(r.record, r.relatedResources))
+                    .then(() => applyPublications(r.record, r.publications))
                     .then(() => {
                         return r.record
                             .set('catalogs', r.catalogRecords.map(catalogRecord => catalogRecord.catalog._id))

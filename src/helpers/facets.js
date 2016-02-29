@@ -81,6 +81,12 @@ function compute(record, catalogs = []) {
     });
     facets.push({ name: 'availability', value: availability ? 'yes' : 'not-determined' });
 
+    // Publications
+    facets.push({
+        name: 'dgvPublication',
+        value: record.publications.length ? record.publications[0].status : 'no'
+    });
+
     return facets;
 }
 
