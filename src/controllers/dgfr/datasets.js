@@ -8,26 +8,54 @@ const q = require('../../kue').jobs;
 const Dataset = mongoose.model('Dataset');
 const Record = mongoose.model('ConsolidatedRecord');
 
+function buildMatchingQuery(organization) {
+    const fetchMatchingQuery = {
+        facets: { $all: [
+            { $elemMatch: { name: 'availability', value: 'yes'} },
+            { $elemMatch: { name: 'opendata', value: 'yes'} }
+        ] }
+    };
+    if (organization) {
+        fetchMatchingQuery.organizations = { $in: _.pluck(organization.producers, '_id') };
+        fetchMatchingQuery.catalogs = organization.sourceCatalog;
+    }
+    return fetchMatchingQuery;
+}
+
 exports.list = function (req, res, next) {
-    Dataset
-        .find({ $or: [
-            { 'publication.organization': req.organization._id },
-            { matchingFor: req.organization._id }
-        ]})
-        .populate('publication.organization', 'name')
+    const fetchMatchingQuery = buildMatchingQuery(req.organization);
+    Record.find(fetchMatchingQuery).select('recordId metadata.title publications')
         .exec(function (err, datasetsFound) {
             if (err) return next(err);
-            res.send(datasetsFound);
+            res.send(datasetsFound.map(dataset => {
+                return {
+                    title: dataset.metadata.title,
+                    _id: dataset.recordId,
+                    publication: dataset.publications.length ? {
+                        organization: dataset.publications[0].owner,
+                        _id: dataset.publications[0].id,
+                        status: dataset.publications[0].status
+                    } : {}
+                };
+            }));
         });
 };
 
 exports.fetch = function (req, res, next, id) {
-    Dataset.findById(id, function (err, datasetFound) {
-        if (err) return next(err);
-        if (!datasetFound) return res.sendStatus(404);
-        req.dataset = datasetFound;
-        next();
-    });
+    Promise.join(
+        Record.findOne({ recordId: id }).exec(),
+        Dataset.findById(id).exec(),
+
+        function (record, publicationInfo) {
+            if (!record) return res.sendStatus(404);
+            req.dataset = record;
+            if (publicationInfo && publicationInfo.publication && publicationInfo.publication.organization) {
+                req.publicationInfo = publicationInfo;
+            }
+            next();
+        }
+    )
+    .catch(next);
 };
 
 exports.publish = function (req, res, next) {
@@ -62,17 +90,10 @@ function computePublicationMetrics(organization) {
         'publication.status': { $exists: true }
     };
 
-    const fetchMatchingQuery = {
-        facets: { $all: [
-            { $elemMatch: { name: 'availability', value: 'yes'} },
-            { $elemMatch: { name: 'opendata', value: 'yes'} }
-        ] }
-    };
+    const fetchMatchingQuery = buildMatchingQuery(organization);
 
     if (organization) {
         fetchPublishedQuery['publication.organization'] = organization._id;
-        fetchMatchingQuery.organizations = { $in: _.pluck(organization.producers, '_id') };
-        fetchMatchingQuery.catalogs = organization.sourceCatalog;
     }
 
     return Promise.join(
