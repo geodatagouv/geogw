@@ -77,7 +77,7 @@ exports.publish = function (req, res, next) {
         publicationStatus: req.body.status,
         id: req.publicationInfo ? req.publicationInfo.publication._id : null
     })
-    .then(() => res.send({ status: 'published' }))
+    .then(result => res.send(result))
     .catch(next);
 };
 

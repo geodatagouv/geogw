@@ -53,9 +53,14 @@ function publishDataset(dataset, options) {
             }
         };
 
-        return Dataset.findByIdAndUpdate(dataset.recordId, changes, { upsert: true });
-    })
-    .then(() => Record.triggerUpdated(dataset.recordId));
+        return Dataset.findByIdAndUpdate(dataset.recordId, changes, { upsert: true })
+            .then(() => Record.triggerUpdated(dataset.recordId))
+            .then(() => ({
+                organization: publishedDataset.organization.id,
+                status: publishedDataset.private ? 'private' : 'public',
+                id: publishedDataset.id
+            }));
+    });
 }
 
 function unpublishDataset(dataset, options) {
