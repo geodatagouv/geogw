@@ -11,12 +11,6 @@ var ObjectId = Schema.Types.ObjectId;
 var DatasetSchema = new Schema({
     _id: { type: String },
 
-    // Last known title
-    title: { type: String }, // May be overriden by alternative revision
-
-    // Last known producers
-    producers: { type: [String] }, // May be overriden by alternative revision
-
     // Attributes related to the publication on the udata platform
     publication: {
         // Unique ID on the udata platform
@@ -35,10 +29,7 @@ var DatasetSchema = new Schema({
 
         createdAt: { type: Date },
         updatedAt: { type: Date, index: true, sparse: true }
-    },
-
-    // List of organizations for which the dataset is matching criteria
-    matchingFor: [{ type: ObjectId, ref: 'Organization' }]
+    }
 
 });
 
@@ -56,10 +47,6 @@ DatasetSchema.methods = {
                 if (!sourceDataset.metadata) return done(new Error('Record found but empty metadata: ' + datasetRef._id));
                 var uDataset;
 
-                datasetRef
-                    .set('title', sourceDataset.metadata.title)
-                    .set('producers', sourceDataset.organizations);
-
                 try {
                     uDataset = map(sourceDataset);
                     uDataset.organization = datasetRef.publication.organization;
@@ -70,12 +57,6 @@ DatasetSchema.methods = {
 
                 done(null, uDataset);
             });
-    },
-
-    fetchWorkingAccessToken: function (done) {
-        var Organization = mongoose.model('Organization');
-        var organization = new Organization({ _id: this.publication.organization });
-        organization.fetchWorkingAccessToken(done);
     },
 
     processSynchronization: function (type, done) {

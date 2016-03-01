@@ -1,6 +1,7 @@
 var request = require('superagent');
 var async = require('async');
 var debug = require('debug')('dgv-api');
+const _ = require('lodash');
 
 var rootUrl = process.env.DATAGOUV_URL + '/api/1';
 
@@ -76,7 +77,7 @@ exports.createDataset = function (dataset, accessToken, done) {
 
 exports.createDatasetOnly = function (dataset, accessToken, done) {
     handleAuthorizedRequest(
-        request.post(rootUrl + '/datasets/').send(dataset),
+        request.post(rootUrl + '/datasets/').send(_.omit(dataset, 'resources')),
         accessToken,
         done
     );
@@ -104,7 +105,7 @@ exports.updateDataset = function (id, dataset, accessToken, done) {
 
 exports.updateDatasetOnly = function (id, dataset, accessToken, done) {
     handleAuthorizedRequest(
-        request.put(rootUrl + '/datasets/' + id + '/').send(dataset),
+        request.put(rootUrl + '/datasets/' + id + '/').send(_.omit(dataset, 'resources')),
         accessToken,
         done
     );

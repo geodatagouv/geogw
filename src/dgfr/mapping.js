@@ -7,7 +7,7 @@ var debug = require('debug')('mapping');
 moment.locale('fr');
 
 var bodyTemplate = Handlebars.compile(
-`{{metadata.abstract}}
+`{{metadata.description}}
 
 {{#if metadata.lineage}}
 __Origine__

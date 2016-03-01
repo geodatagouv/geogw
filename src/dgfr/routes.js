@@ -99,9 +99,9 @@ module.exports = function (app) {
 
     function ensureUserCanUnpublishDataset(req, res, next) {
         var organizations = _.pluck(req.user.toObject().organizations, '_id');
-        if (!req.dataset.publication || !req.dataset.publication.organization) return res.sendStatus(500);
+        if (!req.publicationInfo) return res.sendStatus(404);
         if (req.user.isAdmin) return next();
-        if (organizations.indexOf(req.dataset.publication.organization.toString()) < 0) return res.sendStatus(401);
+        if (organizations.indexOf(req.publicationInfo.organization.toString()) < 0) return res.sendStatus(401);
         next();
     }
 

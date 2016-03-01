@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 var _ = require('lodash');
+const Promise = require('bluebird');
 
 var Schema = mongoose.Schema;
 
@@ -56,6 +57,14 @@ OrganizationSchema.methods = {
             });
     }
 
+};
+
+OrganizationSchema.statics = {
+    fetchWorkingAccessTokenFor: function (organizationId, done) {
+        const Organization = this.model('Organization');
+        const org = new Organization({ _id: organizationId });
+        return Promise.fromCallback(cb => org.fetchWorkingAccessToken(cb)).asCallback(done);
+    }
 };
 
 mongoose.model('Organization', OrganizationSchema);

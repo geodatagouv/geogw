@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const through2 = require('through2');
 const _ = require('lodash');
 const Promise = require('bluebird');
+const publication = require('../../dgfr/publication');
 
 const q = require('../../kue').jobs;
 
@@ -10,10 +11,20 @@ const Record = mongoose.model('ConsolidatedRecord');
 
 function buildMatchingQuery(organization) {
     const fetchMatchingQuery = {
-        facets: { $all: [
-            { $elemMatch: { name: 'availability', value: 'yes'} },
-            { $elemMatch: { name: 'opendata', value: 'yes'} }
-        ] }
+        $or: [
+            {
+                facets: { $all: [
+                    { $elemMatch: { name: 'availability', value: 'yes'} },
+                    { $elemMatch: { name: 'opendata', value: 'yes'} }
+                ] }
+            },
+            {
+                facets: { $elemMatch: { name: 'dgvPublication', value: 'public' } }
+            },
+            {
+                facets: { $elemMatch: { name: 'dgvPublication', value: 'private' } }
+            }
+        ]
     };
     if (organization) {
         fetchMatchingQuery.organizations = { $in: _.pluck(organization.producers, '_id') };
@@ -59,30 +70,24 @@ exports.fetch = function (req, res, next, id) {
 };
 
 exports.publish = function (req, res, next) {
-    var dataset = req.dataset;
+    if (!req.body.organization) return res.sendStatus(400);
 
-    if (req.body.status) dataset.set('publication.status', req.body.status);
-
-    function onSuccess(err, updatedDataset) {
-        if (err) return next(err);
-        res.send(updatedDataset.toObject().publication);
-    }
-
-    if (dataset.publication._id) {
-        dataset.synchronize(onSuccess);
-    } else {
-        if (!req.body.organization) return res.sendStatus(400);
-
-        dataset.set('publication.organization', req.body.organization);
-        dataset.publish(onSuccess);
-    }
+    publication.publishDataset(req.dataset, {
+        owner: req.body.organization,
+        publicationStatus: req.body.status,
+        id: req.publicationInfo ? req.publicationInfo.publication._id : null
+    })
+    .then(() => res.send({ status: 'published' }))
+    .catch(next);
 };
 
 exports.unpublish = function (req, res, next) {
-    req.dataset.unpublish(function (err) {
-        if (err) return next(err);
-        res.sendStatus(204);
-    });
+    publication.unpublishDataset(req.dataset, {
+        owner: req.publicationInfo.publication.organization,
+        id: req.publicationInfo ? req.publicationInfo.publication._id : null
+    })
+    .then(() => res.send({ status: 'unpublished' }))
+    .catch(next);
 };
 
 function computePublicationMetrics(organization) {
@@ -126,82 +131,85 @@ exports.metrics = function (req, res, next) {
 };
 
 exports.publishAll = function (req, res) {
-    var count = 0;
-    Dataset
-        .find({
-            matchingFor: req.organization._id,
-            'publication.organization': { $exists: false },
-            'publication._id': { $exists: false },
-            'publication.status': { $exists: false }
-        })
-        .lean()
-        .stream()
-        .pipe(through2.obj(function (dataset, enc, done) {
-            q
-                .create('dgv:publish', {
-                    organizationId: req.organization._id,
-                    datasetId: dataset._id,
-                    publicationStatus: 'public'
-                })
-                .save(function (err) {
-                    if (err) return done(err);
-                    count++;
-                    done(null, null);
-                });
-        }))
-        .on('end', function () {
-            res.send({ status: 'ok', count: count });
-        });
+    res.sendStatus(501);
+    // var count = 0;
+    // Dataset
+    //     .find({
+    //         matchingFor: req.organization._id,
+    //         'publication.organization': { $exists: false },
+    //         'publication._id': { $exists: false },
+    //         'publication.status': { $exists: false }
+    //     })
+    //     .lean()
+    //     .stream()
+    //     .pipe(through2.obj(function (dataset, enc, done) {
+    //         q
+    //             .create('dgv:publish', {
+    //                 organizationId: req.organization._id,
+    //                 datasetId: dataset._id,
+    //                 publicationStatus: 'public'
+    //             })
+    //             .save(function (err) {
+    //                 if (err) return done(err);
+    //                 count++;
+    //                 done(null, null);
+    //             });
+    //     }))
+    //     .on('end', function () {
+    //         res.send({ status: 'ok', count: count });
+    //     });
 };
 
 exports.unpublishAll = function (req, res) {
-    var count = 0;
-    Dataset
-        .find({ 'publication.organization': req.organization._id })
-        .stream()
-        .pipe(through2.obj(function (dataset, enc, done) {
-            dataset.unpublish(function (err) {
-                if (err)
-                    console.error(err);
-                else
-                    count++;
-                done();
-            });
-        }))
-        .on('end', function () {
-            res.send({ status: 'ok', count: count });
-        });
+    res.sendStatus(501);
+    // var count = 0;
+    // Dataset
+    //     .find({ 'publication.organization': req.organization._id })
+    //     .stream()
+    //     .pipe(through2.obj(function (dataset, enc, done) {
+    //         dataset.unpublish(function (err) {
+    //             if (err)
+    //                 console.error(err);
+    //             else
+    //                 count++;
+    //             done();
+    //         });
+    //     }))
+    //     .on('end', function () {
+    //         res.send({ status: 'ok', count: count });
+    //     });
 };
 
 
 exports.syncAll = function (req, res) {
-    var count = 0;
-    var query;
-    if (req.organization && req.organization._id) {
-        query = Dataset.where('publication.organization', req.organization._id);
-    } else if (req.query.confirm === 'yes') {
-        query = Dataset.where('publication').exists();
-        if (req.query.before) query.where('publication.updatedAt').lt(new Date(req.query.before));
-    } else {
-        return res.sendStatus(400);
-    }
-    query
-        .lean()
-        .stream()
-        .pipe(through2.obj(function (dataset, enc, done) {
-            if (!dataset.publication || !dataset.publication.organization) return done();
-            q
-                .create('dgv:publish', {
-                    organizationId: dataset.publication.organization,
-                    datasetId: dataset._id
-                })
-                .save(function (err) {
-                    if (err) return done(err);
-                    count++;
-                    done(null, null);
-                });
-        }))
-        .on('finish', function () {
-            res.send({ status: 'ok', count: count });
-        });
+    res.sendStatus(501);
+    // var count = 0;
+    // var query;
+    // if (req.organization && req.organization._id) {
+    //     query = Dataset.where('publication.organization', req.organization._id);
+    // } else if (req.query.confirm === 'yes') {
+    //     query = Dataset.where('publication').exists();
+    //     if (req.query.before) query.where('publication.updatedAt').lt(new Date(req.query.before));
+    // } else {
+    //     return res.sendStatus(400);
+    // }
+    // query
+    //     .lean()
+    //     .stream()
+    //     .pipe(through2.obj(function (dataset, enc, done) {
+    //         if (!dataset.publication || !dataset.publication.organization) return done();
+    //         q
+    //             .create('dgv:publish', {
+    //                 organizationId: dataset.publication.organization,
+    //                 datasetId: dataset._id
+    //             })
+    //             .save(function (err) {
+    //                 if (err) return done(err);
+    //                 count++;
+    //                 done(null, null);
+    //             });
+    //     }))
+    //     .on('finish', function () {
+    //         res.send({ status: 'ok', count: count });
+    //     });
 };
