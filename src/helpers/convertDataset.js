@@ -5,6 +5,7 @@ const iso19139helpers = require('./iso19139');
 const parseUrl = require('url').parse;
 
 function getFileNameFromHref(href) {
+    if (!href) return null;
     const pathname = parseUrl(href).pathname;
     if (!pathname) return null;
     const fullPath = parseUrl(href).pathname.split('/');
