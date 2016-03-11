@@ -38,7 +38,7 @@
     "kue": "^0.10",
     "lodash": "^3.6.0",
     "moment": "^2.9.0",
-    "mongoose": "^4.1.5",
+    "mongoose": "^4.4.6",
     "morgan": "^1.5.1",
     "multistream": "^2.0.2",
     "ogr2ogr": "jdesboeufs/ogr2ogr",
