@@ -86,7 +86,7 @@ export function applyOrganizationsFilter(record) {
 
     return Promise.map(spellings, spelling => {
         return OrganizationSpelling
-            .findByIdAndUpdate(spelling, {}, { upsert: true })
+            .findByIdAndUpdate(spelling, {}, { upsert: true, new: true })
             .populate('organization')
             .lean()
             .exec()
