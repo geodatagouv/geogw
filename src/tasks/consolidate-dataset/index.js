@@ -26,9 +26,8 @@ function getCatalogRecords(recordId) {
         });
 }
 
-function getBestRecordRevision(catalogRecordsPromise) {
-    return catalogRecordsPromise
-        .then(catalogRecords => RecordRevision.findOne(pick(catalogRecords[0], 'recordId', 'recordHash')).exec())
+function getBestRecordRevision(catalogRecords) {
+    return RecordRevision.findOne(pick(catalogRecords[0], 'recordId', 'recordHash')).exec()
         .then(recordRevision => {
             if (!recordRevision) throw new Error('Record revision not found for: ' + recordRevision.toJSON());
             return recordRevision;
@@ -143,31 +142,32 @@ function exec(job, done) {
 
     return ConsolidatedRecord.toggleConsolidating(recordId, true)
         .then(marked => {
-            const catalogRecordsPromise = getCatalogRecords(recordId);
             if (!marked) throw new Error('Already consolidating...');
-            return Promise.join(
-                catalogRecordsPromise,
-                getConsolidatedRecord(recordId),
-                fetchRelatedResources(recordId),
-                getBestRecordRevision(catalogRecordsPromise),
-                fetchPublications(recordId),
+            return getCatalogRecords(recordId)
+                .then(catalogRecords => {
+                    return Promise.join(
+                        getConsolidatedRecord(recordId),
+                        fetchRelatedResources(recordId),
+                        getBestRecordRevision(catalogRecords),
+                        fetchPublications(recordId),
 
-                (catalogRecords, record, relatedResources, recordRevision, publications) => {
-                    const process = Promise.try(() => applyRecordRevisionChanges(record, recordRevision))
-                        .then(() => applyOrganizationsFilter(record))
-                        .then(() => applyResources(record, relatedResources))
-                        .then(() => applyPublications(record, publications))
-                        .then(() => {
-                            return record
-                                .set('catalogs', catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
-                                .set('dataset.updatedAt', now)
-                                .set('facets', computeFacets(record, catalogRecords.map(catalogRecord => catalogRecord.catalog)))
-                                .save();
-                        });
-                    process.finally(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
-                    return process;
-                }
-            );
+                        (record, relatedResources, recordRevision, publications) => {
+                            const process = Promise.try(() => applyRecordRevisionChanges(record, recordRevision))
+                                .then(() => applyOrganizationsFilter(record))
+                                .then(() => applyResources(record, relatedResources))
+                                .then(() => applyPublications(record, publications))
+                                .then(() => {
+                                    return record
+                                        .set('catalogs', catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
+                                        .set('dataset.updatedAt', now)
+                                        .set('facets', computeFacets(record, catalogRecords.map(catalogRecord => catalogRecord.catalog)))
+                                        .save();
+                                });
+                            process.finally(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
+                            return process;
+                        }
+                    );
+                });
         })
         .nodeify(done);
 }
