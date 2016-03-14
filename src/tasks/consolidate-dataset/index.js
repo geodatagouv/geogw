@@ -13,7 +13,7 @@ const RelatedResource = mongoose.model('RelatedResource');
 const OrganizationSpelling = mongoose.model('OrganizationSpelling');
 const Dataset = mongoose.model('Dataset');
 
-export function getCatalogRecords(recordId) {
+function getCatalogRecords(recordId) {
     return CatalogRecord
         .find({ recordId })
         .sort('-createdAt -revisionDate')
@@ -26,7 +26,7 @@ export function getCatalogRecords(recordId) {
         });
 }
 
-export function getBestRecordRevision(catalogRecordsPromise) {
+function getBestRecordRevision(catalogRecordsPromise) {
     return catalogRecordsPromise
         .then(catalogRecords => RecordRevision.findOne(pick(catalogRecords[0], 'recordId', 'recordHash')).exec())
         .then(recordRevision => {
@@ -35,11 +35,11 @@ export function getBestRecordRevision(catalogRecordsPromise) {
         });
 }
 
-export function fetchRelatedResources(recordId) {
+function fetchRelatedResources(recordId) {
     return RelatedResource.find({ record: recordId }).exec();
 }
 
-export function getConsolidatedRecord(recordId) {
+function getConsolidatedRecord(recordId) {
     return ConsolidatedRecord.findOne({ recordId }).exec()
         .then(record => {
             if (!record) throw new Error('ConsolidatedRecord not found for ' + recordId);
@@ -70,7 +70,7 @@ function createDatasetFromRecord(recordRevision) {
     throw new Error('Not supported record type: ' + recordRevision.recordType);
 }
 
-export function applyRecordRevisionChanges(record, recordRevision) {
+function applyRecordRevisionChanges(record, recordRevision) {
     // if (record.recordHash && record.recordHash === recordRevision.recordHash) return Promise.resolve(record);
     record
         .set('recordHash', recordRevision.recordHash)
@@ -80,7 +80,7 @@ export function applyRecordRevisionChanges(record, recordRevision) {
     return Promise.resolve(record);
 }
 
-export function applyOrganizationsFilter(record) {
+function applyOrganizationsFilter(record) {
 
     const spellings = record.metadata.contributors;
 
@@ -107,7 +107,7 @@ function applyPublications(record, publications) {
     record.set('publications', publications);
 }
 
-export function applyResources(record, relatedResources) {
+function applyResources(record, relatedResources) {
     const dist = [];
     const alt = [];
 
@@ -137,7 +137,7 @@ export function applyResources(record, relatedResources) {
         .set('alternateResources', _.uniq(alt, 'location')));
 }
 
-export function exec(job, done) {
+function exec(job, done) {
     const recordId = job.data.recordId;
     const now = new Date();
 
@@ -145,27 +145,38 @@ export function exec(job, done) {
         .then(marked => {
             const catalogRecordsPromise = getCatalogRecords(recordId);
             if (!marked) throw new Error('Already consolidating...');
-            return Promise.props({
-                catalogRecords: catalogRecordsPromise,
-                record: getConsolidatedRecord(recordId),
-                relatedResources: fetchRelatedResources(recordId),
-                recordRevision: getBestRecordRevision(catalogRecordsPromise),
-                publications: fetchPublications(recordId)
-            }).then(r => {
-                const process = Promise.try(() => applyRecordRevisionChanges(r.record, r.recordRevision))
-                    .then(() => applyOrganizationsFilter(r.record))
-                    .then(() => applyResources(r.record, r.relatedResources))
-                    .then(() => applyPublications(r.record, r.publications))
-                    .then(() => {
-                        return r.record
-                            .set('catalogs', r.catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
-                            .set('dataset.updatedAt', now)
-                            .set('facets', computeFacets(r.record, r.catalogRecords.map(catalogRecord => catalogRecord.catalog)))
-                            .save();
-                    });
-                process.finally(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
-                return process;
-            });
+            return Promise.join(
+                catalogRecordsPromise,
+                getConsolidatedRecord(recordId),
+                fetchRelatedResources(recordId),
+                getBestRecordRevision(catalogRecordsPromise),
+                fetchPublications(recordId),
+
+                (catalogRecords, record, relatedResources, recordRevision, publications) => {
+                    const process = Promise.try(() => applyRecordRevisionChanges(record, recordRevision))
+                        .then(() => applyOrganizationsFilter(record))
+                        .then(() => applyResources(record, relatedResources))
+                        .then(() => applyPublications(record, publications))
+                        .then(() => {
+                            return record
+                                .set('catalogs', catalogRecords.map(catalogRecord => catalogRecord.catalog._id))
+                                .set('dataset.updatedAt', now)
+                                .set('facets', computeFacets(record, catalogRecords.map(catalogRecord => catalogRecord.catalog)))
+                                .save();
+                        });
+                    process.finally(() => ConsolidatedRecord.toggleConsolidating(recordId, false));
+                    return process;
+                }
+            );
         })
         .nodeify(done);
 }
+
+exports.exec = exec;
+exports.applyResources = applyResources;
+exports.applyOrganizationsFilter = applyOrganizationsFilter;
+exports.applyRecordRevisionChanges = applyRecordRevisionChanges;
+exports.getConsolidatedRecord = getConsolidatedRecord;
+exports.fetchRelatedResources = fetchRelatedResources;
+exports.getCatalogRecords = getCatalogRecords;
+exports.getBestRecordRevision = getBestRecordRevision;
