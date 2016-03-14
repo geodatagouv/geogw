@@ -16,6 +16,7 @@ class Harvester extends EventEmitter {
         super();
 
         this.matched = 0;
+        this.failed = 0;
         this.started = 0;
         this.ignored = 0;
         this.returned = 0;
@@ -59,6 +60,18 @@ class Harvester extends EventEmitter {
                         this.allStarted = true;
                         this.emit('all-started');
                     }
+                })
+                .once('failed', () => {
+                    this.failed++;
+                    this.emit('internal-harvester:failed', { name });
+                    debug('harvester %s has failed', name);
+                    if (this.failed === internalHarvesters.length) {
+                        this.allFailed = true;
+                        this.emit('all-failed');
+                    }
+                })
+                .on('error', err => {
+                    this.emit('internal-harvester:error', { name, err });
                 });
             internalHarvesters.push(harvester);
         };
