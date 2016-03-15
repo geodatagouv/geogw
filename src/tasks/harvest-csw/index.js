@@ -67,7 +67,6 @@ class CswHarvestJob extends ServiceSyncJob {
 
     _finish() {
         if (this.harvester) {
-            this.harvester.pause();
             this.harvester.unpipe();
             this.harvester.removeAllListeners();
             this.harvester = null;

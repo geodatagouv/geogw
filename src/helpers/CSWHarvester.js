@@ -70,8 +70,8 @@ class Harvester extends EventEmitter {
                         this.emit('all-failed');
                     }
                 })
-                .on('error', err => {
-                    this.emit('internal-harvester:error', { name, err });
+                .on('pageError', err => {
+                    this.emit('internal-harvester:pageError', { name, err });
                 });
             internalHarvesters.push(harvester);
         };
@@ -83,8 +83,9 @@ class Harvester extends EventEmitter {
         }
 
         const recordIds = new Set();
+        const ms = MultiStream(internalHarvesters, { objectMode: true });
 
-        this.innerStream = MultiStream(internalHarvesters, { objectMode: true }).pipe(through((record, enc, cb) => {
+        this.innerStream = ms.pipe(through((record, enc, cb) => {
             const ignore = (reason) => {
                 record.ignoreReason = reason;
                 this.ignored++;
@@ -120,6 +121,8 @@ class Harvester extends EventEmitter {
             this.unique++;
             cb(null, record);
         }));
+
+        ms.on('error', err => this.emit('error', err));
 
         this.innerStream.on('end', () => recordIds.clear());
     }
