@@ -90,7 +90,7 @@ exports.unpublish = function (req, res, next) {
     .catch(next);
 };
 
-function computePublicationMetrics(organization) {
+function groupDatasetsIdsByPublicationStatus(organization) {
     const fetchPublishedQuery = {
         'publication.status': { $exists: true }
     };
@@ -107,21 +107,37 @@ function computePublicationMetrics(organization) {
         // handler
         function (publishedDatasets, matchingDatasets) {
             const published = _.pluck(publishedDatasets, '_id');
-            const publicationStatusesCount = _.chain(publishedDatasets)
+            const publishedWithStatus = _.chain(publishedDatasets)
                 .groupBy(item => item.publication.status)
-                .mapValues(publicationStatus => publicationStatus.length)
+                .mapValues(item => _.pluck(item, '_id'))
                 .value();
             const matching = _.pluck(matchingDatasets, 'recordId');
             const notMatchingAnymore = _.difference(published, matching);
             const notPublishedYet = _.difference(matching, published);
             return {
-                notPublishedYet: notPublishedYet.length,
-                notMatchingAnymore: notMatchingAnymore.length,
-                published: publicationStatusesCount,
-                matching: matching.length
+                notPublishedYet,
+                notMatchingAnymore,
+                published: publishedWithStatus,
+                matching
             };
         }
     );
+}
+
+exports.groupedIds = function (req, res, next) {
+    groupDatasetsIdsByPublicationStatus(req.organization)
+        .then(groupedIds => res.send(groupedIds))
+        .catch(next);
+};
+
+function computePublicationMetrics(organization) {
+    return groupDatasetsIdsByPublicationStatus(organization)
+        .then(groupedDatasets => ({
+            notPublishedYet: groupedDatasets.notPublishedYet.length,
+            notMatchingAnymore: groupedDatasets.notMatchingAnymore.length,
+            published: _.mapValues(groupedDatasets.published, item => item.length),
+            matching: groupedDatasets.matching.length
+        }));
 }
 
 exports.metrics = function (req, res, next) {

@@ -135,6 +135,7 @@ module.exports = function (app) {
         .delete(ensureLoggedIn, isAdmin, datasets.unpublishAll);
 
     app.get('/api/organizations/:organizationId/datasets/metrics', datasets.metrics);
+    app.get('/api/organizations/:organizationId/datasets/grouped-ids', datasets.groupedIds);
 
     app.route('/api/organizations/:organizationId/datasets/publish-all')
         .post(ensureLoggedIn, isAdmin, datasets.publishAll);
