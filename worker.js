@@ -31,8 +31,8 @@ q.process('remote-resource:check', 10, function (kueJob, doneCallback) {
 var gracefulShutdown = _.once(function () {
     q.shutdown(5000, function (err) {
         console.log( 'Job queue is shut down. ', err || '');
+        process.exit();
     });
-    process.exit();
 });
 
 process.on('message', function (msg) {
