@@ -16,7 +16,7 @@ const Dataset = mongoose.model('Dataset');
 function getCatalogRecords(recordId) {
     return CatalogRecord
         .find({ recordId })
-        .sort('-createdAt -revisionDate')
+        .sort('-revisionDate -createdAt')
         .populate('catalog', 'name')
         .lean()
         .exec()
