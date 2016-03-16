@@ -12,6 +12,9 @@ module.exports = function(app) {
     app.route('/records/:recordId')
         .get(records.show);
 
+    app.route('/records/:recordId/consolidate')
+        .post(records.consolidate);
+
     app.route('/records')
         .get(records.search);
 

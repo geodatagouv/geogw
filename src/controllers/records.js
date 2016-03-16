@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import { formatOne as formatOneRecord } from '../formatters/records';
 import { formatMany as formatManyRelatedResources } from '../formatters/relatedResources';
 
+const sidekick = require('../helpers/sidekick');
+
 var _ = require('lodash');
 var search = require('../helpers/search');
 
@@ -47,4 +49,10 @@ exports.showRelatedResources = function (req, res, next) {
             if (err) return next(err);
             res.send(formatManyRelatedResources(foundRelatedResources));
         });
+};
+
+exports.consolidate = function (req, res, next) {
+    sidekick('dataset:consolidate', { recordId: req.record.recordId })
+        .then(() => res.send({ status: 'ok' }))
+        .catch(next);
 };
