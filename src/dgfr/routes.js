@@ -124,8 +124,6 @@ module.exports = function (app) {
     app.route('/api/organizations/:organizationId/datasets')
         .get(datasets.list);
 
-    app.get('/api/datasets/metrics', datasets.metrics);
-
     app.route('/api/datasets/:datasetId/publication')
         .all(ensureLoggedIn)
         .put(ensureUserCanPublishDataset, datasets.publish)
@@ -134,8 +132,20 @@ module.exports = function (app) {
     app.route('/api/organizations/:organizationId/datasets/publication')
         .delete(ensureLoggedIn, isAdmin, datasets.unpublishAll);
 
+
+    app.get('/api/datasets/broken', datasets.broken);
+    app.get('/api/organizations/:organizationId/datasets/broken', datasets.broken);
+
+    app.get('/api/datasets/metrics', datasets.metrics);
     app.get('/api/organizations/:organizationId/datasets/metrics', datasets.metrics);
+
+
     app.get('/api/organizations/:organizationId/datasets/grouped-ids', datasets.groupedIds);
+
+    app.get('/api/organizations/:organizationId/datasets/not-published-yet', datasets.notPublishedYet);
+    app.get('/api/organizations/:organizationId/datasets/published', datasets.published);
+    app.get('/api/organizations/:organizationId/datasets/published-by-others', datasets.publishedByOthers);
+
 
     app.route('/api/organizations/:organizationId/datasets/publish-all')
         .post(ensureLoggedIn, isAdmin, datasets.publishAll);
