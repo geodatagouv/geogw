@@ -146,6 +146,16 @@ function fetchRecordsPublishedByOthers(organization) {
         .then(publishedRecordIds => fetchPublishedRecordsNotInList(publishedRecordIds, organization));
 }
 
+function fetchRecordsInList(list) {
+    if (!list) throw new Error('list is required');
+
+    return Record
+        .find({ recordId: { $in: list } })
+        .select('metadata.title')
+        .exec()
+        .map(record => ({ _id: record._id, title: record.metadata.title }));
+}
+
 /* Actions */
 
 exports.list = function (req, res, next) {
@@ -226,7 +236,8 @@ exports.notPublishedYet = function (req, res, next) {
 exports.published = function (req, res, next) {
     fetchPublicationInfos(req.organization && req.organization._id)
         .then(publicationInfos => _.pluck(publicationInfos, '_id'))
-        .then(publishedRecordIds => res.send(publishedRecordIds))
+        .then(publishedRecordIds => fetchRecordsInList(publishedRecordIds))
+        .then(publishedRecords => res.send(publishedRecords))
         .catch(next);
 };
 
