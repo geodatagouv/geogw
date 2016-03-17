@@ -109,9 +109,9 @@ function fetchRecordsNotPublishedYet(organization) {
     }
     return Record
         .find(query)
-        .select('metadata.title')
+        .select('recordId metadata.title')
         .exec()
-        .map(record => ({ _id: record._id, title: record.metadata.title }));
+        .map(record => ({ _id: record.recordId, title: record.metadata.title }));
 }
 
 function fetchPublishedRecordsNotInList(list, organization) {
