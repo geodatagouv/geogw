@@ -8,7 +8,7 @@ import crypto from 'crypto';
 import rimraf from 'rimraf';
 import through2 from 'through2';
 
-const tmpDirAsync = Promise.promisify(tmpDir);
+const tmpDirAsync = Promise.promisify(tmpDir, { multiArgs: true });
 const execAsync = Promise.promisify(exec);
 const rimrafAsync = Promise.promisify(rimraf);
 
