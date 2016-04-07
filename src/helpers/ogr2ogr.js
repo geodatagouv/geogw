@@ -26,12 +26,10 @@ function downloadDataset(req, res) {
     if (req.query.format === 'GeoJSON') {
         res.type('json');
         res.attachment(fileName + '.json');
-        options.push('-explodecollections');
     } else if (req.query.format === 'KML') {
         res.type('application/vnd.google-earth.kml+xml');
         res.attachment(fileName + '.kml');
         ogr2ogrTask.format('KML');
-        options.push('-explodecollections');
     } else if (req.query.format === 'SHP') {
         res.type('application/x-shapefile');
         res.attachment(fileName + '.zip');
