@@ -3,7 +3,7 @@ const Promise = require('bluebird');
 const publication = require('../../dgfr/publication');
 
 const Dataset = mongoose.model('Dataset');
-const Record = mongoose.model('Record');
+const Record = mongoose.model('ConsolidatedRecord');
 
 
 module.exports = function (job, jobDone) {
@@ -15,13 +15,12 @@ module.exports = function (job, jobDone) {
 
         function (record, publicationInfo) {
             if (!record) throw new Error('Record not found');
-            if (publicationInfo) organizationId = publicationInfo.publication.organization;
             if (updateOnly && (!publicationInfo || !publicationInfo.publication._id)) {
                 throw new Error('Unable to update: not published yet!');
             }
 
             return publication.publishDataset(record, {
-                owner: organizationId,
+                owner: publicationInfo ? publicationInfo.publication.organization : organizationId,
                 publicationStatus: 'public',
                 id: publicationInfo ? publicationInfo.publication._id : null
             });

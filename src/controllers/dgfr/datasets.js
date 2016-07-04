@@ -307,7 +307,7 @@ exports.unpublishAll = function (req, res) {
 
 
 exports.syncAll = function (req, res) {
-    const count = 0;
+    let count = 0;
     let query;
     if (req.organization && req.organization._id) {
         query = Dataset.where('publication.organization', req.organization._id);
