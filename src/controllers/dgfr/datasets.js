@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 const Promise = require('bluebird');
 const publication = require('../../dgfr/publication');
+const through2 = require('through2');
+const sidekick = require('../../helpers/sidekick');
 
 const Dataset = mongoose.model('Dataset');
 const Record = mongoose.model('ConsolidatedRecord');
@@ -305,34 +307,32 @@ exports.unpublishAll = function (req, res) {
 
 
 exports.syncAll = function (req, res) {
-    res.sendStatus(501);
-    // var count = 0;
-    // var query;
-    // if (req.organization && req.organization._id) {
-    //     query = Dataset.where('publication.organization', req.organization._id);
-    // } else if (req.query.confirm === 'yes') {
-    //     query = Dataset.where('publication').exists();
-    //     if (req.query.before) query.where('publication.updatedAt').lt(new Date(req.query.before));
-    // } else {
-    //     return res.sendStatus(400);
-    // }
-    // query
-    //     .lean()
-    //     .stream()
-    //     .pipe(through2.obj(function (dataset, enc, done) {
-    //         if (!dataset.publication || !dataset.publication.organization) return done();
-    //         q
-    //             .create('dgv:publish', {
-    //                 organizationId: dataset.publication.organization,
-    //                 datasetId: dataset._id
-    //             })
-    //             .save(function (err) {
-    //                 if (err) return done(err);
-    //                 count++;
-    //                 done(null, null);
-    //             });
-    //     }))
-    //     .on('finish', function () {
-    //         res.send({ status: 'ok', count: count });
-    //     });
+    const count = 0;
+    let query;
+    if (req.organization && req.organization._id) {
+        query = Dataset.where('publication.organization', req.organization._id);
+    } else if (req.query.confirm === 'yes') {
+        query = Dataset.where('publication').exists();
+        if (req.query.before) query.where('publication.updatedAt').lt(new Date(req.query.before));
+    } else {
+        return res.sendStatus(400);
+    }
+    query
+        .lean()
+        .stream()
+        .pipe(through2.obj(function (dataset, enc, done) {
+            if (!dataset.publication || !dataset.publication.organization) return done();
+            sidekick('dgv:publish', {
+              recordId: dataset._id,
+              updateOnly: true
+            })
+            .then(() => {
+                count++;
+                done();
+            })
+            .catch(err => done(err));
+        }))
+        .on('finish', function () {
+            res.send({ status: 'ok', count });
+        });
 };

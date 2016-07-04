@@ -1,42 +1,32 @@
-var mongoose = require('mongoose');
-var async = require('async');
-var debug = require('debug')('dgv:publish');
+const mongoose = require('mongoose');
+const Promise = require('bluebird');
+const publication = require('../../dgfr/publication');
 
-var Dataset = mongoose.model('Dataset');
+const Dataset = mongoose.model('Dataset');
+const Record = mongoose.model('Record');
+
 
 module.exports = function (job, jobDone) {
-    var datasetId = job.data.datasetId;
-    var organizationId = job.data.organizationId;
-    var publicationStatus = job.data.publicationStatus;
+    const { recordId, organizationId, updateOnly } = job.data;
 
-    var dataset;
+    Promise.join(
+        Record.findOne({ recordId }).exec(),
+        Dataset.findById(recordId).exec(),
 
-    function fetchAssoc(done) {
-        Dataset.findById(datasetId, function (err, datasetFound) {
-            if (err) return done(err);
-            if (!datasetFound) return done(new Error('Dataset not found'));
-            dataset = datasetFound;
-            done();
-        });
-    }
-
-    function createOrUpdate(done) {
-        if (dataset.publication.organization) {
-            if (dataset.publication.organization.equals(organizationId)) {
-                debug('Going to update an existing dataset : %s', dataset.publication._id);
-                return dataset.synchronize(done);
-            } else {
-                debug('OrganizationId mismatch: ignored');
-                return done(new Error('OrganizationId mismatch: ignored'));
+        function (record, publicationInfo) {
+            if (!record) throw new Error('Record not found');
+            if (publicationInfo) organizationId = publicationInfo.publication.organization;
+            if (updateOnly && (!publicationInfo || !publicationInfo.publication._id)) {
+                throw new Error('Unable to update: not published yet!');
             }
-        } else {
-            debug('Going to publish a new dataset');
-            dataset
-                .set('publication.organization', organizationId)
-                .set('publication.status', publicationStatus)
-                .publish(done);
-        }
-    }
 
-    async.series([fetchAssoc, createOrUpdate], jobDone);
+            return publication.publishDataset(record, {
+                owner: organizationId,
+                publicationStatus: 'public',
+                id: publicationInfo ? publicationInfo.publication._id : null
+            });
+        }
+    )
+    .catch(err => jobDone(err))
+    .then(() => jobDone());
 };
