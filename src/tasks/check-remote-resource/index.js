@@ -1,14 +1,14 @@
-import mongoose from 'mongoose';
-import Promise from 'bluebird';
-import Plunger from '../../helpers/plunger';
-import strRightBack from 'underscore.string/strRightBack';
-import omit from 'lodash/object/omit';
+const mongoose = require('mongoose');
+const Promise = require('bluebird');
+const Plunger = require('../../helpers/plunger');
+const strRightBack = require('underscore.string/strRightBack');
+const omit = require('lodash/object/omit');
 
 const RemoteResource = mongoose.model('RemoteResource');
 const RelatedResource = mongoose.model('RelatedResource');
 
 
-export default class RemoteResourceCheck {
+class RemoteResourceCheck {
 
     constructor(options = {}) {
         this.options = options;
@@ -138,3 +138,5 @@ export default class RemoteResourceCheck {
     }
 
 }
+
+module.exports = RemoteResourceCheck;

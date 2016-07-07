@@ -1,19 +1,19 @@
-import Plunger from 'plunger';
-import fs from 'fs';
-import { dir as tmpDir } from 'tmp';
-import { exec } from 'child_process';
-import Promise from 'bluebird';
-import findit from 'findit';
-import crypto from 'crypto';
-import rimraf from 'rimraf';
-import through2 from 'through2';
+const Plunger = require('plunger');
+const fs = require('fs');
+const { dir } = require('tmp');
+const { exec } = require('child_process');
+const Promise = require('bluebird');
+const findit = require('findit');
+const crypto = require('crypto');
+const rimraf = require('rimraf');
+const through2 = require('through2');
 
-const tmpDirAsync = Promise.promisify(tmpDir, { multiArgs: true });
+const tmpDirAsync = Promise.promisify(dir, { multiArgs: true });
 const execAsync = Promise.promisify(exec);
 const rimrafAsync = Promise.promisify(rimraf);
 
 
-export default class SuperPlunger extends Plunger {
+class SuperPlunger extends Plunger {
 
     constructor(location, options = {}) {
         super(location, options);
@@ -112,3 +112,5 @@ export default class SuperPlunger extends Plunger {
     }
 
 }
+
+module.exports = SuperPlunger;

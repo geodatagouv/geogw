@@ -1,12 +1,12 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 
 
-export const collectionName = 'consolidated_organizations';
+const collectionName = 'consolidated_organizations';
 
 /* Schema */
-export const schema = new Schema({
+const schema = new Schema({
 
     name: { type: String },
     slug: { type: String, unique: true, sparse: true },
@@ -15,4 +15,6 @@ export const schema = new Schema({
 });
 
 /* Declare as model */
-export const model = mongoose.model('ConsolidatedOrganization', schema, collectionName);
+const model = mongoose.model('ConsolidatedOrganization', schema, collectionName);
+
+module.exports = { model, collectionName, schema };

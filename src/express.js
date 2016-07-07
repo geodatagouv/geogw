@@ -1,14 +1,15 @@
-import express from 'express';
-import passport from 'passport';
-import mongoose from 'mongoose';
-import kue from 'kue';
-import session from 'express-session';
-import { json as parseJson } from 'body-parser';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import path from 'path';
-import sessionMongo from 'connect-mongo';
-import { walk } from './utils';
+const express = require('express');
+const passport = require('passport');
+const mongoose = require('mongoose');
+const kue = require('kue');
+const session = require('express-session');
+const { json } = require('body-parser');
+const parseJson = json;
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const path = require('path');
+const sessionMongo = require('connect-mongo');
+const { walk } = require('./utils');
 
 const MongoStore = sessionMongo(session);
 
@@ -85,4 +86,4 @@ class Server {
 
 }
 
-export default (new Server()).getHandler();
+module.exports = (new Server()).getHandler();

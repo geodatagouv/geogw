@@ -1,10 +1,10 @@
 /*
 ** Module dependencies
 */
-var mongoose = require('mongoose');
-var _s = require('underscore.string');
+const mongoose = require('mongoose');
+const _s = require('underscore.string');
 
-var FeatureType = mongoose.model('FeatureType');
+const FeatureType = mongoose.model('FeatureType');
 
 
 /* Middlewares */

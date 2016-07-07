@@ -1,20 +1,20 @@
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
-import pick from 'lodash/object/pick';
-import sidekick from '../helpers/sidekick';
-import { sha1 } from '../helpers/hash';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const pick = require('lodash/object/pick');
+const sidekick = require('../helpers/sidekick');
+const { sha1 } = require('../helpers/hash');
 
 const Mixed = Schema.Types.Mixed;
 
 
-export const REMOTE_RESOURCE_TYPES = [
+const REMOTE_RESOURCE_TYPES = [
     'page',
     'file-distribution',
     'unknown-archive'
 ];
 
 
-export const schema = new Schema({
+const schema = new Schema({
 
     location: { type: String, required: true, unique: true },
     hashedLocation: { type: String, required: true, unique: true },
@@ -93,5 +93,8 @@ schema.statics = {
 
 };
 
-export const collectionName = 'remote_resources';
-export const model = mongoose.model('RemoteResource', schema, collectionName);
+const collectionName = 'remote_resources';
+
+const model = mongoose.model('RemoteResource', schema, collectionName);
+
+module.exports = { model, collectionName, schema };

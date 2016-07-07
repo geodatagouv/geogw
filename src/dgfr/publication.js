@@ -74,5 +74,4 @@ function unpublishDataset(dataset, options) {
         .then(() => Record.triggerUpdated(dataset.recordId));
 }
 
-exports.unpublishDataset = unpublishDataset;
-exports.publishDataset = publishDataset;
+module.exports = { unpublishDataset, publishDataset };

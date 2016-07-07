@@ -1,12 +1,12 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
-import magicGet                             from 'lodash/object/get';
-import magicSet                             from 'lodash/object/set';
-import omit                                 from 'lodash/object/omit';
-import forEachCollection                    from 'lodash/collection/forEach';
+const magicGet                             = require('lodash/object/get');
+const magicSet                             = require('lodash/object/set');
+const omit                                 = require('lodash/object/omit');
+const forEachCollection                    = require('lodash/collection/forEach');
 
 const rootUrl = process.env.ROOT_URL + '/api/geogw';
 
-export function formatOneBase(resource, options) {
+exports.formatOneBase = function formatOneBase(resource, options) {
     // If resource is a mongoose document, we get the plain object one
     if (resource.toObject) resource = resource.toObject();
 
@@ -37,4 +37,4 @@ export function formatOneBase(resource, options) {
     });
 
     return options.omitKeys ? omit(resource, options.omitKeys) : resource;
-}
+};

@@ -4,7 +4,7 @@ var _ = require('lodash');
 var User = mongoose.model('User');
 var dgv = require('./api');
 
-export default new OAuth2Strategy({
+module.exports = new OAuth2Strategy({
     authorizationURL: process.env.DATAGOUV_URL + '/oauth/authorize',
     tokenURL: process.env.DATAGOUV_URL + '/oauth/token',
     clientID: process.env.DATAGOUV_CLIENT_ID,

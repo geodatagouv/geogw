@@ -11,15 +11,15 @@ const RecordRevision = mongoose.model('RecordRevision');
 const RelatedResource = mongoose.model('RelatedResource');
 
 
-export function markExistingRelatedResourcesAsChecking(originId, originHash) {
+exports.markExistingRelatedResourcesAsChecking = function markExistingRelatedResourcesAsChecking(originId, originHash) {
     return RelatedResource.markAsChecking({ originId, originHash });
 }
 
-export function removeCheckingRelatedResources(originId, originHash) {
+exports.removeCheckingRelatedResources = function removeCheckingRelatedResources(originId, originHash) {
     return RelatedResource.remove({ originId, originHash, checking: true });
 }
 
-export function getRecordRevision(recordId, recordHash) {
+exports.getRecordRevision = function getRecordRevision(recordId, recordHash) {
     return RecordRevision.findOne({ recordId, recordHash }).exec()
         .then(recordRevision => {
             if (!recordRevision) throw new Error('RecordRevision not found for: ' + { recordId, recordHash }.toJSON());
@@ -27,7 +27,7 @@ export function getRecordRevision(recordId, recordHash) {
         });
 }
 
-export function processLinks(recordRevision) {
+exports.processLinks = function processLinks(recordRevision) {
     const record = recordRevision.content;
     const recordType = recordRevision.recordType;
 
@@ -75,7 +75,7 @@ export function processLinks(recordRevision) {
     });
 }
 
-export function processCoupledResources(recordRevision) {
+exports.processCoupledResources = function processCoupledResources(recordRevision) {
     const record = recordRevision.content;
 
     const keywordsStr = iso19139helpers.getAllKeywords(record).join('').toLowerCase();
@@ -139,7 +139,7 @@ export function processCoupledResources(recordRevision) {
     });
 }
 
-export function exec(job, done) {
+exports.exec = function exec(job, done) {
     const { recordId, recordHash } = job.data;
 
     return getRecordRevision(recordId, recordHash)

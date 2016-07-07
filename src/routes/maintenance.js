@@ -1,9 +1,9 @@
-import { Router } from 'express';
+const { Router } = require('express');
 
-import { processAllRecords, consolidateAllRecords, checkAllRemoteResources } from '../controllers/maintenance';
-import { isMaintenance } from './middlewares/auth';
+const { processAllRecords, consolidateAllRecords, checkAllRemoteResources } = require('../controllers/maintenance');
+const { isMaintenance } = require('./middlewares/auth');
 
-export default function (app) {
+module.exports = function (app) {
     const router = new Router();
 
     /* Routes */
@@ -12,4 +12,4 @@ export default function (app) {
     router.post('/check-all-remote-resources', checkAllRemoteResources);
 
     app.use('/maintenance', isMaintenance, router);
-}
+};

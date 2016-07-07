@@ -1,6 +1,6 @@
-import Promise from 'bluebird';
-import { jobs } from '../kue';
-import defaults from 'lodash/object/defaults';
+const Promise = require('bluebird');
+const { jobs } = require('../kue');
+const defaults = require('lodash/object/defaults');
 
 const taskOptions = {
     'process-record': { removeOnComplete: true, attempts: 5 },
@@ -8,7 +8,7 @@ const taskOptions = {
     'dgv:publish': { removeOnComplete: true }
 };
 
-export default function (taskName, taskData, options = {}) {
+module.exports = function (taskName, taskData, options = {}) {
     if (taskName in taskOptions) {
         defaults(options, taskOptions[taskName]);
     }
@@ -29,4 +29,4 @@ export default function (taskName, taskData, options = {}) {
             resolve(job);
         });
     });
-}
+};

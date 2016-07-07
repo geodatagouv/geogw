@@ -1,14 +1,14 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
 
 const ObjectId = Schema.Types.ObjectId;
 
 
-export const collectionName = 'organization_spellings';
+const collectionName = 'organization_spellings';
 
 /* Schema */
-export const schema = new Schema({
+const schema = new Schema({
 
     /* Identification */
     _id: { type: String },
@@ -24,4 +24,6 @@ export const schema = new Schema({
 });
 
 /* Declare as model */
-export const model = mongoose.model('OrganizationSpelling', schema, collectionName);
+const model = mongoose.model('OrganizationSpelling', schema, collectionName);
+
+module.exports = { model, collectionName, schema };

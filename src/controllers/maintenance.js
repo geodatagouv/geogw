@@ -1,13 +1,13 @@
-import sidekick from '../helpers/sidekick';
-import through2 from 'through2';
-import mongoose from 'mongoose';
+const sidekick = require('../helpers/sidekick');
+const through2 = require('through2');
+const mongoose = require('mongoose');
 
 const RecordRevision = mongoose.model('RecordRevision');
 const ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 const RemoteResource = mongoose.model('RemoteResource');
 
 
-export function processAllRecords(req, res) {
+exports.processAllRecords = function processAllRecords(req, res) {
     let count = 0;
     RecordRevision.find().select('recordId recordHash').lean().stream()
         .pipe(through2.obj((recordRevision, enc, cb) => {
@@ -24,9 +24,9 @@ export function processAllRecords(req, res) {
         .on('finish', () => {
             res.send({ task: 'process-all-records', status: 'ok', count });
         });
-}
+};
 
-export function consolidateAllRecords(req, res) {
+exports.consolidateAllRecords = function consolidateAllRecords(req, res) {
     let count = 0;
     ConsolidatedRecord.find().select('recordId').lean().stream()
         .pipe(through2.obj((record, enc, cb) => {
@@ -43,9 +43,9 @@ export function consolidateAllRecords(req, res) {
         .on('finish', () => {
             res.send({ task: 'consolidate-all-records', status: 'ok', count });
         });
-}
+};
 
-export function checkAllRemoteResources(req, res) {
+exports.checkAllRemoteResources = function checkAllRemoteResources(req, res) {
     let count = 0;
     RemoteResource.find().select('_id location').lean().stream()
         .pipe(through2.obj((remoteResource, enc, cb) => {
@@ -62,4 +62,4 @@ export function checkAllRemoteResources(req, res) {
         .on('finish', () => {
             res.send({ task: 'check-all-remote-resources', status: 'ok', count });
         });
-}
+};

@@ -4,7 +4,7 @@ var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 var async = require('async');
 var _ = require('lodash');
 
-import { formatMany as formatManyRecords } from '../formatters/records';
+const { formatMany } = require('../formatters/records');
 
 module.exports = function (searchQuery, catalogName, done) {
     if (!done) {
@@ -109,7 +109,7 @@ module.exports = function (searchQuery, catalogName, done) {
         },
     }, function(err, output) {
         if (err) return done(err);
-        output.results = formatManyRecords(output.results);
+        output.results = formatMany(output.results);
         output.query = { q: q, facets: facetsFromQuery, limit: limit, offset: offset };
         done(null, output);
     });

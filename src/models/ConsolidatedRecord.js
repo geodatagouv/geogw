@@ -1,16 +1,16 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
-import sidekick from '../helpers/sidekick';
-import DistributionSchema from './schemas/distribution';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const sidekick = require('../helpers/sidekick');
+const DistributionSchema = require('./schemas/distribution');
 
 const ObjectId = Schema.Types.ObjectId;
 const Mixed = Schema.Types.Mixed;
 
 
-export const collectionName = 'consolidated_records';
+const collectionName = 'consolidated_records';
 
-export const schema = new Schema({
+const schema = new Schema({
 
     /* Identification */
     recordId:              { type: String,     required: true, unique: true },
@@ -88,4 +88,6 @@ schema.statics = {
 };
 
 /* Declare as model */
-export const model = mongoose.model('ConsolidatedRecord', schema, collectionName);
+const model = mongoose.model('ConsolidatedRecord', schema, collectionName);
+
+module.exports = { model, collectionName, schema };

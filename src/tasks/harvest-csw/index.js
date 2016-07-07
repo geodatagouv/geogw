@@ -1,7 +1,7 @@
-import through2 from 'through2';
-import { inspect } from 'util';
-import mongoose from '../../mongoose';
-import ServiceSyncJob from '../syncJob';
+const through2 = require('through2');
+const { inspect } = require('util');
+const mongoose = require('../../mongoose');
+const ServiceSyncJob = require('../syncJob');
 const Harvester = require('../../helpers/CSWHarvester').Harvester;
 
 const RecordRevision = mongoose.model('RecordRevision');
@@ -75,6 +75,6 @@ class CswHarvestJob extends ServiceSyncJob {
 
 }
 
-export function harvest(job, done) {
+exports.harvest = function harvest(job, done) {
     (new CswHarvestJob(job, { failsAfter: 600 })).start(done);
 }

@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
-import { formatOne as formatOneRecord } from '../formatters/records';
-import { formatMany as formatManyRelatedResources } from '../formatters/relatedResources';
+const mongoose = require('mongoose');
+const { formatOne } = require('../formatters/records');
+const { formatMany } = require('../formatters/relatedResources');
 
 const sidekick = require('../helpers/sidekick');
 
-var _ = require('lodash');
-var search = require('../helpers/search');
+const _ = require('lodash');
+const search = require('../helpers/search');
 
 const ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 const RelatedResource = mongoose.model('RelatedResource');
@@ -28,7 +28,7 @@ exports.record = function(req, res, next, id) {
 ** Actions
 */
 exports.show = function(req, res) {
-    res.send(formatOneRecord(req.record));
+    res.send(formatOne(req.record));
 };
 
 exports.search = function(req, res, next) {
@@ -47,7 +47,7 @@ exports.showRelatedResources = function (req, res, next) {
         .lean()
         .exec(function (err, foundRelatedResources) {
             if (err) return next(err);
-            res.send(formatManyRelatedResources(foundRelatedResources));
+            res.send(formatMany(foundRelatedResources));
         });
 };
 

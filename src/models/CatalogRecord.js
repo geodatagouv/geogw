@@ -1,15 +1,15 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
-import pick from 'lodash/object/pick';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const pick = require('lodash/object/pick');
 
 const ObjectId = Schema.Types.ObjectId;
 
 
-export const collectionName = 'catalog_records';
+const collectionName = 'catalog_records';
 
 /* Schema */
-export const schema = new Schema({
+const schema = new Schema({
 
     /* Identification */
     catalog:        { type: ObjectId,  ref: 'Service', required: true },
@@ -71,4 +71,6 @@ schema.statics = {
 };
 
 /* Declare as model */
-export const model = mongoose.model('CatalogRecord', schema, collectionName);
+const model = mongoose.model('CatalogRecord', schema, collectionName);
+
+module.exports = { model, collectionName, schema };

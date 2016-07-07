@@ -1,7 +1,6 @@
-import Plunger from '../helpers/plunger';
-import strLeftBack from 'underscore.string/strLeftBack';
-import find from 'lodash/collection/find';
-import includes from 'lodash/collection/includes';
+const Plunger = require('../helpers/plunger');
+const { strLeftBack } = require('underscore.string');
+const { find, includes } = require('lodash');
 
 
 exports.loadLayer = function (req, res, next) {

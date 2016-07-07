@@ -1,6 +1,5 @@
-require('babel/polyfill');
-require('./lib/mongoose');
-require('./lib/passport');
-require('./lib/kue');
+require('./src/mongoose');
+require('./src/passport');
+require('./src/kue');
 
-module.exports = require('./lib/express');
+module.exports = require('./src/express');

@@ -1,20 +1,20 @@
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
-import assign from 'lodash/object/assign';
-import pick from 'lodash/object/pick';
-import keys from 'lodash/object/keys';
-import sidekick from '../helpers/sidekick';
-import Promise from 'bluebird';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const assign = require('lodash/object/assign');
+const pick = require('lodash/object/pick');
+const keys = require('lodash/object/keys');
+const sidekick = require('../helpers/sidekick');
+const Promise = require('bluebird');
 
-import csw from './serviceTypes/csw';
-import wfs from './serviceTypes/wfs';
-import wms from './serviceTypes/wms';
+const csw = require('./serviceTypes/csw');
+const wfs = require('./serviceTypes/wfs');
+const wms = require('./serviceTypes/wms');
 
-export const supportedProtocols = { csw: csw, wfs: wfs, wms: wms };
+const supportedProtocols = { csw: csw, wfs: wfs, wms: wms };
 
-export const SYNC_STATUSES = ['new', 'successful', 'failed'];
+const SYNC_STATUSES = ['new', 'successful', 'failed'];
 
-export const schema = new Schema({
+const schema = new Schema({
 
     location: { type: String, required: true },
     protocol: { type: String, enum: keys(supportedProtocols), required: true },
@@ -147,6 +147,8 @@ schema.methods.toggleSyncStatus = function (status, itemsFound, done) {
 };
 
 
-export const collectionName = 'services';
+const collectionName = 'services';
 
-export const model = mongoose.model('Service', schema, collectionName);
+const model = mongoose.model('Service', schema, collectionName);
+
+module.exports = { model, collectionName, schema };

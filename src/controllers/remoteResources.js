@@ -6,8 +6,8 @@ var mongoose = require('mongoose');
 var RemoteResource = mongoose.model('RemoteResource');
 var ConsolidatedRecord = mongoose.model('ConsolidatedRecord');
 
-import { formatOne as formatOneRemoteResource } from '../formatters/remoteResources';
-import { formatMany as formatManyRecords } from '../formatters/records';
+const { formatOne } = require('../formatters/remoteResources');
+const { formatMany } = require('../formatters/records');
 
 /*
 ** Middlewares
@@ -28,7 +28,7 @@ exports.remoteResource = function(req, res, next, id) {
 ** Actions
 */
 exports.show = function (req, res) {
-    res.send(formatOneRemoteResource(req.remoteResource));
+    res.send(formatOne(req.remoteResource));
 };
 
 exports.check = function (req, res, next) {
@@ -45,6 +45,6 @@ exports.records = function (req, res, next) {
         .lean()
         .exec(function (err, recordsFound) {
             if (err) return next(err);
-            res.send(formatManyRecords(recordsFound));
+            res.send(formatMany(recordsFound));
         });
 };

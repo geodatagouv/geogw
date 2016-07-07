@@ -1,8 +1,8 @@
-import { featurecollection, convex } from 'turf';
-import through2 from 'through2';
+const { featurecollection, convex } = require('turf');
+const through2 = require('through2');
 
 
-export default class Hull {
+class Hull {
 
     constructor() {
         this.aggreg = [];
@@ -27,3 +27,5 @@ export default class Hull {
     }
 
 }
+
+module.exports = Hull;

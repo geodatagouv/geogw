@@ -1,33 +1,33 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
-import pick from 'lodash/object/pick';
-import magicGet from 'lodash/object/get';
-import { resolveByRelatedResource } from '../matching/featureTypes';
-import { sha1 } from '../helpers/hash';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const pick = require('lodash/object/pick');
+const magicGet = require('lodash/object/get');
+const { resolveByRelatedResource } = require('../matching/featureTypes');
+const { sha1 } = require('../helpers/hash');
 
 const ObjectId = Schema.Types.ObjectId;
 
-export const ORIGIN_TYPES = [
+const ORIGIN_TYPES = [
     'srv:coupledResource',
     'gmd:onLine'
 ];
 
-export const RESOURCE_TYPES = [
+const RESOURCE_TYPES = [
     'feature-type',
     'remote-resource',
     'atom-feed'
 ];
 
-export const REMOTE_RESOURCE_TYPES = [
+const REMOTE_RESOURCE_TYPES = [
     'page',
     'file-distribution',
     'unknown-archive'
 ];
 
-export const collectionName = 'related_resources';
+const collectionName = 'related_resources';
 
-export const schema = new Schema({
+const schema = new Schema({
 
     type: { type: String, required: true, index: true, enum: RESOURCE_TYPES },
 
@@ -215,4 +215,6 @@ schema.statics = {
 
 };
 
-export const model = mongoose.model('RelatedResource', schema, collectionName);
+const model = mongoose.model('RelatedResource', schema, collectionName);
+
+module.exports = { model, collectionName, schema };

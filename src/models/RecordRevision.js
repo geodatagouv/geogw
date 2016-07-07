@@ -1,15 +1,15 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
-import sidekick from '../helpers/sidekick';
-import pick from 'lodash/object/pick';
+const mongoose = require('mongoose');
+const { Schema } = require('mongoose');
+const sidekick = require('../helpers/sidekick');
+const pick = require('lodash/object/pick');
 
 const Mixed = Schema.Types.Mixed;
 
 
-export const collectionName = 'record_revisions';
+const collectionName = 'record_revisions';
 
-export const schema = new Schema({
+const schema = new Schema({
 
     /* Identification */
     recordId:     { type: String, required: true },
@@ -67,4 +67,6 @@ schema.statics = {
 
 };
 
-export const model = mongoose.model('RecordRevision', schema, collectionName);
+const model = mongoose.model('RecordRevision', schema, collectionName);
+
+module.exports = { model, collectionName, schema };
