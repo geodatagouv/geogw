@@ -1,13 +1,13 @@
 var _ = require('lodash');
-require('./src/mongoose');
+require('./lib/mongoose');
 
-var q = require('./src/kue').jobs;
-var csw = require('./src/tasks/harvest-csw');
-var wfs = require('./src/tasks/lookup-wfs');
-var processRecord = require('./src/tasks/process-record').exec;
-var consolidateDataset = require('./src/tasks/consolidate-dataset').exec;
+var q = require('./lib/kue').jobs;
+var csw = require('./lib/tasks/harvest-csw');
+var wfs = require('./lib/tasks/lookup-wfs');
+var processRecord = require('./lib/tasks/process-record').exec;
+var consolidateDataset = require('./lib/tasks/consolidate-dataset').exec;
 
-var RemoteResourceCheck = require('./src/tasks/check-remote-resource');
+var RemoteResourceCheck = require('./lib/tasks/check-remote-resource');
 
 // To remove in the future
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -19,7 +19,7 @@ q.process('lookup-wfs', 10, wfs.lookup);
 q.process('process-record', 20, processRecord);
 q.process('dataset:consolidate', 20, consolidateDataset);
 
-q.process('dgv:publish', 5, require('./src/tasks/dgfr/publish'));
+q.process('dgv:publish', 5, require('./lib/tasks/dgfr/publish'));
 
 q.process('remote-resource:check', 10, function (kueJob, doneCallback) {
     var job = new RemoteResourceCheck(kueJob.data);

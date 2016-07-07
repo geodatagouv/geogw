@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-const convertDataset = require('../src/helpers/convertDataset');
+const convertDataset = require('../lib/helpers/convertDataset');
 const expect = require('expect.js');
 
 describe('convertDataset.getLicenseFromLinks()', () => {

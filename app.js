@@ -1,5 +1,5 @@
-require('./src/mongoose');
-require('./src/passport');
-require('./src/kue');
+require('./lib/mongoose');
+require('./lib/passport');
+require('./lib/kue');
 
-module.exports = require('./src/express');
+module.exports = require('./lib/express');

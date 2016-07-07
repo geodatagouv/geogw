@@ -14,15 +14,11 @@
   },
   "homepage": "https://github.com/jdesboeufs/geogw",
   "scripts": {
-    "compile": "babel src -d lib",
-    "lint": "eslint *.js src/**/*.js",
-    "postinstall": "npm run compile",
-    "test": "mocha --compilers js:babel/register"
+    "lint": "eslint *.js lib/**/*.js",
+    "test": "mocha"
   },
   "dependencies": {
     "async": "^0.9.0",
-    "babel-cli": "^6.10.1",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.10.3",
     "bluebird": "^3.3.0",
     "body-parser": "^1.11.0",
     "connect-mongo": "^1.1.0",
