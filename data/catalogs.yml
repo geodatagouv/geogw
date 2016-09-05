@@ -1,0 +1,11 @@
+---
+- id: 5387a37d785588482f5acb45
+  slug: geobretagne
+  name: GéoBretagne
+  tags:
+  - Bretagne
+  - État territorial
+  - Collectivités
+  homepage: http://cms.geobretagne.fr/
+  serviceUrl: http://geobretagne.fr/geonetwork/srv/fre/csw
+  serviceOptions: {}
