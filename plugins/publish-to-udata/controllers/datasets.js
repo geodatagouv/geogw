@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 const Promise = require('bluebird');
-const publication = require('../../dgfr/publication');
+const publication = require('../publication');
 const through2 = require('through2');
-const sidekick = require('../../helpers/sidekick');
+const sidekick = require('../../../lib/helpers/sidekick');
 
 const Dataset = mongoose.model('Dataset');
 const Record = mongoose.model('ConsolidatedRecord');
@@ -86,15 +86,6 @@ function fetchExistingRecordIdsByIds(recordIds) {
         .select('recordId')
         .exec()
         .map(record => record.recordId);
-}
-
-function fetchBrokenDatasetIds(organizationId) {
-    return fetchPublicationInfos(organizationId)
-        .then(publicationInfos => {
-            const publishedRecordIds = _.pluck(publicationInfos, '_id');
-            return fetchExistingRecordIdsByIds(publishedRecordIds)
-                .then(existingRecordIds => _.difference(publishedRecordIds, existingRecordIds));
-        });
 }
 
 function fetchRecordsNotPublishedYet(organization) {
@@ -254,57 +245,6 @@ exports.broken = function (req, res, next) {
         .then(brokenDatasetIds => res.send(brokenDatasetIds))
         .catch(next);
 };
-
-exports.publishAll = function (req, res) {
-    res.sendStatus(501);
-    // var count = 0;
-    // Dataset
-    //     .find({
-    //         matchingFor: req.organization._id,
-    //         'publication.organization': { $exists: false },
-    //         'publication._id': { $exists: false },
-    //         'publication.status': { $exists: false }
-    //     })
-    //     .lean()
-    //     .stream()
-    //     .pipe(through2.obj(function (dataset, enc, done) {
-    //         q
-    //             .create('dgv:publish', {
-    //                 organizationId: req.organization._id,
-    //                 datasetId: dataset._id,
-    //                 publicationStatus: 'public'
-    //             })
-    //             .save(function (err) {
-    //                 if (err) return done(err);
-    //                 count++;
-    //                 done(null, null);
-    //             });
-    //     }))
-    //     .on('end', function () {
-    //         res.send({ status: 'ok', count: count });
-    //     });
-};
-
-exports.unpublishAll = function (req, res) {
-    res.sendStatus(501);
-    // var count = 0;
-    // Dataset
-    //     .find({ 'publication.organization': req.organization._id })
-    //     .stream()
-    //     .pipe(through2.obj(function (dataset, enc, done) {
-    //         dataset.unpublish(function (err) {
-    //             if (err)
-    //                 console.error(err);
-    //             else
-    //                 count++;
-    //             done();
-    //         });
-    //     }))
-    //     .on('end', function () {
-    //         res.send({ status: 'ok', count: count });
-    //     });
-};
-
 
 exports.syncAll = function (req, res) {
     let count = 0;

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
-const publication = require('../../dgfr/publication');
+const publication = require('../publication');
 
 const Dataset = mongoose.model('Dataset');
 const Record = mongoose.model('ConsolidatedRecord');

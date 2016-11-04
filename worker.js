@@ -1,5 +1,6 @@
 var _ = require('lodash');
 require('./lib/mongoose');
+const pluginJobs = require('./plugins/publish-to-udata/jobs');
 
 var q = require('./lib/kue').jobs;
 var csw = require('./lib/tasks/harvest-csw');
@@ -19,7 +20,7 @@ q.process('lookup-wfs', 10, wfs.lookup);
 q.process('process-record', 20, processRecord);
 q.process('dataset:consolidate', 20, consolidateDataset);
 
-q.process('dgv:publish', 5, require('./lib/tasks/dgfr/publish'));
+q.process('dgv:publish', 5, pluginJobs.publish);
 
 q.process('remote-resource:check', 10, function (kueJob, doneCallback) {
     var job = new RemoteResourceCheck(kueJob.data);

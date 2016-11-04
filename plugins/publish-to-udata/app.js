@@ -1,14 +1,22 @@
 const bodyParser = require('body-parser');
-const _ = require('lodash');
-const search = require('../helpers/search');
-
-const organizations = require('../controllers/dgfr/organizations');
-const producers = require('../controllers/dgfr/producers');
-const datasets = require('../controllers/dgfr/datasets');
-
-const isMaintenance = require('../routes/middlewares/auth').isMaintenance;
-
+const cookieParser = require('cookie-parser');
+const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
 const mongoose = require('mongoose');
+const sessionMongo = require('connect-mongo');
+
+require('./models');
+require('./passport');
+
+const _ = require('lodash');
+const search = require('../../lib/helpers/search');
+
+const organizations = require('./controllers/organizations');
+const producers = require('./controllers/producers');
+const datasets = require('./controllers/datasets');
+
+const MongoStore = sessionMongo(session);
 
 const Service = mongoose.model('Service');
 
@@ -17,14 +25,46 @@ function ensureLoggedIn(req, res, next) {
     next();
 }
 
-function isAdmin(req, res, next) {
-    if (!req.user.isAdmin) return res.sendStatus(403);
-    next();
-}
+module.exports = function () {
 
-module.exports = function (app) {
+    const app = express();
 
     app.use(bodyParser.json());
+    app.use(cookieParser());
+
+    app.use(session({
+        secret: process.env.COOKIE_SECRET,
+        name: 'sid',
+        saveUninitialized: false,
+        resave: false,
+        store: new MongoStore({
+            mongooseConnection: mongoose.connection
+        })
+    }));
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    function extractRedirectUrl(req, res, next) {
+        req.session.redirectTo = req.query.redirect;
+        next();
+    }
+
+    app.get('/login', extractRedirectUrl, passport.authenticate('udata', { scope: 'default' }));
+
+    app.get('/logout', extractRedirectUrl, (req, res) => {
+        req.logout();
+        res.redirect(req.session.redirectTo);
+        req.session.redirectTo = undefined;
+    });
+
+    app.get('/oauth/callback', function (req, res) {
+        passport.authenticate('udata', {
+            successRedirect: req.session.redirectTo,
+            failureRedirect: '/'
+        })(req, res);
+        req.session.redirectTo = undefined;
+    });
 
     app.get('/api/me', function (req, res) {
         res.send(req.user);
@@ -57,7 +97,6 @@ module.exports = function (app) {
     /* Organizations */
 
     function ensureUserCanEditOrganization(req, res, next) {
-        if (req.user.isAdmin) return next();
         var organizations = _.pluck(req.user.toObject().organizations, '_id');
         if (organizations.indexOf(req.organization.id) < 0) return res.sendStatus(401);
         next();
@@ -100,7 +139,6 @@ module.exports = function (app) {
     function ensureUserCanUnpublishDataset(req, res, next) {
         var organizations = _.pluck(req.user.toObject().organizations, '_id');
         if (!req.publicationInfo) return res.sendStatus(404);
-        if (req.user.isAdmin) return next();
         if (organizations.indexOf(req.publicationInfo.organization.toString()) < 0) return res.sendStatus(401);
         next();
     }
@@ -110,10 +148,8 @@ module.exports = function (app) {
         // Existing publication
         if (req.dataset.publication && req.dataset.publication._id) {
             if (!req.dataset.publication.organization) return res.sendStatus(500);
-            if (req.user.isAdmin) return next();
             if (organizations.indexOf(req.dataset.publication.organization.toString()) < 0) res.sendStatus(401);
         } else {
-            if (req.user.isAdmin) return next();
             if (req.body.organization && organizations.indexOf(req.body.organization) < 0) return res.sendStatus(401);
         }
         next();
@@ -129,13 +165,6 @@ module.exports = function (app) {
         .put(ensureUserCanPublishDataset, datasets.publish)
         .delete(ensureUserCanUnpublishDataset, datasets.unpublish);
 
-    app.route('/api/organizations/:organizationId/datasets/publication')
-        .delete(ensureLoggedIn, isAdmin, datasets.unpublishAll);
-
-
-    app.get('/api/datasets/broken', datasets.broken);
-    app.get('/api/organizations/:organizationId/datasets/broken', datasets.broken);
-
     app.get('/api/datasets/metrics', datasets.metrics);
     app.get('/api/organizations/:organizationId/datasets/metrics', datasets.metrics);
 
@@ -146,13 +175,5 @@ module.exports = function (app) {
     app.get('/api/organizations/:organizationId/datasets/published', datasets.published);
     app.get('/api/organizations/:organizationId/datasets/published-by-others', datasets.publishedByOthers);
 
-
-    app.route('/api/organizations/:organizationId/datasets/publish-all')
-        .post(ensureLoggedIn, isAdmin, datasets.publishAll);
-
-    app.route('/api/organizations/:organizationId/datasets/synchronize-all')
-        .post(ensureLoggedIn, isAdmin, datasets.syncAll);
-
-    app.post('/api/datasets/synchronize-all', isMaintenance, datasets.syncAll);
-
+    return app;
 };

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var dgv = require('../dgfr/api');
+var dgv = require('../udata');
 
 var Schema = mongoose.Schema;
 

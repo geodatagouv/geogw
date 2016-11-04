@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 var async = require('async');
 var _ = require('lodash');
 
-var dgv = require('../dgfr/api');
-var map = require('../dgfr/mapping').map;
+var dgv = require('../udata');
+var map = require('../mapping').map;
 
 var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;

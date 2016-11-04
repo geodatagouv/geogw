@@ -118,7 +118,7 @@ exports.map = function (sourceDataset) {
                 });
                 out.resources.push({
                     url: rootUrl + '?format=SHP&projection=WGS84',
-                    title: `${distribution.layer} (export SHP/WGS-84)`
+                    title: `${distribution.layer} (export SHP/WGS-84)`,
                     description: 'Conversion à la volée au format Shapefile (WGS-84)',
                     format: 'SHP',
                     type: 'api'

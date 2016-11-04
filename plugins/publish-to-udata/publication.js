@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const Organization = mongoose.model('Organization');
 const Dataset = mongoose.model('Dataset');
 const Record = mongoose.model('ConsolidatedRecord');
-const dgv = require('../dgfr/api');
-const convertToUdataDataset = require('../dgfr/mapping').map;
+const dgv = require('./udata');
+const convertToUdataDataset = require('./mapping').map;
 const ObjectId = mongoose.Types.ObjectId;
 
 function getAccessToken(owner) {
