@@ -80,14 +80,6 @@ function computePublicationMetrics(organization) {
         }));
 }
 
-function fetchExistingRecordIdsByIds(recordIds) {
-    return Record
-        .find({ recordId: { $in: recordIds } })
-        .select('recordId')
-        .exec()
-        .map(record => record.recordId);
-}
-
 function fetchRecordsNotPublishedYet(organization) {
     const query = {
         facets: { $all: [
@@ -237,12 +229,6 @@ exports.published = function (req, res, next) {
 exports.publishedByOthers = function (req, res, next) {
     fetchRecordsPublishedByOthers(req.organization)
         .then(records => res.send(records))
-        .catch(next);
-};
-
-exports.broken = function (req, res, next) {
-    fetchBrokenDatasetIds(req.organization && req.organization._id)
-        .then(brokenDatasetIds => res.send(brokenDatasetIds))
         .catch(next);
 };
 
