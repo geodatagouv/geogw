@@ -1,0 +1,10 @@
+[
+  {
+    "name": "publish-to-udata",
+    "token": "hello",
+    "scopes": ["publications"],
+    "options": {
+      "publicationTarget": "dgv"
+    }
+  }
+]
