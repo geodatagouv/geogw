@@ -28,4 +28,5 @@ node_modules
 .env
 
 processes.json
+clients.json
 *.wd
