@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const publication = require('../publication');
 const through2 = require('through2');
 const sidekick = require('../../../lib/helpers/sidekick');
+const { getRecord } = require('../geogw');
 
 const Dataset = mongoose.model('Dataset');
 const Record = mongoose.model('ConsolidatedRecord');
@@ -164,7 +165,7 @@ exports.list = function (req, res, next) {
 
 exports.fetch = function (req, res, next, id) {
     Promise.join(
-        Record.findOne({ recordId: id }).exec(),
+        getRecord(id),
         Dataset.findById(id).exec(),
 
         function (record, publicationInfo) {

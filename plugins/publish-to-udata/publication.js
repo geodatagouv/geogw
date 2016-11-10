@@ -2,10 +2,10 @@ const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const Organization = mongoose.model('Organization');
 const Dataset = mongoose.model('Dataset');
-const Record = mongoose.model('ConsolidatedRecord');
 const dgv = require('./udata');
 const convertToUdataDataset = require('./mapping').map;
 const ObjectId = mongoose.Types.ObjectId;
+const { setRecordPublication, unsetRecordPublication } = require('./geogw');
 
 function getAccessToken(owner) {
     return Organization.fetchWorkingAccessTokenFor(owner);
@@ -54,7 +54,7 @@ function publishDataset(dataset, options) {
         };
 
         return Dataset.findByIdAndUpdate(dataset.recordId, changes, { upsert: true })
-            .then(() => Record.triggerUpdated(dataset.recordId))
+            .then(() => setRecordPublication(dataset.recordId, { remoteId: publishedDataset.id }))
             .then(() => ({
                 organization: publishedDataset.organization.id,
                 status: publishedDataset.private ? 'private' : 'public',
@@ -71,7 +71,7 @@ function unpublishDataset(dataset, options) {
     return getAccessToken(options.owner)
         .then(accessToken => Promise.fromCallback(cb => dgv.deleteDataset(options.id, accessToken, cb)))
         .then(() => Dataset.findByIdAndRemove(dataset.recordId).exec())
-        .then(() => Record.triggerUpdated(dataset.recordId));
+        .then(() => unsetRecordPublication(dataset.recordId));
 }
 
 module.exports = { unpublishDataset, publishDataset };

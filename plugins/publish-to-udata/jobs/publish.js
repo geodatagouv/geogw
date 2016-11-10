@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const publication = require('../publication');
+const { getRecord } = require('../geogw');
 
 const Dataset = mongoose.model('Dataset');
-const Record = mongoose.model('ConsolidatedRecord');
 
 
 module.exports = function (job, jobDone) {
     const { recordId, organizationId, updateOnly } = job.data;
 
     Promise.join(
-        Record.findOne({ recordId }).exec(),
+        getRecord(recordId),
         Dataset.findById(recordId).exec(),
 
         function (record, publicationInfo) {
