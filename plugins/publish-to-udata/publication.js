@@ -53,8 +53,10 @@ function publishDataset(dataset, options) {
             }
         };
 
+        const remoteUrl = `${process.env.DATAGOUV_URL}/datasets/${publishedDataset.id}/`;
+
         return Dataset.findByIdAndUpdate(dataset.recordId, changes, { upsert: true })
-            .then(() => setRecordPublication(dataset.recordId, { remoteId: publishedDataset.id }))
+            .then(() => setRecordPublication(dataset.recordId, { remoteId: publishedDataset.id, remoteUrl }))
             .then(() => ({
                 organization: publishedDataset.organization.id,
                 status: publishedDataset.private ? 'private' : 'public',
