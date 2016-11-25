@@ -1,70 +1,50 @@
-var mongoose = require('mongoose');
-var async = require('async');
-var _ = require('lodash');
+const mongoose = require('mongoose');
 const Promise = require('bluebird');
+const { addUserToOrganization, removeUserFromOrganization } = require('../udata');
 
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-var OrganizationSchema = new Schema({
-    _created: Date,
-    _updated: Date,
+const schema = new Schema({
 
-    /* Context */
-    name: String,
+    /* Dates */
+    createdAt: Date,
+    updatedAt: Date,
+
+    /* Status */
+    enabled: Boolean,
 
     /* Configuration */
     sourceCatalog: { type: Schema.Types.ObjectId, required: true },
     publishAll: Boolean,
 
-    /* Usage */
-    status: { type: String, enum: ['disabled', 'enabled_private', 'enabled_public'] }
-
 });
 
-OrganizationSchema.methods = {
+schema.method('enable', function (accessToken) {
+  if (this.enabled) return Promise.resolve(this);
 
-    fetchWorkingAccessToken: function (done) {
-        var User = mongoose.model('User');
-        var organization = this;
+  const userId = process.env.UDATA_PUBLICATION_USER_ID;
+  return addUserToOrganization(userId, this._id, accessToken)
+    .then(() => this.set('enabled', true).save())
+    .thenReturn(this);
+});
 
-        User
-            .find({ 'organizations._id': organization._id, 'accessToken.value': { $exists: true } })
-            .sort('-accessToken._updated')
-            .exec(function (err, users) {
-                if (err) return done(err);
+schema.method('disable', function (accessToken) {
+  if (!this.enabled) return Promise.resolve(this);
 
-                var workingAccessToken;
+  const userId = process.env.UDATA_PUBLICATION_USER_ID;
+  return removeUserFromOrganization(userId, this._id, accessToken)
+    .then(() => this.set('enabled', false).save())
+    .thenReturn(this);
+});
 
-                function stop() {
-                    return users.length === 0 || workingAccessToken;
-                }
+schema.pre('save', function (next) {
+  if (this.isNew) {
+    this.createdAt = new Date();
+    this.enabled = false;
+    this.publishAll = false;
+  }
+  this.updatedAt = new Date();
+  next();
+});
 
-                function iteration(cb) {
-                    var user = users.shift();
-                    user.synchronize(function (err) {
-                        if (err) return cb(err);
-                        if (_.find(user.toObject().organizations, { _id: organization.id }) && user.accessToken) {
-                            workingAccessToken = user.accessToken.value;
-                        }
-                        cb();
-                    });
-                }
-
-                async.until(stop, iteration, function (err) {
-                    if (err) return done(err);
-                    done(null, workingAccessToken);
-                });
-            });
-    }
-
-};
-
-OrganizationSchema.statics = {
-    fetchWorkingAccessTokenFor: function (organizationId, done) {
-        const Organization = this.model('Organization');
-        const org = new Organization({ _id: organizationId });
-        return Promise.fromCallback(cb => org.fetchWorkingAccessToken(cb)).asCallback(done);
-    }
-};
-
-mongoose.model('Organization', OrganizationSchema);
+mongoose.model('Organization', schema);

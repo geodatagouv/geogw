@@ -1,12 +1,14 @@
-var mongoose = require('mongoose');
-var _ = require('lodash');
-var async = require('async');
+const mongoose = require('mongoose');
+const { pick } = require('lodash');
+const { parallel } = require('async');
 
-var Organization = mongoose.model('Organization');
-var Producer = mongoose.model('Producer');
+const Organization = mongoose.model('Organization');
+const Producer = mongoose.model('Producer');
+
+const EDITABLE_FIELDS = ['sourceCatalog', 'publishAll'];
 
 exports.fetch = function (req, res, next, id) {
-    async.parallel({
+    parallel({
         organization: function (done) {
             Organization.findById(id, done);
         },
@@ -26,29 +28,28 @@ exports.fetch = function (req, res, next, id) {
 };
 
 exports.show = function (req, res) {
-    var organization = req.organization.toObject();
+    const organization = req.organization.toObject();
     organization.producers = req.organization.producers;
     res.send(organization);
 };
 
 exports.create = function (req, res, next) {
-    var now = new Date();
-
-    req.organization = new Organization(_.pick(req.body, 'sourceCatalog'));
+    req.organization = new Organization(pick(req.body, ...EDITABLE_FIELDS));
     req.organization
         .set('_id', req.body._id)
-        .set('_updated', now)
-        .set('_created', now)
-        .set('name', _.find(req.user.toObject().organizations, { _id: req.body._id }).name)
-        .set('status', 'disabled')
-        .save(next);
+        .save()
+        .then(() => req.organization.enable(req.user.accessToken))
+        .then(() => res.send(req.organization))
+        .catch(next);
 };
 
 exports.update = function (req, res, next) {
     req.organization
-        .set(_.pick(req.body, 'sourceCatalog', 'sourceOrganizations'))
-        .set('_updated', new Date())
-        .save(next);
+        .set(pick(req.body, ...EDITABLE_FIELDS))
+        .save()
+        .then(() => req.organization.enable(req.user.accessToken))
+        .then(() => res.send(req.organization))
+        .catch(next);
 };
 
 exports.list = function (req, res, next) {

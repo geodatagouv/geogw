@@ -5,7 +5,7 @@ var Producer = mongoose.model('Producer');
 exports.list = function (req, res, next) {
     Producer
         .find()
-        .populate('associatedTo', 'name')
+        .lean()
         .exec(function (err, producers) {
             if (err) return next(err);
             res.send(producers);
@@ -16,6 +16,7 @@ exports.listByOrganization = function (req, res, next) {
     Producer
         .find({ associatedTo: req.organization._id })
         .select('-associatedTo')
+        .lean()
         .exec(function (err, producers) {
             if (err) return next(err);
             res.send(producers);
@@ -32,12 +33,9 @@ exports.fetch = function (req, res, next, id) {
 };
 
 exports.associate = function (req, res, next) {
-    Producer.create({ _id: req.body._id, _created: new Date(), associatedTo: req.organization._id }, function (err, producer) {
+    Producer.create({ _id: req.body._id, associatedTo: req.organization._id }, function (err, producer) {
         if (err) return next(err);
-        producer.populate('associatedTo', '+name', function () {
-            if (err) return next(err);
-            res.send(producer);
-        });
+        res.send(producer);
     });
 };
 

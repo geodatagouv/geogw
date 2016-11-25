@@ -1,170 +1,90 @@
-var request = require('superagent');
-var async = require('async');
-var debug = require('debug')('dgv-api');
-const _ = require('lodash');
+const request = require('superagent');
+const Promise = require('bluebird');
 
-var rootUrl = process.env.DATAGOUV_URL + '/api/1';
+const rootUrl = process.env.DATAGOUV_URL + '/api/1';
+const apiKey = process.env.UDATA_PUBLICATION_USER_API_KEY;
 
-function handleAuthorizedRequest(req, accessToken, done) {
-    req.set('Authorization', 'Bearer ' + accessToken).end(function (err, resp) {
-        if (resp) debug('%s %s %d', resp.req.method, resp.req.path, resp.status);
-        if (err) {
-            if (!err.status) return done(err);
-            if (err.status === 401) return done(new Error('Unauthorized'));
-            debug('Returned status %d with body:', err.status);
-            debug(resp.body);
-            return done(new Error('dgv: Unexpected status'));
-        }
-        done(null, resp.body);
+function withApiKey(req) {
+  return req.set('X-API-KEY', apiKey);
+}
+
+function withToken(req, token) {
+  return req.set('Authorization', `Bearer ${token}`);
+}
+
+function getProfile(accessToken) {
+    return withToken(request.get(rootUrl + '/me/'), accessToken)
+      .then(resp => resp.body);
+}
+
+function addUserToOrganization(userId, organizationId, accessToken) {
+  return withToken(request.post(`${rootUrl}/organizations/${organizationId}/member/${userId}`), accessToken)
+    .send({ role: 'editor' })
+    .catch(err => {
+      if (err.status && err.status === 409) return; // User is already member
+      throw err;
     });
 }
 
-function handleBasicRequest(req, done) {
-    req.end(function (err, resp) {
-        if (resp) debug('%s %s %d', resp.req.method, resp.req.path, resp.status);
-        if (err) return done(err);
-        if (resp.error || !resp.body) {
-            debug(resp.body);
-            return done(new Error('dgv: Unexpected result'));
-        }
-        done(null, resp.body);
+function removeUserFromOrganization(userId, organizationId, accessToken) {
+  return Promise.resolve(
+    withToken(request.del(`${rootUrl}/organizations/${organizationId}/member/${userId}`), accessToken)
+      .set('content-length', 0)
+    ).thenReturn();
+}
+
+function getUserRoleInOrganization(userId, organizationId) {
+  return request.get(`${rootUrl}/organizations/${organizationId}/`)
+    .then(resp => {
+      const membership = resp.body.members.find(membership => membership.user.id === userId);
+      return membership ? membership.role : 'none';
     });
 }
 
-exports.getProfile = function (accessToken, done) {
-    handleAuthorizedRequest(
-        request.get(rootUrl + '/me/'),
-        accessToken,
-        done
-    );
-};
+function createDataset(dataset) {
+  return withApiKey(request.post(rootUrl + '/datasets/'))
+    .send(dataset)
+    .then(resp => resp.body);
+}
 
-exports.getOrganization = function (id, done) {
-    handleBasicRequest(
-        request.get(rootUrl + '/organizations/' + id),
-        done
-    );
-};
+function updateDataset(datasetId, dataset) {
+  return withApiKey(request.put(rootUrl + '/datasets/' + datasetId + '/'))
+    .send(dataset)
+    .then(resp => resp.body);
+}
 
-exports.createDataset = function (dataset, accessToken, done) {
-    var datasetId;
-    var createdWithErrors = false;
-    async.series({
-        creation: function (stepDone) {
-            exports.createDatasetOnly(dataset, accessToken, function (err, datasetCreated) {
-                if (err) return stepDone(err);
-                datasetId = datasetCreated.id;
-                stepDone();
-            });
-        },
-        resources: function (stepDone) {
-            exports.updateDatasetResources(datasetId, dataset.resources, accessToken, function (err) {
-                if (err) {
-                    createdWithErrors = true;
-                    console.log(err);
-                }
-                stepDone();
-            });
-        },
-        completeDataset: function (stepDone) {
-            exports.getDataset(datasetId, accessToken, stepDone);
-        }
-    }, function (err, result) {
-        if (err) return done(err);
-        done(null, result.completeDataset, createdWithErrors);
-    });
-};
+function getDataset(datasetId) {
+  return withApiKey(request.get(rootUrl + '/datasets/' + datasetId + '/'))
+    .then(resp => resp.body);
+}
 
-exports.createDatasetOnly = function (dataset, accessToken, done) {
-    handleAuthorizedRequest(
-        request.post(rootUrl + '/datasets/').send(_.omit(dataset, 'resources')),
-        accessToken,
-        done
-    );
-};
+function deleteDataset(datasetId) {
+  return Promise.resolve(
+    withApiKey(request.del(rootUrl + '/datasets/' + datasetId + '/'))
+    .set('content-length', 0)
+  ).thenReturn();
+}
 
-exports.addDatasetResources = function (datasetId, resources, accessToken, done) {
-    async.eachSeries(resources || [], function (resource, stepDone) {
-        exports.createDatasetResource(datasetId, resource, accessToken, stepDone);
-    }, done);
-};
+function createDatasetTransferRequest(datasetId, recipientOrganizationId) {
+  return withApiKey(request.post(rootUrl + '/transfer/'))
+    .send({
+      subject: { id: datasetId, class: 'DatasetFull' },
+      recipient: { id: recipientOrganizationId, class: 'Organization' },
+      comment: 'INSPIRE gateway automated transfer: request'
+    })
+    .then(resp => resp.body.id);
+}
 
-exports.updateDataset = function (id, dataset, accessToken, done) {
-    async.series({
-        resources: function (stepDone) {
-            exports.updateDatasetResources(id, dataset.resources, accessToken, stepDone);
-        },
-        dataset: function (stepDone) {
-            exports.updateDatasetOnly(id, dataset, accessToken, stepDone);
-        }
-    }, function (err, result) {
-        if (err) return done(err);
-        done(null, result.dataset);
-    });
-};
+function respondTransferRequest(transferId, response = 'accept') {
+  return Promise.resolve(
+    withApiKey(request.post(`${rootUrl}/transfer/${transferId}/`))
+      .send({ comment: 'INSPIRE gateway automated transfer: response', response })
+    ).thenReturn();
+}
 
-exports.updateDatasetOnly = function (id, dataset, accessToken, done) {
-    handleAuthorizedRequest(
-        request.put(rootUrl + '/datasets/' + id + '/').send(_.omit(dataset, 'resources')),
-        accessToken,
-        done
-    );
-};
+function transferDataset(datasetId, recipientOrganizationId) {
+  return createDatasetTransferRequest(datasetId, recipientOrganizationId)
+    .then(transferId => respondTransferRequest(transferId, 'accept'));
+}
 
-exports.createDatasetResource = function (datasetId, resource, accessToken, done) {
-    handleAuthorizedRequest(
-        request.post(rootUrl + '/datasets/' + datasetId + '/resources/').send(resource),
-        accessToken,
-        done
-    );
-};
-
-exports.deleteDatasetResource = function (datasetId, resourceId, accessToken, done) {
-    handleAuthorizedRequest(
-        request.del(rootUrl + '/datasets/' + datasetId + '/resources/' + resourceId + '/').set('content-length', 0),
-        accessToken,
-        done
-    );
-};
-
-exports.getDataset = function (datasetId, accessToken, done) {
-    handleAuthorizedRequest(
-        request.get(rootUrl + '/datasets/' + datasetId + '/'),
-        accessToken,
-        done
-    );
-};
-
-exports.getDatasetResources = function (id, accessToken, done) {
-    exports.getDataset(id, accessToken, function (err, dataset) {
-        if (err) return done(err);
-        done(null, dataset.resources);
-    });
-};
-
-exports.cleanDatasetResources = function (id, accessToken, done) {
-    exports.getDatasetResources(id, accessToken, function (err, resources) {
-        async.eachSeries(resources || [], function (resource, stepDone) {
-            exports.deleteDatasetResource(id, resource.id, accessToken, stepDone);
-        }, done);
-    });
-};
-
-exports.updateDatasetResources = function (id, resources, accessToken, done) {
-    async.series([
-        function (stepDone) {
-            exports.cleanDatasetResources(id, accessToken, stepDone);
-        },
-        function (stepDone) {
-            exports.addDatasetResources(id, resources, accessToken, stepDone);
-        }
-    ], done);
-};
-
-exports.deleteDataset = function (id, accessToken, done) {
-    handleAuthorizedRequest(
-        request.del(rootUrl + '/datasets/' + id + '/').set('content-length', 0),
-        accessToken,
-        done
-    );
-};
+module.exports = { addUserToOrganization, removeUserFromOrganization, getProfile, createDataset, updateDataset, deleteDataset, getDataset, getUserRoleInOrganization, transferDataset };

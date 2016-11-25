@@ -1,15 +1,12 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;
-var ObjectId = Schema.Types.ObjectId;
+const Schema = mongoose.Schema;
+const ObjectId = Schema.Types.ObjectId;
 
-var ProducerSchema = new Schema({
+const schema = new Schema({
     _id: String,
-    _created: Date,
-
-    /* Configuration */
     associatedTo: { type: ObjectId, ref: 'Organization', index: true }
 
 });
 
-mongoose.model('Producer', ProducerSchema);
+mongoose.model('Producer', schema);
