@@ -6,6 +6,7 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const sessionMongo = require('connect-mongo');
 const { omit } = require('lodash');
+const { ensureLoggedIn } = require('./middlewares');
 
 require('./models');
 require('./passport');
@@ -53,8 +54,8 @@ module.exports = function () {
         req.session.redirectTo = undefined;
     });
 
-    app.get('/api/me', function (req, res) {
-        res.send(omit(req.user, 'accessToken'));
+    app.get('/api/me', ensureLoggedIn, function (req, res) {
+      res.send(omit(req.user, 'accessToken'));
     });
 
     require('./routes/organizations')(app);

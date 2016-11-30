@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const _ = require('lodash');
+const { indexBy } = require('lodash');
 const Promise = require('bluebird');
 const { getRecord } = require('../geogw');
 
@@ -29,8 +29,14 @@ function getNotPublishedYetDatasets(organization) {
 }
 
 function getPublishedByOthersDatasets(organization) {
-  return Dataset.distinct('_id', { 'publication.organization': { $not: organization._id } }).exec()
-    .then(publishedByOthersIds => {
+  return Dataset
+    .find({ 'publication.organization': { $ne: organization._id } })
+    .select('title publication._id')
+    .lean()
+    .exec()
+    .then(datasets => {
+      const indexedDatasets = indexBy(datasets, '_id');
+
       return Record
         .find({
           catalogs: organization.sourceCatalog,
@@ -39,8 +45,12 @@ function getPublishedByOthersDatasets(organization) {
         .select('recordId metadata.title')
         .lean()
         .exec()
-        .filter(record => !publishedByOthersIds.includes(record.recordId))
-        .map(record => ({ _id: record.recordId, title: record.metadata.title }));
+        .filter(record => record.recordId in indexedDatasets)
+        .map(record => ({
+          _id: record.recordId,
+          title: indexedDatasets[record.recordId].title || record.metadata.title,
+          remoteId: indexedDatasets[record.recordId].publication._id
+        }));
     });
 }
 
@@ -143,8 +153,8 @@ exports.fetch = function (req, res, next, id) {
 };
 
 exports.publish = function (req, res, next) {
-    (new Dataset({ _id: req.dataset.recordId })).set('publication.organization', req.body.organization)
-      .asyncPublish()
+    (new Dataset({ _id: req.dataset.recordId }))
+      .asyncPublish({ organizationId: req.body.organization })
       .then(() => res.sendStatus(202))
       .catch(next);
 };

@@ -2,9 +2,8 @@ const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const sidekick = require('../../../lib/helpers/sidekick');
 const dgv = require('../udata');
-const { getRecord } = require('../geogw');
 const map = require('../mapping').map;
-const { setRecordPublication, unsetRecordPublication } = require('./geogw');
+const { getRecord, setRecordPublication, unsetRecordPublication } = require('../geogw');
 const redlock = require('../redlock');
 
 const Schema = mongoose.Schema;
@@ -89,7 +88,7 @@ schema.method('selectTargetOrganization', function () {
 
     function (record, eligibleOrganizations) {
       if (givenTargetOrganization) {
-        if (eligibleOrganizations.some(eo => eo._id === givenTargetOrganization)) {
+        if (eligibleOrganizations.some(eo => eo._id.equals(givenTargetOrganization))) {
           return givenTargetOrganization;
         } else {
           throw new Error('Given target organization is not eligible');
@@ -130,7 +129,7 @@ schema.method('update', function () {
       return this
         .set('title', publishedDataset.title)
         .set('publication.updatedAt', new Date())
-        .set('publication.organization', publishedDataset.owner)
+        .set('publication.organization', publishedDataset.organization.id)
         .save();
     });
 });
@@ -154,7 +153,7 @@ schema.method('publish', function () {
         this.selectTargetOrganization(this.publication.organization),
 
         function (dataset, targetOrganization) {
-          dataset.owner = targetOrganization;
+          dataset.organization = targetOrganization;
           return dgv.createDataset(dataset);
         }
       )
@@ -165,7 +164,7 @@ schema.method('publish', function () {
           .set('publication.updatedAt', now)
           .set('publication.createdAt', now)
           .set('publication._id', publishedDataset.id)
-          .set('publication.organization', publishedDataset.owner)
+          .set('publication.organization', publishedDataset.organization.id)
           .save();
       })
       .then(() => {

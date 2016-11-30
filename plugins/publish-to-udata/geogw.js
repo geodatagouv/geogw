@@ -5,7 +5,6 @@ const ROOT_URL = process.env.GEOGW_URL + '/api/geogw';
 const TOKEN = process.env.GEOGW_TOKEN;
 const TARGET = process.env.GEOGW_PUBLICATION_TARGET;
 
-
 function recordUrl(recordId) {
   return `${ROOT_URL}/records/${recordId}`;
 }

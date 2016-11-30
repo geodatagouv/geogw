@@ -25,8 +25,8 @@ module.exports = function (router) {
       .put(isNotPublished, validatePublicationParams, isEditorOf(req => req.body.organization), publish)
       .delete(isPublished, isEditorOf(req => req.publicationInfo.publication.organization.toString()), unpublish);
 
-  router.get('/api/datasets/metrics', metrics);
-  router.get('/api/organizations/:organizationId/datasets/metrics', metrics);
+  // router.get('/api/datasets/metrics', metrics);
+  // router.get('/api/organizations/:organizationId/datasets/metrics', metrics);
 
   router.get('/api/organizations/:organizationId/datasets/not-published-yet', notPublishedYet);
   router.get('/api/organizations/:organizationId/datasets/published', published);
