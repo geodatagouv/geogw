@@ -1,3 +1,3 @@
 require('./models');
 
-exports.publish = require('./jobs/publish');
+exports.synchronizeOne = require('./jobs/synchronizeOne');

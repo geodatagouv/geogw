@@ -20,7 +20,7 @@ q.process('lookup-wfs', 10, wfs.lookup);
 q.process('process-record', 20, processRecord);
 q.process('dataset:consolidate', 20, consolidateDataset);
 
-q.process('dgv:publish', 5, pluginJobs.publish);
+q.process('udata:synchronizeOne', 10, pluginJobs.synchronizeOne);
 
 q.process('remote-resource:check', 10, function (kueJob, doneCallback) {
     var job = new RemoteResourceCheck(kueJob.data);

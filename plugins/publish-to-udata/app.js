@@ -5,14 +5,10 @@ const session = require('express-session');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const sessionMongo = require('connect-mongo');
+const { omit } = require('lodash');
 
 require('./models');
 require('./passport');
-
-const { omit } = require('lodash');
-const search = require('../../lib/helpers/search');
-const producers = require('./controllers/producers');
-const datasets = require('./controllers/datasets');
 
 const MongoStore = sessionMongo(session);
 
