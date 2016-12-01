@@ -67,75 +67,21 @@ function getPublishedDatasets(organization) {
     .map(dataset => ({ _id: dataset._id, title: dataset.title, remoteUrl: remoteUrl(dataset.publication._id) }));
 }
 
-// function buildMatchingQuery(organization) {
-//     const fetchMatchingQuery = {
-//         $or: [
-//             {
-//                 facets: { $all: [
-//                     { $elemMatch: { name: 'availability', value: 'yes' } },
-//                     { $elemMatch: { name: 'opendata', value: 'yes' } }
-//                 ] }
-//             },
-//             {
-//                 facets: { $elemMatch: { name: 'dgvPublication', value: 'public' } }
-//             },
-//             {
-//                 facets: { $elemMatch: { name: 'dgvPublication', value: 'private' } }
-//             }
-//         ]
-//     };
-//     if (organization) {
-//         fetchMatchingQuery.organizations = { $in: _.pluck(organization.producers, '_id') };
-//         fetchMatchingQuery.catalogs = organization.sourceCatalog;
-//     }
-//     return fetchMatchingQuery;
-// }
+function getMetrics(organization) {
+  return Promise.join(
+    getPublishedDatasets(organization),
+    getPublishedByOthersDatasets(organization),
+    getNotPublishedYetDatasets(organization),
 
-// function fetchPublicationInfos(organizationIdFilter) {
-//     const query = {
-//         'publication.status': { $exists: true }
-//     };
-//     if (organizationIdFilter) {
-//         query['publication.organization'] = organizationIdFilter;
-//     }
-//     return Dataset.find(query).exec();
-// }
-
-// function groupDatasetsIdsByPublicationStatus(organization) {
-//     const fetchMatchingQuery = buildMatchingQuery(organization);
-//
-//     return Promise.join(
-//         fetchPublicationInfos(organization && organization._id),
-//         Record.find(fetchMatchingQuery, '-_id recordId').exec(),
-//         // handler
-//         function (publishedDatasets, matchingDatasets) {
-//             const published = _.pluck(publishedDatasets, '_id');
-//             const publishedWithStatus = _.chain(publishedDatasets)
-//                 .groupBy(item => item.publication.status)
-//                 .mapValues(item => _.pluck(item, '_id'))
-//                 .value();
-//             const matching = _.pluck(matchingDatasets, 'recordId');
-//             const notMatchingAnymore = _.difference(published, matching);
-//             const notPublishedYet = _.difference(matching, published);
-//             return {
-//                 notPublishedYet,
-//                 notMatchingAnymore,
-//                 published: publishedWithStatus,
-//                 matching
-//             };
-//         }
-//     );
-// }
-
-// function computePublicationMetrics(organization) {
-//     return groupDatasetsIdsByPublicationStatus(organization)
-//         .then(groupedDatasets => ({
-//             notPublishedYet: groupedDatasets.notPublishedYet.length,
-//             notMatchingAnymore: groupedDatasets.notMatchingAnymore.length,
-//             published: _.mapValues(groupedDatasets.published, item => item.length),
-//             matching: groupedDatasets.matching.length
-//         }));
-// }
+    function (published, publishedByOthers, notPublishedYet) {
+      return {
+        published: published.length,
+        publishedByOthers: publishedByOthers.length,
+        notPublishedYet: notPublishedYet.length
+      };
+    }
+  );
+}
 
 /* Actions */
 
@@ -169,11 +115,11 @@ exports.unpublish = function (req, res, next) {
       .catch(next);
 };
 
-// exports.metrics = function (req, res, next) {
-//     computePublicationMetrics(req.organization)
-//         .then(metrics => res.send(metrics))
-//         .catch(next);
-// };
+exports.metrics = function (req, res, next) {
+    getMetrics(req.organization)
+        .then(metrics => res.send(metrics))
+        .catch(next);
+};
 
 exports.notPublishedYet = function (req, res, next) {
   getNotPublishedYetDatasets(req.organization)
