@@ -8,6 +8,10 @@ const Record = mongoose.model('ConsolidatedRecord');
 
 /* Helpers */
 
+function remoteUrl(remoteId) {
+  return `${process.env.DATAGOUV_URL}/datasets/${remoteId}/`;
+}
+
 function getNotPublishedYetDatasets(organization) {
   return Dataset.distinct('_id').exec()
     .then(publishedIds => {
@@ -49,7 +53,7 @@ function getPublishedByOthersDatasets(organization) {
         .map(record => ({
           _id: record.recordId,
           title: indexedDatasets[record.recordId].title || record.metadata.title,
-          remoteId: indexedDatasets[record.recordId].publication._id
+          remoteUrl: remoteUrl(indexedDatasets[record.recordId].publication._id)
         }));
     });
 }
@@ -60,7 +64,7 @@ function getPublishedDatasets(organization) {
     .select('title publication._id')
     .lean()
     .exec()
-    .map(dataset => ({ _id: dataset._id, title: dataset.title, remoteId: dataset.publication._id }));
+    .map(dataset => ({ _id: dataset._id, title: dataset.title, remoteUrl: remoteUrl(dataset.publication._id) }));
 }
 
 // function buildMatchingQuery(organization) {
