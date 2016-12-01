@@ -203,4 +203,12 @@ schema.method('asyncUnpublish', function () {
   return sidekick('udata:synchronizeOne', { recordId: this._id, action: 'unpublish' });
 });
 
+  return dgv.transferDataset(this.publication._id, targetOrganization)
+    .then(() => this.set('publication.organization', targetOrganization).save());
+});
+
+schema.static('asyncSynchronizeAll', function (options) {
+  return sidekick('udata:synchronizeAll', options);
+});
+
 mongoose.model('Dataset', schema);

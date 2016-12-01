@@ -1,4 +1,4 @@
-const { fetch, list, publish, unpublish, metrics, published, notPublishedYet, publishedByOthers } = require('../controllers/datasets');
+const { fetch, list, publish, unpublish, metrics, published, notPublishedYet, publishedByOthers, synchronizeAll } = require('../controllers/datasets');
 const { ensureLoggedIn, isEditorOf } = require('../middlewares');
 
 function isPublished(req, res, next) {
@@ -32,5 +32,6 @@ module.exports = function (router) {
   router.get('/api/organizations/:organizationId/datasets/published', published);
   router.get('/api/organizations/:organizationId/datasets/published-by-others', publishedByOthers);
 
+  router.post('/api/datasets/synchronize-all', synchronizeAll);
 
 };

@@ -115,6 +115,12 @@ exports.unpublish = function (req, res, next) {
       .catch(next);
 };
 
+exports.synchronizeAll = function (req, res, next) {
+  Dataset.asyncSynchronizeAll()
+    .then(() => res.sendStatus(202))
+    .catch(next);
+};
+
 exports.metrics = function (req, res, next) {
     getMetrics(req.organization)
         .then(metrics => res.send(metrics))
