@@ -19,9 +19,22 @@ module.exports = function (job, jobDone) {
 
         const publicationInfo = foundPublicationInfo || new Dataset({ _id: recordId, 'publication.organization': organizationId });
 
-        return publicationInfo[action]();
+        return publicationInfo[action]()
+          .catch(err => {
+            if (err.message === 'Unchanged dataset') {
+              job.log('Unchanged dataset');
+              return;
+            }
+            throw err;
+          });
       })
       .thenReturn()
       .then(jobDone)
-      .catch(jobDone);
+      .catch(err => {
+        if (err.status && err.response) {
+          job.log(`Error ${err.status}`);
+          job.log(err.response.body);
+        }
+        jobDone(err);
+      });
 };

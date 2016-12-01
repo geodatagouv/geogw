@@ -3,8 +3,10 @@ const Promise = require('bluebird');
 const sidekick = require('../../../lib/helpers/sidekick');
 const dgv = require('../udata');
 const map = require('../mapping').map;
+const { createHash } = require('crypto');
 const { getRecord, setRecordPublication, unsetRecordPublication } = require('../geogw');
 const redlock = require('../redlock');
+const stringify = require('json-stable-stringify');
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
@@ -25,11 +27,18 @@ function getPublicationLock(recordId) {
     });
 }
 
+function getHash(dataset) {
+    return createHash('sha1').update(stringify(dataset), 'utf8').digest('hex');
+}
+
 
 
 const schema = new Schema({
     _id: { type: String },
+
     title: String,
+
+    hash: String,
 
     // Attributes related to the publication on the udata platform
     publication: {
@@ -106,7 +115,7 @@ schema.method('selectTargetOrganization', function () {
   );
 });
 
-schema.method('update', function () {
+schema.method('update', function (options = {}) {
   if (!this.isPublished()) {
     return Promise.reject(new Error('Dataset not published'));
   }
@@ -117,13 +126,19 @@ schema.method('update', function () {
       this.computeDataset(),
       this.selectTargetOrganization(this.publication.organization),
 
-      function (dataset, targetOrganization) {
+      (dataset, targetOrganization) => {
         if (targetOrganization !== this.publication.organization) {
-          return dgv.transferDataset(datasetId, targetOrganization).thenReturn(dataset);
+          return this.transferTo(targetOrganization).thenReturn(dataset);
         }
         return dataset;
       }
     )
+    .then(dataset => {
+      const hash = getHash(dataset);
+      if (!options.force && this.hash && this.hash === hash) throw new Error('Unchanged dataset');
+      this.set('hash', hash);
+      return dataset;
+    })
     .then(dataset => dgv.updateDataset(datasetId, dataset))
     .then(publishedDataset => {
       return this
@@ -153,6 +168,7 @@ schema.method('publish', function () {
         this.selectTargetOrganization(this.publication.organization),
 
         function (dataset, targetOrganization) {
+          this.set('hash', getHash(dataset));
           dataset.organization = targetOrganization;
           return dgv.createDataset(dataset);
         }
@@ -202,6 +218,11 @@ schema.method('asyncUnpublish', function () {
   }
   return sidekick('udata:synchronizeOne', { recordId: this._id, action: 'unpublish' });
 });
+
+schema.method('transferTo', function (targetOrganization, force = false) {
+  if (targetOrganization === this.publication.organization && !force) {
+    return Promise.resolve(this);
+  }
 
   return dgv.transferDataset(this.publication._id, targetOrganization)
     .then(() => this.set('publication.organization', targetOrganization).save());
