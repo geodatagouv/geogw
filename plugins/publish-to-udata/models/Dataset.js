@@ -167,7 +167,7 @@ schema.method('publish', function () {
         this.computeDataset(),
         this.selectTargetOrganization(this.publication.organization),
 
-        function (dataset, targetOrganization) {
+        (dataset, targetOrganization) => {
           this.set('hash', getHash(dataset));
           dataset.organization = targetOrganization;
           return dgv.createDataset(dataset);
