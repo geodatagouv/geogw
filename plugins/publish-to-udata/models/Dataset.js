@@ -212,6 +212,10 @@ schema.method('asyncPublish', function ({ organizationId }) {
 schema.method('removeAndNotify', function () {
   return this.remove()
     .then(() => unsetRecordPublication(this._id))
+    .catch(err => {
+      if (err.status === 404) return;
+      throw err;
+    })
     .thenReturn(this);
 });
 
