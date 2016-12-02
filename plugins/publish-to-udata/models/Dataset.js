@@ -65,9 +65,12 @@ schema.method('getRecord', function () {
   if (!this.getRecordPromise) {
     this.getRecordPromise = getRecord(this._id)
       .then(record => {
-        if (!record) throw new Error('Record not found: ' + this._id);
         if (!record.metadata) throw new Error('Record found but empty metadata: ' + this._id);
         return record;
+      })
+      .catch(err => {
+        if (err.status === 404) throw new Error('Record not found');
+        throw err;
       });
   }
   return this.getRecordPromise;
@@ -139,7 +142,13 @@ schema.method('update', function (options = {}) {
       this.set('hash', hash);
       return dataset;
     })
-    .then(dataset => dgv.updateDataset(datasetId, dataset))
+    .then(dataset => {
+      return dgv.updateDataset(datasetId, dataset)
+        .catch(err => {
+          if (err.status === 404) throw new Error('Target dataset doesn\'t exist anymore');
+          throw err;
+        });
+    })
     .then(publishedDataset => {
       return this
         .set('title', publishedDataset.title)
@@ -149,11 +158,11 @@ schema.method('update', function (options = {}) {
     });
 });
 
-schema.method('asyncUpdate', function () {
+schema.method('asyncUpdate', function (options = {}) {
   if (!this.isPublished()) {
     return Promise.reject(new Error('Dataset not published'));
   }
-  return sidekick('udata:synchronizeOne', { recordId: this._id, action: 'update' });
+  return sidekick('udata:synchronizeOne', Object.assign({}, options, { recordId: this._id, action: 'update' }));
 });
 
 schema.method('publish', function () {
@@ -200,6 +209,12 @@ schema.method('asyncPublish', function ({ organizationId }) {
   return sidekick('udata:synchronizeOne', { recordId: this._id, action: 'publish', organizationId });
 });
 
+schema.method('removeAndNotify', function () {
+  return this.remove()
+    .then(() => unsetRecordPublication(this._id))
+    .thenReturn(this);
+});
+
 schema.method('unpublish', function () {
   if (!this.isPublished()) {
     return Promise.reject(new Error('Dataset not published'));
@@ -207,8 +222,7 @@ schema.method('unpublish', function () {
 
   return Promise.resolve(
     dgv.deleteDataset(this.publication._id)
-      .then(() => this.remove())
-      .then(() => unsetRecordPublication(this._id))
+      .then(() => this.removeAndNotify())
   ).thenReturn(this);
 });
 

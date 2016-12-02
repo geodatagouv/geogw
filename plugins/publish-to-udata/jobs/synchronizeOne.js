@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Dataset = mongoose.model('Dataset');
 
 module.exports = function (job, jobDone) {
-    const { recordId, organizationId } = job.data;
+    const { recordId, organizationId, unpublishIfRecordNotFound, removeIfTargetDatasetNotFound } = job.data;
     let { action } = job.data;
 
     Dataset.findById(recordId).exec()
@@ -24,6 +24,14 @@ module.exports = function (job, jobDone) {
             if (err.message === 'Unchanged dataset') {
               job.log('Unchanged dataset');
               return;
+            }
+            if (unpublishIfRecordNotFound && err.message === 'Record not found' && action === 'update') {
+              job.log('Source record not found. Going to unpublish the related dataset...');
+              return publicationInfo.unpublish();
+            }
+            if (removeIfTargetDatasetNotFound && err.message === 'Target dataset doesn\'t exist anymore' && action === 'update') {
+              job.log('Target dataset not found. Going to remove the publication info...');
+              return publicationInfo.removeAndNotify();
             }
             throw err;
           });
