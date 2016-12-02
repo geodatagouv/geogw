@@ -33,5 +33,5 @@ exports.unsetRecordPublication = function (recordId) {
   return Promise.resolve(
     request.del(publicationUrl(recordId))
       .set('Authorization', `Basic ${TOKEN}`)
-  ).thenResult();
+  ).thenReturn();
 };
