@@ -83,6 +83,11 @@ function getMetrics(organization) {
   );
 }
 
+function getGlobalMetrics() {
+  return Dataset.count({}).exec()
+    .then(publishedCount => ({ published: publishedCount }));
+}
+
 /* Actions */
 
 exports.fetch = function (req, res, next, id) {
@@ -123,6 +128,12 @@ exports.synchronizeAll = function (req, res, next) {
 
 exports.metrics = function (req, res, next) {
     getMetrics(req.organization)
+        .then(metrics => res.send(metrics))
+        .catch(next);
+};
+
+exports.globalMetrics = function (req, res, next) {
+    getGlobalMetrics()
         .then(metrics => res.send(metrics))
         .catch(next);
 };
