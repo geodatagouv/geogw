@@ -1,5 +1,5 @@
 const { list, associate, dissociate, fetch, listByOrganization } = require('../controllers/producers');
-const { ensureLoggedIn, isAdminOf } = require('../middlewares');
+const { ensureLoggedIn, isAdminOf, organizationIsSet } = require('../middlewares');
 
 module.exports = function (router) {
 
@@ -11,11 +11,11 @@ module.exports = function (router) {
   /* Associations */
 
   router.route('/api/organizations/:organizationId/producers')
-      .post(ensureLoggedIn, isAdminOf(req => req.params.organizationId), associate)
+      .post(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), associate)
       .get(listByOrganization);
 
   router.route('/api/organizations/:organizationId/producers/:producerId')
-      .delete(ensureLoggedIn, isAdminOf(req => req.params.organizationId), dissociate);
+      .delete(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), dissociate);
 
 
 };

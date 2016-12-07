@@ -1,5 +1,5 @@
-const { fetch, list, publish, unpublish, globalMetrics, metrics, published, notPublishedYet, publishedByOthers, synchronizeAll } = require('../controllers/datasets');
-const { ensureLoggedIn, isEditorOf } = require('../middlewares');
+const { fetch, publish, unpublish, globalMetrics, metrics, published, notPublishedYet, publishedByOthers, synchronizeAll } = require('../controllers/datasets');
+const { ensureLoggedIn, isEditorOf, organizationIsSet } = require('../middlewares');
 
 function isPublished(req, res, next) {
   if (req.publicationInfo) return next();
@@ -26,11 +26,11 @@ module.exports = function (router) {
       .delete(isPublished, isEditorOf(req => req.publicationInfo.publication.organization.toString()), unpublish);
 
   router.get('/api/datasets/metrics', globalMetrics);
-  router.get('/api/organizations/:organizationId/datasets/metrics', metrics);
+  router.get('/api/organizations/:organizationId/datasets/metrics', organizationIsSet, metrics);
 
-  router.get('/api/organizations/:organizationId/datasets/not-published-yet', notPublishedYet);
-  router.get('/api/organizations/:organizationId/datasets/published', published);
-  router.get('/api/organizations/:organizationId/datasets/published-by-others', publishedByOthers);
+  router.get('/api/organizations/:organizationId/datasets/not-published-yet', organizationIsSet, notPublishedYet);
+  router.get('/api/organizations/:organizationId/datasets/published', organizationIsSet, published);
+  router.get('/api/organizations/:organizationId/datasets/published-by-others', organizationIsSet, publishedByOthers);
 
   router.post('/api/datasets/synchronize-all', synchronizeAll);
 

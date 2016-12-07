@@ -17,6 +17,11 @@ function isAdminOf(organizationIdExtractor) {
   };
 }
 
+function organizationIsSet(req, res, next) {
+  if (!req.organization || req.organization.isNew) return res.sendStatus(404);
+  next();
+}
+
 function isEditorOf(organizationIdExtractor) {
   return (req, res, next) => {
     const organizationId = organizationIdExtractor(req);
@@ -33,4 +38,5 @@ module.exports = {
   ensureLoggedIn,
   isAdminOf,
   isEditorOf,
+  organizationIsSet,
 };
