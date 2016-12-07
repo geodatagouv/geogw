@@ -1,4 +1,4 @@
-const { list, show, update, create, fetch } = require('../controllers/organizations');
+const { list, show, createOrUpdate, fetch } = require('../controllers/organizations');
 const { ensureLoggedIn, isAdminOf } = require('../middlewares');
 
 module.exports = function (router) {
@@ -7,10 +7,9 @@ module.exports = function (router) {
 
   router.route('/api/organizations/:organizationId')
       .get(show)
-      .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), update);
+      .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), createOrUpdate);
 
   router.route('/api/organizations')
-      .get(list)
-      .post(ensureLoggedIn, isAdminOf(req => req.body._id), create);
+      .get(list);
 
 };
