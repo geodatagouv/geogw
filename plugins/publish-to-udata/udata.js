@@ -13,22 +13,28 @@ function withToken(req, token) {
 }
 
 function getProfile(accessToken) {
-    return withToken(request.get(rootUrl + '/me/'), accessToken)
-      .then(resp => resp.body);
+    return Promise.resolve(
+      withToken(request.get(rootUrl + '/me/'), accessToken)
+        .then(resp => resp.body)
+    );
 }
 
 function getOrganization(organizationId) {
-  return request.get(`${rootUrl}/organizations/${organizationId}/`)
-    .then(resp => resp.body);
+  return Promise.resolve(
+    request.get(`${rootUrl}/organizations/${organizationId}/`)
+      .then(resp => resp.body)
+  );
 }
 
 function addUserToOrganization(userId, organizationId, accessToken) {
-  return withToken(request.post(`${rootUrl}/organizations/${organizationId}/member/${userId}`), accessToken)
-    .send({ role: 'editor' })
-    .catch(err => {
-      if (err.status && err.status === 409) return; // User is already member
-      throw err;
-    });
+  return Promise.resolve(
+    withToken(request.post(`${rootUrl}/organizations/${organizationId}/member/${userId}`), accessToken)
+      .send({ role: 'editor' })
+      .catch(err => {
+        if (err.status && err.status === 409) return; // User is already member
+        throw err;
+      })
+  );
 }
 
 function removeUserFromOrganization(userId, organizationId, accessToken) {
@@ -47,20 +53,26 @@ function getUserRoleInOrganization(userId, organizationId) {
 }
 
 function createDataset(dataset) {
-  return withApiKey(request.post(rootUrl + '/datasets/'))
-    .send(dataset)
-    .then(resp => resp.body);
+  return Promise.resolve(
+    withApiKey(request.post(rootUrl + '/datasets/'))
+      .send(dataset)
+      .then(resp => resp.body)
+  );
 }
 
 function updateDataset(datasetId, dataset) {
-  return withApiKey(request.put(rootUrl + '/datasets/' + datasetId + '/'))
-    .send(dataset)
-    .then(resp => resp.body);
+  return Promise.resolve(
+    withApiKey(request.put(rootUrl + '/datasets/' + datasetId + '/'))
+      .send(dataset)
+      .then(resp => resp.body)
+  );
 }
 
 function getDataset(datasetId) {
-  return withApiKey(request.get(rootUrl + '/datasets/' + datasetId + '/'))
-    .then(resp => resp.body);
+  return Promise.resolve(
+    withApiKey(request.get(rootUrl + '/datasets/' + datasetId + '/'))
+      .then(resp => resp.body)
+  );
 }
 
 function deleteDataset(datasetId) {
@@ -71,13 +83,15 @@ function deleteDataset(datasetId) {
 }
 
 function createDatasetTransferRequest(datasetId, recipientOrganizationId) {
-  return withApiKey(request.post(rootUrl + '/transfer/'))
-    .send({
-      subject: { id: datasetId, class: 'DatasetFull' },
-      recipient: { id: recipientOrganizationId, class: 'Organization' },
-      comment: 'INSPIRE gateway automated transfer: request'
-    })
-    .then(resp => resp.body.id);
+  return Promise.resolve(
+    withApiKey(request.post(rootUrl + '/transfer/'))
+      .send({
+        subject: { id: datasetId, class: 'DatasetFull' },
+        recipient: { id: recipientOrganizationId, class: 'Organization' },
+        comment: 'INSPIRE gateway automated transfer: request'
+      })
+      .then(resp => resp.body.id)
+  );
 }
 
 function respondTransferRequest(transferId, response = 'accept') {
