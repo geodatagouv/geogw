@@ -41,7 +41,7 @@ exports.createOrUpdate = function (req, res, next) {
 };
 
 exports.list = function (req, res, next) {
-    Organization.find().lean().exec(function (err, organizations) {
+    Organization.find().exec(function (err, organizations) {
         if (err) return next(err);
         res.send(organizations);
     });
