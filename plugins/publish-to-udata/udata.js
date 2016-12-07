@@ -17,6 +17,11 @@ function getProfile(accessToken) {
       .then(resp => resp.body);
 }
 
+function getOrganization(organizationId) {
+  return request.get(`${rootUrl}/organizations/${organizationId}/`)
+    .then(resp => resp.body);
+}
+
 function addUserToOrganization(userId, organizationId, accessToken) {
   return withToken(request.post(`${rootUrl}/organizations/${organizationId}/member/${userId}`), accessToken)
     .send({ role: 'editor' })
@@ -34,9 +39,9 @@ function removeUserFromOrganization(userId, organizationId, accessToken) {
 }
 
 function getUserRoleInOrganization(userId, organizationId) {
-  return request.get(`${rootUrl}/organizations/${organizationId}/`)
-    .then(resp => {
-      const membership = resp.body.members.find(membership => membership.user.id === userId);
+  return getOrganization(organizationId)
+    .then(organization => {
+      const membership = organization.members.find(membership => membership.user.id === userId);
       return membership ? membership.role : 'none';
     });
 }
@@ -87,4 +92,4 @@ function transferDataset(datasetId, recipientOrganizationId) {
     .then(transferId => respondTransferRequest(transferId, 'accept'));
 }
 
-module.exports = { addUserToOrganization, removeUserFromOrganization, getProfile, createDataset, updateDataset, deleteDataset, getDataset, getUserRoleInOrganization, transferDataset };
+module.exports = { getOrganization, addUserToOrganization, removeUserFromOrganization, getProfile, createDataset, updateDataset, deleteDataset, getDataset, getUserRoleInOrganization, transferDataset };
