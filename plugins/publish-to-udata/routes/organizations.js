@@ -7,10 +7,10 @@ module.exports = function (router) {
 
   router.route('/api/organizations/:organizationId')
       .get(show)
-      .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), update, show);
+      .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), update);
 
   router.route('/api/organizations')
       .get(list)
-      .post(ensureLoggedIn, isAdminOf(req => req.body._id), create, show);
+      .post(ensureLoggedIn, isAdminOf(req => req.body._id), create);
 
 };
