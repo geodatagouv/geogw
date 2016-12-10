@@ -15,15 +15,15 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 require('ssl-root-cas/latest').inject();
 
-q.process('harvest-csw', 4, csw.harvest);
-q.process('lookup-wfs', 10, wfs.lookup);
-q.process('process-record', 20, processRecord);
-q.process('dataset:consolidate', 20, consolidateDataset);
+q.process('harvest-csw', 2, csw.harvest);
+q.process('lookup-wfs', 5, wfs.lookup);
+q.process('process-record', 5, processRecord);
+q.process('dataset:consolidate', 5, consolidateDataset);
 
 q.process('udata:synchronizeOne', 5, pluginJobs.synchronizeOne);
 q.process('udata:synchronizeAll', 1, pluginJobs.synchronizeAll);
 
-q.process('remote-resource:check', 10, function (kueJob, doneCallback) {
+q.process('remote-resource:check', 5, function (kueJob, doneCallback) {
     var job = new RemoteResourceCheck(kueJob.data);
     job.exec().nodeify(doneCallback);
 });
