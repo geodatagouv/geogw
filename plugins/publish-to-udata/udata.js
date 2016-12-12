@@ -29,7 +29,7 @@ function getOrganization(organizationId) {
 function addUserToOrganization(userId, organizationId, accessToken) {
   return Promise.resolve(
     withToken(request.post(`${rootUrl}/organizations/${organizationId}/member/${userId}`), accessToken)
-      .send({ role: 'editor' })
+      .send({ role: 'admin' })
       .catch(err => {
         if (err.status && err.status === 409) return; // User is already member
         throw err;
