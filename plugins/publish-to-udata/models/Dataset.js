@@ -87,33 +87,32 @@ schema.method('getEligibleOrganizations', function () {
   const Organization = mongoose.model('Organization');
 
   return this.getRecord()
-    .then(record => Producer.distinct('associatedTo', { _id: { $in: record.organizations } }).exec())
-    .map(organizationId => Organization.findById(organizationId));
+    .then(record => {
+      return Producer.distinct('associatedTo', { _id: { $in: record.organizations } }).exec()
+        .map(organizationId => Organization.findById(organizationId))
+        .filter(organization => record.catalogs.includes(organization.sourceCatalog));
+    });
 });
 
 schema.method('selectTargetOrganization', function () {
-  const givenTargetOrganization = this.publication.organization;
+  const currentOrganization = this.publication.organization;
 
   return Promise.join(
     this.getRecord(),
     this.getEligibleOrganizations(),
 
     function (record, eligibleOrganizations) {
-      if (givenTargetOrganization) {
-        if (eligibleOrganizations.some(eo => eo._id.equals(givenTargetOrganization))) {
-          return givenTargetOrganization;
-        } else {
-          throw new Error('Given target organization is not eligible');
-        }
-      } else {
-        const targetOrganization =
-          eligibleOrganizations.find(eo => eo.publishAll && record.catalogs.includes(eo.sourceCatalog));
-        if (targetOrganization) {
-          return targetOrganization._id;
-        } else {
-          throw new Error('No eligible organization found');
-        }
+      if (currentOrganization && eligibleOrganizations.some(eo => eo._id.equals(currentOrganization))) {
+        return currentOrganization;
       }
+
+      const electedOrganization = eligibleOrganizations.find(eo => eo.publishAll);
+
+      if (electedOrganization) {
+        return electedOrganization._id;
+      }
+
+      throw new Error('No eligible organization found!');
     }
   );
 });
