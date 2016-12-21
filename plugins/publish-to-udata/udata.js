@@ -52,6 +52,13 @@ function getUserRoleInOrganization(userId, organizationId) {
     });
 }
 
+function deleteDatasetResource(datasetId, resourceId) {
+  return Promise.resolve(
+    withApiKey(request.del(rootUrl + '/datasets/' + datasetId + '/resources/' + resourceId + '/'))
+    .set('content-length', 0)
+  ).thenReturn();
+}
+
 function createDataset(dataset) {
   return Promise.resolve(
     withApiKey(request.post(rootUrl + '/datasets/'))
@@ -61,11 +68,19 @@ function createDataset(dataset) {
 }
 
 function updateDataset(datasetId, dataset) {
-  return Promise.resolve(
+  const updateOnly = Promise.resolve(
     withApiKey(request.put(rootUrl + '/datasets/' + datasetId + '/'))
       .send(dataset)
       .then(resp => resp.body)
   );
+  if (dataset.resources.length > 0) {
+    return updateOnly;
+  } else {
+    return updateOnly.then(publishedDataset => {
+      return Promise.each(publishedDataset.resources, resource => deleteDatasetResource(datasetId, resource.id))
+        .then(getDataset(datasetId));
+    });
+  }
 }
 
 function getDataset(datasetId) {

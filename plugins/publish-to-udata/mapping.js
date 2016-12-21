@@ -128,7 +128,6 @@ exports.map = function (sourceDataset) {
     }
 
     if (!out.resources.length) {
-        out.resources = null;
         debug('No publishable resources for %s (%s)', sourceDataset.metadata.title, sourceDataset.recordId);
     }
 
