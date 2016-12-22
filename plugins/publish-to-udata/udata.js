@@ -78,7 +78,7 @@ function updateDataset(datasetId, dataset) {
   } else {
     return updateOnly.then(publishedDataset => {
       return Promise.each(publishedDataset.resources, resource => deleteDatasetResource(datasetId, resource.id))
-        .then(getDataset(datasetId));
+        .then(() => getDataset(datasetId));
     });
   }
 }
