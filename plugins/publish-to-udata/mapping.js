@@ -123,6 +123,13 @@ exports.map = function (sourceDataset) {
                     format: 'SHP',
                     type: 'api'
                 });
+            } else if (distribution.type === 'file-package' && distribution.originalDistribution) {
+                out.resources.push({
+                    url: distribution.location,
+                    title: distribution.name,
+                    format: 'ZIP',
+                    type: 'file'
+                });
             }
         });
     }
