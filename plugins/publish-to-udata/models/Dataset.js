@@ -90,7 +90,9 @@ schema.method('getEligibleOrganizations', function () {
     .then(record => {
       return Producer.distinct('associatedTo', { _id: { $in: record.organizations } }).exec()
         .map(organizationId => Organization.findById(organizationId))
-        .filter(organization => record.catalogs.some(c => organization.sourceCatalog.equals(c)));
+        .filter(organization => record.catalogs.some(c => {
+          return organization.sourceCatalogs.some(sourceCatalog => sourceCatalog.equals(c));
+        }));
     });
 });
 

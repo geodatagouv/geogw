@@ -5,7 +5,7 @@ const Promise = require('bluebird');
 const Organization = mongoose.model('Organization');
 const Producer = mongoose.model('Producer');
 
-const EDITABLE_FIELDS = ['sourceCatalog', 'publishAll'];
+const EDITABLE_FIELDS = ['sourceCatalogs', 'publishAll'];
 
 exports.fetch = function (req, res, next, id) {
   Promise.join(

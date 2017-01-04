@@ -21,7 +21,7 @@ function getNotPublishedYetDatasets(organization) {
               { $elemMatch: { name: 'availability', value: 'yes' } },
               { $elemMatch: { name: 'opendata', value: 'yes' } }
           ] },
-          catalogs: organization.sourceCatalog,
+          catalogs: { $in: organization.sourceCatalogs },
           organizations: { $in: organization.producers }
         })
         .select('recordId metadata.title')
@@ -43,7 +43,7 @@ function getPublishedByOthersDatasets(organization) {
 
       return Record
         .find({
-          catalogs: organization.sourceCatalog,
+          catalogs: { $in: organization.sourceCatalogs },
           organizations: { $in: organization.producers }
         })
         .select('recordId metadata.title')

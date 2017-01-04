@@ -3,6 +3,7 @@ const Promise = require('bluebird');
 const { addUserToOrganization, removeUserFromOrganization } = require('../udata');
 
 const Schema = mongoose.Schema;
+const { ObjectId } = Schema.Types;
 
 const schema = new Schema({
 
@@ -14,7 +15,7 @@ const schema = new Schema({
     enabled: Boolean,
 
     /* Configuration */
-    sourceCatalog: { type: Schema.Types.ObjectId, required: true },
+    sourceCatalogs: [ObjectId],
     publishAll: Boolean,
 
 });
