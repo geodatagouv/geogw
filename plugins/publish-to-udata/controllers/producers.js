@@ -32,7 +32,7 @@ exports.dissociate = function (req, res, next) {
     if (!req.producer.associatedTo.equals(req.organization._id)) return res.sendStatus(404);
     Producer.findByIdAndRemove(req.producer._id, function (err) {
         if (err) return next(err);
-        res.sendStatus(200);
+        res.status(204).end();
     });
 };
 
