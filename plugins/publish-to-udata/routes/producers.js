@@ -12,10 +12,9 @@ module.exports = function (router) {
 
   router.route('/api/organizations/:organizationId/producers')
       .post(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), associate)
-      .get(organizationIsSet, listByOrganization);
+      .get(listByOrganization);
 
   router.route('/api/organizations/:organizationId/producers/:producerId')
       .delete(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), dissociate);
-
 
 };
