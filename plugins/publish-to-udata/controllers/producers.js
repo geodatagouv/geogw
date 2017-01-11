@@ -54,8 +54,9 @@ exports.listByOrganization = function (req, res, next) {
           const associatedProducersNames = associatedProducers.map(ap => ap._id);
           const producers = associatedProducers;
           eligibleProducersNames.forEach(eligibleProducerName => {
-            if (!associatedProducersNames.includes(eligibleProducerName));
-            producers.push({ _id: eligibleProducerName });
+            if (!associatedProducersNames.includes(eligibleProducerName)) {
+              producers.push({ _id: eligibleProducerName });
+            }
           });
           return producers;
         });
