@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { pick } = require('lodash');
 const Promise = require('bluebird');
+const { getOrganization } = require('../udata');
 
 const Organization = mongoose.model('Organization');
 const Producer = mongoose.model('Producer');
@@ -45,4 +46,10 @@ exports.list = function (req, res, next) {
         if (err) return next(err);
         res.send(organizations);
     });
+};
+
+exports.showProfile = function (req, res, next) {
+    getOrganization(req.params.organizationId)
+      .then(organization => res.send(organization))
+      .catch(next);
 };
