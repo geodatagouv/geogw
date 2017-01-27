@@ -32,3 +32,5 @@ clients.json
 *.wd
 
 deploy.sh
+
+data
