@@ -25,11 +25,11 @@ module.exports = function (job, jobDone) {
               job.log('Unchanged dataset');
               return;
             }
-            if (unpublishIfRecordNotFound && err.message === 'Record not found' && action === 'update') {
+            if (unpublishIfRecordNotFound === true && err.message === 'Record not found' && action === 'update') {
               job.log('Source record not found. Going to unpublish the related dataset...');
               return publicationInfo.unpublish();
             }
-            if (removeIfTargetDatasetNotFound && err.message === 'Target dataset doesn\'t exist anymore' && action === 'update') {
+            if (removeIfTargetDatasetNotFound === true && err.message === 'Target dataset doesn\'t exist anymore' && action === 'update') {
               job.log('Target dataset not found. Going to remove the publication info...');
               return publicationInfo.removeAndNotify();
             }

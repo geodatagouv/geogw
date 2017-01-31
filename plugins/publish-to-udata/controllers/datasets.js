@@ -121,7 +121,9 @@ exports.unpublish = function (req, res, next) {
 };
 
 exports.synchronizeAll = function (req, res, next) {
-  Dataset.asyncSynchronizeAll()
+  const unpublishIfRecordNotFound = req.query.unpublishIfRecordNotFound === 'yes'; // Opt-in option
+  const removeIfTargetDatasetNotFound = req.query.removeIfTargetDatasetNotFound !== 'no'; // Opt-out option
+  Dataset.asyncSynchronizeAll({ unpublishIfRecordNotFound, removeIfTargetDatasetNotFound })
     .then(() => res.sendStatus(202))
     .catch(next);
 };
