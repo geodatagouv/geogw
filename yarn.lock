@@ -527,6 +527,10 @@ css-parse@1.7.x:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/css-parse/-/css-parse-1.7.0.tgz#321f6cf73782a6ff751111390fc05e2c657d8c9b"
 
+csv-parse@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-1.2.0.tgz#047b73868ab9a85746e885f637f9ed0fb645a425"
+
 csw-client@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.7.0.tgz#600b0375d43e5c99757883a3bfc1889b22623a80"
