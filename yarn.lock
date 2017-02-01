@@ -527,9 +527,9 @@ css-parse@1.7.x:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/css-parse/-/css-parse-1.7.0.tgz#321f6cf73782a6ff751111390fc05e2c657d8c9b"
 
-csw-client@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.6.0.tgz#8c3dbe5bcb6ed8fe2549fed2cf3050ba6f5fb183"
+csw-client@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.7.0.tgz#600b0375d43e5c99757883a3bfc1889b22623a80"
   dependencies:
     debug "^2.1.0"
     inspire-parser "^0.7.0"
