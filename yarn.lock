@@ -1801,7 +1801,7 @@ ogr2ogr@jdesboeufs/ogr2ogr:
     findit "^2.0.0"
     rimraf "^2.2.8"
 
-on-finished@~2.3.0:
+on-finished@^2.3.0, on-finished@~2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/on-finished/-/on-finished-2.3.0.tgz#20f1336481b083cd75337992a16971aa2d906947"
   dependencies:

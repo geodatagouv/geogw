@@ -40,6 +40,7 @@
     "morgan": "^1.5.1",
     "multistream": "^2.0.2",
     "ogr2ogr": "jdesboeufs/ogr2ogr",
+    "on-finished": "^2.3.0",
     "passport": "^0.2.1",
     "passport-oauth2": "^1.1.2",
     "plunger": "^0.1.3",
