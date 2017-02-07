@@ -16,7 +16,7 @@ parsedData.forEach(entry => {
 
 function normalize(producerName) {
   if (producerName in errorIndex) throw new Error('Rejected value');
-  // if (producerName in renameIndex) return renameIndex[producerName];
+  if (producerName in renameIndex) return renameIndex[producerName];
   return producerName;
 }
 
