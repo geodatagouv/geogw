@@ -35,7 +35,9 @@ __Liens annexes__
 {{#each alternateResources}}
  * [{{name}}]({{location}})
 {{/each}}
-{{/if}}`
+
+{{/if}}
+➞ [Consulter cette fiche sur inspire.data.gouv.fr](https://inspire.data.gouv.fr/datasets/{{recordId}})`
 );
 
 exports.map = function (sourceDataset) {
@@ -72,6 +74,7 @@ exports.map = function (sourceDataset) {
         out.tags = sourceDataset.metadata.keywords.map(function (keyword) {
             return _.kebabCase(keyword).substring(0, 120);
         });
+        out.tags.push('passerelle-inspire');
     }
 
     if (sourceDataset.dataset.distributions) {
