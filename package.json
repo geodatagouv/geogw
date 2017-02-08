@@ -38,6 +38,7 @@
     "mongoose": "^4.4.6",
     "morgan": "^1.5.1",
     "multistream": "^2.0.2",
+    "natural": "^0.4.0",
     "ogr2ogr": "jdesboeufs/ogr2ogr",
     "on-finished": "^2.3.0",
     "passport": "^0.2.1",

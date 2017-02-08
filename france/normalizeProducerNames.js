@@ -1,5 +1,6 @@
 const csvParse = require('csv-parse/lib/sync');
 const { readFileSync } = require('fs');
+const { removeDiacritics } = require('natural');
 
 const rawData = readFileSync(__dirname + '/data/normalized_producers.csv', { encoding: 'utf8' });
 const parsedData = csvParse(rawData, { columns: true });
@@ -14,9 +15,14 @@ parsedData.forEach(entry => {
   }
 });
 
+function prepare(typo) {
+  return removeDiacritics(typo.toLowerCase()).trim();
+}
+
 function normalize(producerName) {
-  if (producerName in errorIndex) throw new Error('Rejected value');
-  if (producerName in renameIndex) return renameIndex[producerName];
+  const preparedTypo = prepare(producerName);
+  if (preparedTypo in errorIndex) throw new Error('Rejected value');
+  if (preparedTypo in renameIndex) return renameIndex[preparedTypo];
   return producerName;
 }
 
