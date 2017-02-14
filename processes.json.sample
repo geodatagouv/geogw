@@ -44,5 +44,21 @@
       }
     },
 
+    {
+      "name": "geogw-kue-ui",
+      "script": "kue.js",
+      "exec_mode": "fork",
+      "instances": 1,
+      "env": {
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": 6379,
+        "KUE_PREFIX": "q",
+        "PORT": 5050
+      },
+      "env_production" : {
+        "NODE_ENV": "production"
+      }
+    }
+
   ]
 }

@@ -1,0 +1,14 @@
+FROM node:6
+
+EXPOSE 5050
+ENV PORT 5050
+
+RUN mkdir -p /app
+ADD package.json /app
+
+WORKDIR /app
+RUN npm install --production
+
+ADD ./ /app
+
+CMD node kue
