@@ -101,7 +101,7 @@ function createDatasetTransferRequest(datasetId, recipientOrganizationId) {
   return Promise.resolve(
     withApiKey(request.post(rootUrl + '/transfer/'))
       .send({
-        subject: { id: datasetId, class: 'DatasetFull' },
+        subject: { id: datasetId, class: 'Dataset' },
         recipient: { id: recipientOrganizationId, class: 'Organization' },
         comment: 'INSPIRE gateway automated transfer: request'
       })
