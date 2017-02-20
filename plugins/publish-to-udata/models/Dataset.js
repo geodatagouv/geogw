@@ -132,7 +132,14 @@ schema.method('update', function (options = {}) {
 
       (dataset, targetOrganization) => {
         if (targetOrganization !== this.publication.organization) {
-          return this.transferTo(targetOrganization).thenReturn(dataset);
+          return this.transferTo(targetOrganization)
+            .catch(err => {
+              if (err.message === 'Dataset doesn\'t exist') {
+                throw new Error('Target dataset doesn\'t exist anymore');
+              }
+              throw err;
+            })
+            .thenReturn(dataset);
         }
         return dataset;
       }

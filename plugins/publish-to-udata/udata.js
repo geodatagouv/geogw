@@ -117,7 +117,13 @@ function respondTransferRequest(transferId, response = 'accept') {
 }
 
 function transferDataset(datasetId, recipientOrganizationId) {
-  return createDatasetTransferRequest(datasetId, recipientOrganizationId)
+  return getDataset(datasetId)
+    .catch(err => {
+      if (err.status && err.status === 404) {
+        throw new Error('Dataset doesn\'t exist');
+      }
+    })
+    .then(() => createDatasetTransferRequest(datasetId, recipientOrganizationId))
     .then(transferId => respondTransferRequest(transferId, 'accept'));
 }
 
