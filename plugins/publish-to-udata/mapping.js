@@ -71,9 +71,9 @@ exports.map = function (sourceDataset) {
     };
 
     if (sourceDataset.metadata.keywords) {
-        out.tags = sourceDataset.metadata.keywords.map(function (keyword) {
-            return _.kebabCase(keyword).substring(0, 120);
-        });
+        out.tags = sourceDataset.metadata.keywords
+          .map(tag => _.kebabCase(tag))
+          .filter(tag => tag.length <= 32 && tag.length >= 3);
         out.tags.push('passerelle-inspire');
     }
 
