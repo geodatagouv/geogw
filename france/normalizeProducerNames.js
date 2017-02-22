@@ -8,15 +8,16 @@ const renameIndex = {};
 const errorIndex = {};
 
 parsedData.forEach(entry => {
+  const producerNotHarmonized = prepare(entry.producer_not_harmonized);
   if (entry.producer_type === '90 Non rempli & Erreurs probables') {
-    errorIndex[entry.producer_not_harmonized] = true;
+    errorIndex[producerNotHarmonized] = true;
   } else {
-    renameIndex[entry.producer_not_harmonized] = entry.producer_harmonized;
+    renameIndex[producerNotHarmonized] = entry.producer_harmonized;
   }
 });
 
 function prepare(typo) {
-  return removeDiacritics(typo.toLowerCase()).trim();
+  return removeDiacritics(typo.toLowerCase()).replace(/(\W|_)/g, '');
 }
 
 function normalize(producerName) {
