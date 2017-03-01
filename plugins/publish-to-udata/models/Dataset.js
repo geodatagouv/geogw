@@ -166,11 +166,16 @@ schema.method('update', function (options = {}) {
     });
 });
 
-schema.method('asyncUpdate', function (options = {}) {
+schema.method('asyncUpdate', function (additionalSidekickOptions = {}) {
   if (!this.isPublished()) {
     return Promise.reject(new Error('Dataset not published'));
   }
-  return sidekick('udata:synchronizeOne', Object.assign({}, options, { recordId: this._id, action: 'update' }));
+  return sidekick('udata:synchronizeOne', Object.assign({}, additionalSidekickOptions, { recordId: this._id, action: 'update' }));
+});
+
+schema.method('notifyPublication', function () {
+  const remoteUrl = `${process.env.DATAGOUV_URL}/datasets/${this.publication._id}/`;
+  return setRecordPublication(this._id, { remoteId: this.publication._id, remoteUrl });
 });
 
 schema.method('publish', function () {
@@ -200,10 +205,7 @@ schema.method('publish', function () {
           .set('publication.organization', publishedDataset.organization.id)
           .save();
       })
-      .then(() => {
-        const remoteUrl = `${process.env.DATAGOUV_URL}/datasets/${this.publication._id}/`;
-        return setRecordPublication(this._id, { remoteId: this.publication._id, remoteUrl });
-      })
+      .then(() => this.notifyPublication())
       .then(() => clearLock(lock))
       .thenReturn(this)
       .catch(err => clearLock(lock, err));

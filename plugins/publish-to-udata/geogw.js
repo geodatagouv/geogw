@@ -35,3 +35,10 @@ exports.unsetRecordPublication = function (recordId) {
       .set('Authorization', `Basic ${TOKEN}`)
   ).thenReturn();
 };
+
+exports.getPublications = function () {
+  return Promise.resolve(
+    request.get(`${ROOT_URL}/publications/${TARGET}`)
+      .then(res => res.body)
+  ).thenReturn();
+};
