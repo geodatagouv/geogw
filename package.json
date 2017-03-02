@@ -30,6 +30,7 @@
     "express-session": "^1.10.2",
     "file-type": "^4.1.0",
     "findit": "^2.0.0",
+    "fresh": "^0.5.0",
     "handlebars": "^4.0.5",
     "ipaddr.js": "^1.0.1",
     "json-stable-stringify": "^1.0.0",
