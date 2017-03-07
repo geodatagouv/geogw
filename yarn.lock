@@ -2,6 +2,22 @@
 # yarn lockfile v1
 
 
+"@turf/bbox-polygon@^3.10.5":
+  version "3.10.5"
+  resolved "https://registry.yarnpkg.com/@turf/bbox-polygon/-/bbox-polygon-3.10.5.tgz#0ea66e2a7a3446151b1139661c60c6bf36516248"
+  dependencies:
+    "@turf/helpers" "^3.10.5"
+
+"@turf/helpers@^3.10.5":
+  version "3.10.5"
+  resolved "https://registry.yarnpkg.com/@turf/helpers/-/helpers-3.10.5.tgz#1a53a9bd08f4eb4f7544a132f22d23f1b5e7d534"
+
+"@turf/union@^3.10.5":
+  version "3.10.5"
+  resolved "https://registry.yarnpkg.com/@turf/union/-/union-3.10.5.tgz#8e6b42c7c38833f0a7d3f51f0716fc7c33d434da"
+  dependencies:
+    jsts "1.3.0"
+
 abbrev@1:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.0.9.tgz#91b4792588a7738c25f35dd6f63752a2f8776135"
@@ -1439,6 +1455,10 @@ jstransformer@1.0.0:
   dependencies:
     is-promise "^2.0.0"
     promise "^7.0.1"
+
+jsts@1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/jsts/-/jsts-1.3.0.tgz#e93a76f97ac9bda7d4625d9d6470f0d60ac80e45"
 
 kareem@1.1.3:
   version "1.1.3"
