@@ -12,7 +12,7 @@ describe('normalizeProducerNames()', () => {
 
   describe('rewritable typography', () => {
     it('should return the same string', () => {
-      expect(normalizeProducerNames('ANFR')).to.be('Agence Nationale des Fréquences (ANFR)');
+      expect(normalizeProducerNames('DEAL Mayotte / SDDT / PDT')).to.be('DEAL Mayotte');
     });
   });
 
