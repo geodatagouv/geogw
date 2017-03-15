@@ -7,12 +7,13 @@ const mongoose = require('mongoose');
 const sessionMongo = require('connect-mongo');
 const { omit } = require('lodash');
 const { ensureLoggedIn } = require('./middlewares');
-const producers = require('./controllers/producers');
-const organizations = require('./controllers/organizations');
-const datasets = require('./controllers/datasets');
 
 require('./models');
 require('./passport');
+
+const producers = require('./controllers/producers');
+const organizations = require('./controllers/organizations');
+const datasets = require('./controllers/datasets');
 
 const MongoStore = sessionMongo(session);
 
