@@ -58,10 +58,6 @@ module.exports = function () {
         req.session.redirectTo = undefined;
     });
 
-    app.param('producerId', producers.fetch);
-    app.param('organizationId', organizations.fetch);
-    app.param('datasetId', datasets.fetch);
-
     app.use('/api', require('./routes/producers')());
     app.use('/api', require('./routes/organizations')());
     app.use('/api', require('./routes/datasets')());

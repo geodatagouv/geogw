@@ -1,9 +1,13 @@
 const express = require('express');
-const { list, associate, dissociate, listByOrganization } = require('../controllers/producers');
+const organizations = require('../controllers/organizations');
+const { fetch, list, associate, dissociate, listByOrganization } = require('../controllers/producers');
 const { ensureLoggedIn, isAdminOf, organizationIsSet } = require('../middlewares');
 
 module.exports = function () {
   const router = express.Router();
+
+  router.param('organizationId', organizations.fetch);
+  router.param('producerId', fetch);
 
   router.get('/producers', list);
 

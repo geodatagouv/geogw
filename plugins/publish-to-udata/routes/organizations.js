@@ -1,9 +1,11 @@
 const express = require('express');
-const { list, show, createOrUpdate, showProfile } = require('../controllers/organizations');
+const { fetch, list, show, createOrUpdate, showProfile } = require('../controllers/organizations');
 const { ensureLoggedIn, isAdminOf } = require('../middlewares');
 
 module.exports = function () {
   const router = express.Router();
+
+  router.param('organizationId', fetch);
 
   router.route('/organizations/:organizationId')
       .get(show)
