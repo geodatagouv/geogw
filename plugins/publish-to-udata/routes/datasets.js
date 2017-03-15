@@ -1,4 +1,5 @@
-const { fetch, publish, unpublish, globalMetrics, metrics, published, notPublishedYet, publishedByOthers, synchronizeAll } = require('../controllers/datasets');
+const express = require('express');
+const { publish, unpublish, globalMetrics, metrics, published, notPublishedYet, publishedByOthers, synchronizeAll } = require('../controllers/datasets');
 const { ensureLoggedIn, isEditorOf, organizationIsSet } = require('../middlewares');
 
 function isPublished(req, res, next) {
@@ -16,9 +17,8 @@ function validatePublicationParams(req, res, next) {
   next();
 }
 
-module.exports = function (router) {
-
-  router.param('datasetId', fetch);
+module.exports = function () {
+  const router = express.Router();
 
   router.route('/api/datasets/:datasetId/publication')
       .all(ensureLoggedIn)
@@ -34,4 +34,5 @@ module.exports = function (router) {
 
   router.post('/api/datasets/synchronize-all', synchronizeAll);
 
+  return router;
 };

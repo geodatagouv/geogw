@@ -7,6 +7,9 @@ const mongoose = require('mongoose');
 const sessionMongo = require('connect-mongo');
 const { omit } = require('lodash');
 const { ensureLoggedIn } = require('./middlewares');
+const producers = require('./controllers/producers');
+const organizations = require('./controllers/organizations');
+const datasets = require('./controllers/datasets');
 
 require('./models');
 require('./passport');
@@ -54,13 +57,17 @@ module.exports = function () {
         req.session.redirectTo = undefined;
     });
 
+    app.param('producerId', producers.fetch);
+    app.param('organizationId', organizations.fetch);
+    app.param('datasetId', datasets.fetch);
+
+    app.use('/api', require('./routes/producers')());
+    app.use('/api', require('./routes/organizations')());
+    app.use('/api', require('./routes/datasets')());
+
     app.get('/api/me', ensureLoggedIn, function (req, res) {
       res.send(omit(req.user, 'accessToken'));
     });
-
-    require('./routes/organizations')(app);
-    require('./routes/producers')(app);
-    require('./routes/datasets')(app);
 
     return app;
 };

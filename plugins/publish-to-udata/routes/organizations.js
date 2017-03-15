@@ -1,17 +1,17 @@
-const { list, show, createOrUpdate, fetch, showProfile } = require('../controllers/organizations');
+const express = require('express');
+const { list, show, createOrUpdate, showProfile } = require('../controllers/organizations');
 const { ensureLoggedIn, isAdminOf } = require('../middlewares');
 
-module.exports = function (router) {
+module.exports = function () {
+  const router = express.Router();
 
-  router.param('organizationId', fetch);
-
-  router.route('/api/organizations/:organizationId')
+  router.route('/organizations/:organizationId')
       .get(show)
       .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), createOrUpdate);
 
-  router.get('/api/organizations/:organizationId/profile', showProfile);
+  router.get('/organizations/:organizationId/profile', showProfile);
 
-  router.route('/api/organizations')
-      .get(list);
+  router.get('/organizations', list);
 
+  return router;
 };
