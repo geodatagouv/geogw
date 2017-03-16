@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 const convertDataset = require('../lib/helpers/convertDataset');
-const { getAllContacts } = require('../lib/helpers/convertDataset/iso19139');
+const { getAllContacts, getDates } = require('../lib/helpers/convertDataset/iso19139');
 const expect = require('expect.js');
 
 describe('convertDataset.getLicenseFromLinks()', () => {
@@ -80,4 +80,44 @@ describe('convertDataset.getAllContacts()', () => {
         ]);
       });
     });
+});
+
+describe('convertDataset.getDates()', () => {
+  it('should extract dates', () => {
+    const record = {
+      identificationInfo: {
+        citation: {
+          date: [
+            {
+              date: '1980-01-01'
+            },
+            {
+              date: 'lol',
+              dateType: 'creation',
+            },
+            {
+              date: '2000-01-01',
+              dateType: 'creation',
+            },
+            {
+              date: '2005-01-01',
+              dateType: 'creation',
+            },
+            {
+              date: '2010-01-01',
+              dateType: 'revision',
+            },
+            {
+              date: '2012-01-01',
+              dateType: 'revision',
+            },
+          ],
+        },
+      },
+    };
+    expect(getDates(record)).to.eql({
+      creationDate: '2000-01-01',
+      revisionDate: '2012-01-01',
+    });
+  });
 });
