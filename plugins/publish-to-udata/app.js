@@ -11,10 +11,6 @@ const { ensureLoggedIn } = require('./middlewares');
 require('./models');
 require('./passport');
 
-const producers = require('./controllers/producers');
-const organizations = require('./controllers/organizations');
-const datasets = require('./controllers/datasets');
-
 const MongoStore = sessionMongo(session);
 
 module.exports = function () {
