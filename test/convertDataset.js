@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 const convertDataset = require('../lib/helpers/convertDataset');
-const { getAllContacts, getDates } = require('../lib/helpers/convertDataset/iso19139');
+const { getAllContacts, getDates, getSpatialResolution } = require('../lib/helpers/convertDataset/iso19139');
 const expect = require('expect.js');
 
 describe('convertDataset.getLicenseFromLinks()', () => {
@@ -118,6 +118,48 @@ describe('convertDataset.getDates()', () => {
     expect(getDates(record)).to.eql({
       creationDate: '2000-01-01',
       revisionDate: '2012-01-01',
+    });
+  });
+});
+
+describe('convertDataset.getSpatialResolution()', () => {
+  function buildWithValues(value, unit) {
+    return {
+      identificationInfo: {
+        spatialResolution: {
+          distance: { value, unit }
+        }
+      }
+    };
+  }
+  describe('no value', () => {
+    it('should return undefined', () => {
+      expect(getSpatialResolution(buildWithValues(undefined, 'meter'))).to.be(undefined);
+    });
+  });
+  describe('NaN value', () => {
+    it('should return undefined', () => {
+      expect(getSpatialResolution(buildWithValues(NaN, 'meter'))).to.be(undefined);
+    });
+  });
+  describe('value with known unit', () => {
+    it('should return value with unit', () => {
+      expect(getSpatialResolution(buildWithValues(1, 'rad'))).to.eql({
+        value: 1,
+        unit: 'radian'
+      });
+      expect(getSpatialResolution(buildWithValues(1, 'deg'))).to.eql({
+        value: 1,
+        unit: 'degree'
+      });
+    });
+  });
+  describe('value with no unit', () => {
+    it('should default to meter', () => {
+      expect(getSpatialResolution(buildWithValues(1, undefined))).to.eql({
+        value: 1,
+        unit: 'meter'
+      });
     });
   });
 });
