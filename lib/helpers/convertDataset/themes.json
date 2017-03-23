@@ -1,0 +1,274 @@
+[
+  {
+    "id": "ad",
+    "uri": "http://inspire.ec.europa.eu/theme/ad",
+    "label": {
+      "fr": "Adresses",
+      "en": "Addresses"
+    }
+  },
+  {
+    "id": "au",
+    "uri": "http://inspire.ec.europa.eu/theme/au",
+    "label": {
+      "fr": "Unités administratives",
+      "en": "Administrative units"
+    }
+  },
+  {
+    "id": "rs",
+    "uri": "http://inspire.ec.europa.eu/theme/rs",
+    "label": {
+      "fr": "Référentiels de coordonnées",
+      "en": "Coordinate reference systems"
+    }
+  },
+  {
+    "id": "gg",
+    "uri": "http://inspire.ec.europa.eu/theme/gg",
+    "label": {
+      "fr": "Systèmes de maillage géographique",
+      "en": "Geographical grid systems"
+    }
+  },
+  {
+    "id": "cp",
+    "uri": "http://inspire.ec.europa.eu/theme/cp",
+    "label": {
+      "fr": "Parcelles cadastrales",
+      "en": "Cadastral parcels"
+    }
+  },
+  {
+    "id": "gn",
+    "uri": "http://inspire.ec.europa.eu/theme/gn",
+    "label": {
+      "fr": "Dénominations géographiques",
+      "en": "Geographical names"
+    }
+  },
+  {
+    "id": "hy",
+    "uri": "http://inspire.ec.europa.eu/theme/hy",
+    "label": {
+      "fr": "Hydrographie",
+      "en": "Hydrography"
+    }
+  },
+  {
+    "id": "ps",
+    "uri": "http://inspire.ec.europa.eu/theme/ps",
+    "label": {
+      "fr": "Sites protégés",
+      "en": "Protected sites"
+    }
+  },
+  {
+    "id": "tn",
+    "uri": "http://inspire.ec.europa.eu/theme/tn",
+    "label": {
+      "fr": "Réseaux de transport",
+      "en": "Transport networks"
+    }
+  },
+  {
+    "id": "el",
+    "uri": "http://inspire.ec.europa.eu/theme/el",
+    "label": {
+      "fr": "Altitude",
+      "en": "Elevation"
+    }
+  },
+  {
+    "id": "ge",
+    "uri": "http://inspire.ec.europa.eu/theme/ge",
+    "label": {
+      "fr": "Géologie",
+      "en": "Geology"
+    }
+  },
+  {
+    "id": "lc",
+    "uri": "http://inspire.ec.europa.eu/theme/lc",
+    "label": {
+      "fr": "Occupation des terres",
+      "en": "Land cover"
+    }
+  },
+  {
+    "id": "oi",
+    "uri": "http://inspire.ec.europa.eu/theme/oi",
+    "label": {
+      "fr": "Ortho-imagerie",
+      "en": "Orthoimagery"
+    }
+  },
+  {
+    "id": "af",
+    "uri": "http://inspire.ec.europa.eu/theme/af",
+    "label": {
+      "fr": "Installations agricoles et aquacoles",
+      "en": "Agricultural and aquaculture facilities"
+    }
+  },
+  {
+    "id": "am",
+    "uri": "http://inspire.ec.europa.eu/theme/am",
+    "label": {
+      "fr": "Zones de gestion, de restriction ou de réglementation et unités de déclaration",
+      "en": "Area management/restriction/regulation zones and reporting units"
+    }
+  },
+  {
+    "id": "ac",
+    "uri": "http://inspire.ec.europa.eu/theme/ac",
+    "label": {
+      "fr": "Conditions atmosphériques",
+      "en": "Atmospheric conditions"
+    }
+  },
+  {
+    "id": "br",
+    "uri": "http://inspire.ec.europa.eu/theme/br",
+    "label": {
+      "fr": "Régions biogéographiques",
+      "en": "Bio-geographical regions"
+    }
+  },
+  {
+    "id": "bu",
+    "uri": "http://inspire.ec.europa.eu/theme/bu",
+    "label": {
+      "fr": "Bâtiments",
+      "en": "Buildings"
+    }
+  },
+  {
+    "id": "er",
+    "uri": "http://inspire.ec.europa.eu/theme/er",
+    "label": {
+      "fr": "Sources d'énergie",
+      "en": "Energy resources"
+    }
+  },
+  {
+    "id": "ef",
+    "uri": "http://inspire.ec.europa.eu/theme/ef",
+    "label": {
+      "fr": "Installations de suivi environnemental",
+      "en": "Environmental monitoring facilities"
+    }
+  },
+  {
+    "id": "hb",
+    "uri": "http://inspire.ec.europa.eu/theme/hb",
+    "label": {
+      "fr": "Habitats et biotopes",
+      "en": "Habitats and biotopes"
+    }
+  },
+  {
+    "id": "hh",
+    "uri": "http://inspire.ec.europa.eu/theme/hh",
+    "label": {
+      "fr": "Santé et sécurité des personnes",
+      "en": "Human health and safety"
+    }
+  },
+  {
+    "id": "lu",
+    "uri": "http://inspire.ec.europa.eu/theme/lu",
+    "label": {
+      "fr": "Usage des sols",
+      "en": "Land use"
+    }
+  },
+  {
+    "id": "mr",
+    "uri": "http://inspire.ec.europa.eu/theme/mr",
+    "label": {
+      "fr": "Ressources minérales",
+      "en": "Mineral resources"
+    }
+  },
+  {
+    "id": "nz",
+    "uri": "http://inspire.ec.europa.eu/theme/nz",
+    "label": {
+      "fr": "Zones à risque naturel",
+      "en": "Natural risk zones"
+    }
+  },
+  {
+    "id": "of",
+    "uri": "http://inspire.ec.europa.eu/theme/of",
+    "label": {
+      "fr": "Caractéristiques géographiques océanographiques",
+      "en": "Oceanographic geographical features"
+    }
+  },
+  {
+    "id": "pd",
+    "uri": "http://inspire.ec.europa.eu/theme/pd",
+    "label": {
+      "fr": "Répartition de la population — démographie",
+      "en": "Population distribution - demography"
+    }
+  },
+  {
+    "id": "pf",
+    "uri": "http://inspire.ec.europa.eu/theme/pf",
+    "label": {
+      "fr": "Lieux de production et sites industriels",
+      "en": "Production and industrial facilities"
+    }
+  },
+  {
+    "id": "sr",
+    "uri": "http://inspire.ec.europa.eu/theme/sr",
+    "label": {
+      "fr": "Régions maritimes",
+      "en": "Sea regions"
+    }
+  },
+  {
+    "id": "so",
+    "uri": "http://inspire.ec.europa.eu/theme/so",
+    "label": {
+      "fr": "Sols",
+      "en": "Soil"
+    }
+  },
+  {
+    "id": "sd",
+    "uri": "http://inspire.ec.europa.eu/theme/sd",
+    "label": {
+      "fr": "Répartition des espèces",
+      "en": "Species distribution"
+    }
+  },
+  {
+    "id": "su",
+    "uri": "http://inspire.ec.europa.eu/theme/su",
+    "label": {
+      "fr": "Unités statistiques",
+      "en": "Statistical units"
+    }
+  },
+  {
+    "id": "us",
+    "uri": "http://inspire.ec.europa.eu/theme/us",
+    "label": {
+      "fr": "Services d'utilité publique et services publics",
+      "en": "Utility and governmental services"
+    }
+  },
+  {
+    "id": "mf",
+    "uri": "http://inspire.ec.europa.eu/theme/mf",
+    "label": {
+      "fr": "Caractéristiques géographiques météorologiques",
+      "en": "Meteorological geographical features"
+    }
+  }
+]
