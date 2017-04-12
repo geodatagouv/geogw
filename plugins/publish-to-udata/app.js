@@ -59,10 +59,27 @@ module.exports = function () {
 
     const udataProxy = httpProxy.createProxyServer({});
 
+    const UDATA_PROXY_FILTERED_HEADER_NAMES = [
+      'Cookie',
+      'Set-Cookie',
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Methods',
+      'Access-Control-Allow-Headers',
+      'Access-Control-Allow-Credentials',
+      'Access-Control-Max-Age',
+    ];
+
     udataProxy.on('proxyReq', (proxyReq, req) => {
+      UDATA_PROXY_FILTERED_HEADER_NAMES.forEach(headerName => proxyReq.removeHeader(headerName));
       if (req.user) {
         proxyReq.setHeader('Authorization', 'Bearer ' + req.user.accessToken);
       }
+    });
+
+    udataProxy.on('proxyRes', proxyRes => {
+      UDATA_PROXY_FILTERED_HEADER_NAMES.forEach(headerName => {
+        proxyRes.headers[headerName.toLowerCase()] = undefined;
+      });
     });
 
     app.use('/proxy-api', (req, res) => udataProxy.web(req, res, {
