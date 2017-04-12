@@ -5,6 +5,7 @@ const session = require('express-session');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const sessionMongo = require('connect-mongo');
+const httpProxy = require('http-proxy');
 const { omit } = require('lodash');
 const { ensureLoggedIn } = require('./middlewares');
 
@@ -53,6 +54,21 @@ module.exports = function () {
         })(req, res);
         req.session.redirectTo = undefined;
     });
+
+    /* udata proxy */
+
+    const udataProxy = httpProxy.createProxyServer({});
+
+    udataProxy.on('proxyReq', (proxyReq, req) => {
+      if (req.user) {
+        proxyReq.setHeader('Authorization', 'Bearer ' + req.user.accessToken);
+      }
+    });
+
+    app.use('/proxy-api', (req, res) => udataProxy.web(req, res, {
+      changeOrigin: true,
+      target: process.env.DATAGOUV_URL + '/api'
+    }));
 
     app.use('/api', require('./routes/producers')());
     app.use('/api', require('./routes/organizations')());
