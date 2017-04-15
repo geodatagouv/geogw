@@ -1,16 +1,16 @@
 const express = require('express');
-const request = require('supergent');
+const request = require('superagent');
 
 const rootUrl = process.env.DATAGOUV_URL + '/api';
 
-const ALLOWED_METHODS = ['POST', 'GET', 'PUT', 'DELETE'];
+const ALLOWED_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE'];
 
 module.exports = function () {
 
   const router = express.Router({ strict: true });
 
-  router.use('*', function (req, res, next) {
-    if (!(req.method in ALLOWED_METHODS)) return res.statusStatus(405);
+  router.all('*', function (req, res, next) {
+    if (!ALLOWED_METHODS.includes(req.method)) return res.sendStatus(405);
     const method = req.method.toLowerCase();
     const url = rootUrl + req.path;
     const proxyReq = request[method](url).query(req.query);
@@ -23,7 +23,11 @@ module.exports = function () {
         proxyRes = err.response;
       }
       res.status(proxyRes.status);
-      res.send(proxyRes.body || {});
+      if (proxyRes.body) {
+        res.send(proxyRes.body);
+      } else {
+        res.end();
+      }
     });
   });
 
