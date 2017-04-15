@@ -17,6 +17,9 @@ module.exports = function () {
     if (req.user) {
       proxyReq.set('Authorization', 'Bearer ' + req.user.accessToken);
     }
+    if (req.body) {
+      proxyReq.send(req.body);
+    }
     proxyReq.end(function (err, proxyRes) {
       if (err && !err.status) return next(err);
       if (err && err.status) {
