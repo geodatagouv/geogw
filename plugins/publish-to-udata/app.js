@@ -5,6 +5,7 @@ const session = require('express-session');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const sessionMongo = require('connect-mongo');
+const cors = require('cors');
 const { omit } = require('lodash');
 const { ensureLoggedIn } = require('./middlewares');
 
@@ -17,6 +18,7 @@ module.exports = function () {
 
     const app = express();
 
+    app.use(cors({ origin: true, credentials: true }));
     app.use(bodyParser.json());
     app.use(cookieParser());
 
