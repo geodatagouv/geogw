@@ -56,6 +56,8 @@ module.exports = function () {
         req.session.redirectTo = undefined;
     });
 
+    app.use('/proxy-api', require('./udataProxy')());
+
     app.use('/api', require('./routes/producers')());
     app.use('/api', require('./routes/organizations')());
     app.use('/api', require('./routes/datasets')());
