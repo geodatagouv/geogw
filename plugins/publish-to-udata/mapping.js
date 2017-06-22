@@ -95,14 +95,14 @@ exports.map = function (sourceDataset) {
                     title: simplifiedTypeName + ' (export GeoJSON)',
                     description: 'Conversion à la volée du jeu de données d\'origine ' + simplifiedTypeName + ' au format GeoJSON',
                     format: 'JSON',
-                    type: 'api'
+                    type: 'remote'
                 });
                 out.resources.push({
                     url: rootUrl + '?format=SHP&projection=WGS84',
                     title: simplifiedTypeName + ' (export SHP/WGS-84)',
                     description: 'Conversion à la volée du jeu de données d\'origine ' + simplifiedTypeName + ' au format Shapefile (WGS-84)',
                     format: 'SHP',
-                    type: 'api'
+                    type: 'remote'
                 });
             } else if (distribution.type === 'file-package' && distribution.layer) {
                 rootUrl = process.env.ROOT_URL + '/api/geogw/file-packages/' + distribution.hashedLocation + '/download';
@@ -110,28 +110,28 @@ exports.map = function (sourceDataset) {
                     url: distribution.location,
                     title: 'Archive complète',
                     format: 'ZIP',
-                    type: 'file'
+                    type: 'remote'
                 });
                 out.resources.push({
                     url: rootUrl + '?format=GeoJSON&projection=WGS84',
                     title: `${distribution.layer} (export GeoJSON)`,
                     description: 'Conversion à la volée au format GeoJSON',
                     format: 'JSON',
-                    type: 'api'
+                    type: 'remote'
                 });
                 out.resources.push({
                     url: rootUrl + '?format=SHP&projection=WGS84',
                     title: `${distribution.layer} (export SHP/WGS-84)`,
                     description: 'Conversion à la volée au format Shapefile (WGS-84)',
                     format: 'SHP',
-                    type: 'api'
+                    type: 'remote'
                 });
             } else if (distribution.type === 'file-package' && distribution.originalDistribution) {
                 out.resources.push({
                     url: distribution.location,
                     title: distribution.name,
                     format: 'ZIP',
-                    type: 'file'
+                    type: 'remote'
                 });
             }
         });
