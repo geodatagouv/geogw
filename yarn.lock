@@ -243,6 +243,10 @@ bluebird@^3.0, bluebird@^3.3.0, bluebird@^3.3.3, bluebird@^3.4.1:
   version "3.4.6"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.4.6.tgz#01da8d821d87813d158967e743d5fe6c62cf8c0f"
 
+bluebird@^3.4.7:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.0.tgz#791420d7f551eea2897453a8a77653f96606d67c"
+
 body-parser@^1.11.0, body-parser@^1.12.2:
   version "1.15.2"
   resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.15.2.tgz#d7578cf4f1d11d5f6ea804cef35dc7a7ff6dae67"
@@ -547,12 +551,13 @@ csv-parse@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-1.2.0.tgz#047b73868ab9a85746e885f637f9ed0fb645a425"
 
-csw-client@0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.7.1.tgz#0f4781d8be593e475bbcbaef59592fa8dda0b56f"
+csw-client@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.9.0.tgz#f7d7d66c964059251196e6473e773742779973da"
   dependencies:
+    bluebird "^3.4.7"
     debug "^2.1.0"
-    inspire-parser "^0.10.0"
+    inspire-parser "^0.12.0"
     lodash "^4.0.0"
     request "^2.67.0"
     stringstream "0.0.5"
@@ -1251,9 +1256,9 @@ inquirer@^0.12.0:
     strip-ansi "^3.0.0"
     through "^2.3.6"
 
-inspire-parser@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/inspire-parser/-/inspire-parser-0.10.0.tgz#4756ec14bf482ecaa6f72a7e883d80aecc2ac21a"
+inspire-parser@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/inspire-parser/-/inspire-parser-0.12.0.tgz#8e1c0110811f523611d3b67734122a559bc04061"
   dependencies:
     htmlparser2 "^3.9.1"
     is-plain-obj "^1.1.0"
@@ -2813,9 +2818,9 @@ void-elements@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-2.0.1.tgz#c066afb582bb1cb4128d60ea92392e94d5e9dbec"
 
-wfs-client@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/wfs-client/-/wfs-client-0.2.1.tgz#a87a26f0e4492a3ad51fb37ac47d5f94df33add2"
+wfs-client@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/wfs-client/-/wfs-client-0.3.0.tgz#6f1210d8eb3823b96c2289f3969c310bec4297a7"
   dependencies:
     debug "^2.0"
     libxmljs "^0.18"
