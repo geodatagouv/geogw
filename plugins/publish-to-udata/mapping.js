@@ -1,6 +1,6 @@
 var moment = require('moment');
 var Handlebars = require('handlebars');
-var _ = require('lodash');
+const { filter, kebabCase } = require('lodash');
 var _s = require('underscore.string');
 var debug = require('debug')('mapping');
 
@@ -41,12 +41,12 @@ __Liens annexes__
 );
 
 exports.map = function (sourceDataset) {
-    sourceDataset.alternateResources = _.filter(sourceDataset.alternateResources || [], 'name');
+    sourceDataset.alternateResources = filter(sourceDataset.alternateResources || [], 'name');
     sourceDataset.inlineOrganizations = (sourceDataset.organizations || []).join(', ');
 
-    sourceDataset.history = _(sourceDataset.metadata.history || [])
+    sourceDataset.history = (sourceDataset.metadata.history || [])
         .filter(function (ev) {
-            return ev.date && moment(ev.date).isValid() && ev.type && _.includes(['creation', 'revision', 'publication'], ev.type);
+            return ev.date && moment(ev.date).isValid() && ev.type && ['creation', 'revision', 'publication'].includes(ev.type);
         })
         .map(function (ev) {
             var labels = {
@@ -55,8 +55,7 @@ exports.map = function (sourceDataset) {
                 publication: 'Publication'
             };
             return { date: moment(ev.date).format('L'), description: labels[ev.type] };
-        })
-        .value();
+        });
 
     var out = {
         title: sourceDataset.metadata.title,
@@ -72,7 +71,7 @@ exports.map = function (sourceDataset) {
 
     if (sourceDataset.metadata.keywords) {
         out.tags = sourceDataset.metadata.keywords
-          .map(tag => _.kebabCase(tag))
+          .map(tag => kebabCase(tag))
           .filter(tag => tag.length <= 32 && tag.length >= 3);
         out.tags.push('passerelle-inspire');
     }
@@ -86,7 +85,7 @@ exports.map = function (sourceDataset) {
 
             if (distribution.type === 'wfs-featureType') {
                 rootUrl = process.env.ROOT_URL + '/api/geogw/services/' + distribution.service + '/feature-types/' + distribution.typeName + '/download';
-                if (_.includes(processedFeatureTypes, rootUrl)) return; // Cannot be added twice
+                if (processedFeatureTypes.includes(rootUrl)) return; // Cannot be added twice
                 processedFeatureTypes.push(rootUrl);
                 var simplifiedTypeName = _s.strRight(distribution.typeName, ':');
 

@@ -1,4 +1,4 @@
-var _ = require('lodash');
+const { once } = require('lodash');
 require('./lib/mongoose');
 const pluginJobs = require('./plugins/publish-to-udata/jobs');
 
@@ -28,7 +28,7 @@ q.process('remote-resource:check', 5, function (kueJob, doneCallback) {
     job.exec().nodeify(doneCallback);
 });
 
-var gracefulShutdown = _.once(function () {
+var gracefulShutdown = once(function () {
     q.shutdown(5000, function (err) {
         console.log('Job queue is shut down. ', err || '');
         process.exit();
