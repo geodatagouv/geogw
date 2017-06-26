@@ -18,7 +18,9 @@
         "DATAGOUV_CLIENT_ID": "",
         "DATAGOUV_CLIENT_SECRET": "",
         "DATAGOUV_CB_URL": "http://localhost:5000/dgv/oauth/callback",
-        "ROOT_URL": "http://localhost:5000"
+        "ROOT_URL": "http://localhost:5000",
+        "LINK_ANALYZER_URL": "http://localhost:6000",
+        "LINK_ANALYZER_TOKEN": "abcdefgh"
       },
       "env_production" : {
         "NODE_ENV": "production"
@@ -37,7 +39,9 @@
         "HTTP_AGENT_NAME": "GeoGw 0.1",
         "KUE_PREFIX": "q",
         "DATAGOUV_URL": "https://demo.data.gouv.fr",
-        "ROOT_URL": "http://localhost:5000"
+        "ROOT_URL": "http://localhost:5000",
+        "LINK_ANALYZER_URL": "http://localhost:6000",
+        "LINK_ANALYZER_TOKEN": "abcdefgh"
       },
       "env_production" : {
         "NODE_ENV": "production"
