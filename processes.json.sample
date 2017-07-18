@@ -20,7 +20,8 @@
         "DATAGOUV_CB_URL": "http://localhost:5000/dgv/oauth/callback",
         "ROOT_URL": "http://localhost:5000",
         "LINK_ANALYZER_URL": "http://localhost:6000",
-        "LINK_ANALYZER_TOKEN": "abcdefgh"
+        "LINK_ANALYZER_TOKEN": "abcdefgh",
+        "LINK_ANALYZER_INCOMING_WEBHOOK_TOKEN": "azerty"
       },
       "env_production" : {
         "NODE_ENV": "production"
