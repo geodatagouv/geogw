@@ -104,14 +104,21 @@ schema.method('selectTargetOrganization', function () {
     this.getEligibleOrganizations(),
 
     function (record, eligibleOrganizations) {
+      // current organization is eligible
       if (currentOrganization && eligibleOrganizations.some(eo => eo._id.equals(currentOrganization))) {
         return currentOrganization;
       }
 
       const electedOrganization = eligibleOrganizations.find(eo => eo.publishAll);
 
+      // we elected an organization
       if (electedOrganization) {
         return electedOrganization._id;
+      }
+
+      // we fall back to current organization
+      if (currentOrganization) {
+        return currentOrganization
       }
 
       throw new Error('No eligible organization found!');
