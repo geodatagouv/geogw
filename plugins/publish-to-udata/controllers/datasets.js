@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose')
-const { indexBy } = require('lodash')
+const { keyBy } = require('lodash')
 const Promise = require('bluebird')
 const { getRecord } = require('../geogw')
 
@@ -41,7 +41,7 @@ function getPublishedByOthersDatasets(organization) {
     .lean()
     .exec()
     .then(datasets => {
-      const indexedDatasets = indexBy(datasets, '_id')
+      const indexedDatasets = keyBy(datasets, '_id')
 
       return Record
         .find({
