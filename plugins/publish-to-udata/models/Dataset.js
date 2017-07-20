@@ -42,15 +42,15 @@ const schema = new Schema({
 
   hash: String,
 
-    // Attributes related to the publication on the udata platform
+  // Attributes related to the publication on the udata platform
   publication: {
-        // Unique ID on the udata platform
+    // Unique ID on the udata platform
     _id: { type: String, unique: true, required: true },
 
-        // Organization on the udata platform which hold the dataset
+    // Organization on the udata platform which hold the dataset
     organization: { type: ObjectId, ref: 'Organization', required: true },
 
-        // Published dataset revision
+    // Published dataset revision
     revision: { type: Date },
 
     createdAt: { type: Date },

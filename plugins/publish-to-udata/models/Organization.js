@@ -9,14 +9,14 @@ const { ObjectId } = Schema.Types
 
 const schema = new Schema({
 
-    /* Dates */
+  /* Dates */
   createdAt: Date,
   updatedAt: Date,
 
-    /* Status */
+  /* Status */
   enabled: Boolean,
 
-    /* Configuration */
+  /* Configuration */
   sourceCatalogs: [ObjectId],
   publishAll: Boolean,
 

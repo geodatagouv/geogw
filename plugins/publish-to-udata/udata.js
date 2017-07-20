@@ -16,9 +16,9 @@ function withToken(req, token) {
 
 function getProfile(accessToken) {
   return Promise.resolve(
-      withToken(request.get(rootUrl + '/me/'), accessToken)
-        .then(resp => resp.body)
-    )
+    withToken(request.get(rootUrl + '/me/'), accessToken)
+      .then(resp => resp.body)
+  )
 }
 
 function getOrganization(organizationId) {
@@ -43,7 +43,7 @@ function removeUserFromOrganization(userId, organizationId, accessToken) {
   return Promise.resolve(
     withToken(request.del(`${rootUrl}/organizations/${organizationId}/member/${userId}`), accessToken)
       .set('content-length', 0)
-    ).thenReturn()
+  ).thenReturn()
 }
 
 function getUserRoleInOrganization(userId, organizationId) {
@@ -57,7 +57,7 @@ function getUserRoleInOrganization(userId, organizationId) {
 function deleteDatasetResource(datasetId, resourceId) {
   return Promise.resolve(
     withApiKey(request.del(rootUrl + '/datasets/' + datasetId + '/resources/' + resourceId + '/'))
-    .set('content-length', 0)
+      .set('content-length', 0)
   ).thenReturn()
 }
 
@@ -95,7 +95,7 @@ function getDataset(datasetId) {
 function deleteDataset(datasetId) {
   return Promise.resolve(
     withApiKey(request.del(rootUrl + '/datasets/' + datasetId + '/'))
-    .set('content-length', 0)
+      .set('content-length', 0)
   ).thenReturn()
 }
 
@@ -115,7 +115,7 @@ function respondTransferRequest(transferId, response = 'accept') {
   return Promise.resolve(
     withApiKey(request.post(`${rootUrl}/transfer/${transferId}/`))
       .send({ comment: 'INSPIRE gateway automated transfer: response', response })
-    ).thenReturn()
+  ).thenReturn()
 }
 
 function transferDataset(datasetId, recipientOrganizationId) {

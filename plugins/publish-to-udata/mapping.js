@@ -9,7 +9,7 @@ var debug = require('debug')('mapping')
 moment.locale('fr')
 
 var bodyTemplate = Handlebars.compile(
-`{{metadata.description}}
+  `{{metadata.description}}
 
 {{#if metadata.lineage}}
 __Origine__
@@ -47,23 +47,23 @@ exports.map = function (sourceDataset) {
   sourceDataset.inlineOrganizations = (sourceDataset.organizations || []).join(', ')
 
   sourceDataset.history = (sourceDataset.metadata.history || [])
-        .filter(function (ev) {
-          return ev.date && moment(ev.date).isValid() && ev.type && ['creation', 'revision', 'publication'].includes(ev.type)
-        })
-        .map(function (ev) {
-          var labels = {
-            creation: 'Création',
-            revision: 'Mise à jour',
-            publication: 'Publication',
-          }
-          return { date: moment(ev.date).format('L'), description: labels[ev.type] }
-        })
+    .filter(function (ev) {
+      return ev.date && moment(ev.date).isValid() && ev.type && ['creation', 'revision', 'publication'].includes(ev.type)
+    })
+    .map(function (ev) {
+      var labels = {
+        creation: 'Création',
+        revision: 'Mise à jour',
+        publication: 'Publication',
+      }
+      return { date: moment(ev.date).format('L'), description: labels[ev.type] }
+    })
 
   var out = {
     title: sourceDataset.metadata.title,
     description: bodyTemplate(sourceDataset),
     extras: {
-            // inspire_fileIdentifier: sourceDataset.metadata.fileIdentifier,
+      // inspire_fileIdentifier: sourceDataset.metadata.fileIdentifier,
       geogw_recordId: sourceDataset.recordId,
     },
     license: sourceDataset.metadata.license,
@@ -73,8 +73,8 @@ exports.map = function (sourceDataset) {
 
   if (sourceDataset.metadata.keywords) {
     out.tags = sourceDataset.metadata.keywords
-          .map(tag => kebabCase(tag))
-          .filter(tag => tag.length <= 32 && tag.length >= 3)
+      .map(tag => kebabCase(tag))
+      .filter(tag => tag.length <= 32 && tag.length >= 3)
     out.tags.push('passerelle-inspire')
   }
 

@@ -36,11 +36,11 @@ exports.show = function (req, res) {
 
 exports.createOrUpdate = function (req, res, next) {
   req.organization
-        .set(pick(req.body, ...EDITABLE_FIELDS))
-        .save()
-        .then(() => req.organization.enable(req.user.accessToken))
-        .then(() => res.send(req.organization))
-        .catch(next)
+    .set(pick(req.body, ...EDITABLE_FIELDS))
+    .save()
+    .then(() => req.organization.enable(req.user.accessToken))
+    .then(() => res.send(req.organization))
+    .catch(next)
 }
 
 exports.list = function (req, res, next) {
@@ -52,6 +52,6 @@ exports.list = function (req, res, next) {
 
 exports.showProfile = function (req, res, next) {
   getOrganization(req.params.organizationId)
-      .then(organization => res.send(organization))
-      .catch(next)
+    .then(organization => res.send(organization))
+    .catch(next)
 }

@@ -6,12 +6,12 @@ const Record = mongoose.model('ConsolidatedRecord')
 
 exports.list = function (req, res, next) {
   Producer
-        .find()
-        .lean()
-        .exec(function (err, producers) {
-          if (err) return next(err)
-          res.send(producers)
-        })
+    .find()
+    .lean()
+    .exec(function (err, producers) {
+      if (err) return next(err)
+      res.send(producers)
+    })
 }
 
 exports.fetch = function (req, res, next, id) {
@@ -39,8 +39,8 @@ exports.dissociate = function (req, res, next) {
 }
 
 const facetEligibilityCondition = { $all: [
-    { $elemMatch: { name: 'availability', value: 'yes' } },
-    { $elemMatch: { name: 'opendata', value: 'yes' } },
+  { $elemMatch: { name: 'availability', value: 'yes' } },
+  { $elemMatch: { name: 'opendata', value: 'yes' } },
 ] }
 
 exports.listByOrganization = function (req, res, next) {

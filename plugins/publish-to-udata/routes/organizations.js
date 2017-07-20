@@ -10,8 +10,8 @@ module.exports = function () {
   router.param('organizationId', fetch)
 
   router.route('/organizations/:organizationId')
-      .get(show)
-      .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), createOrUpdate)
+    .get(show)
+    .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), createOrUpdate)
 
   router.get('/organizations/:organizationId/profile', showProfile)
 

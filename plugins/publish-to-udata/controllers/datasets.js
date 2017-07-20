@@ -20,8 +20,8 @@ function getNotPublishedYetDatasets(organization) {
       return Record
         .find({
           facets: { $all: [
-              { $elemMatch: { name: 'availability', value: 'yes' } },
-              { $elemMatch: { name: 'opendata', value: 'yes' } },
+            { $elemMatch: { name: 'availability', value: 'yes' } },
+            { $elemMatch: { name: 'opendata', value: 'yes' } },
           ] },
           catalogs: { $in: organization.sourceCatalogs },
           organizations: { $in: organization.producers },
@@ -94,32 +94,32 @@ function getGlobalMetrics() {
 
 exports.fetch = function (req, res, next, id) {
   Promise.join(
-        getRecord(id),
-        Dataset.findById(id).exec(),
+    getRecord(id),
+    Dataset.findById(id).exec(),
 
-        function (record, publicationInfo) {
-          if (!record) return res.sendStatus(404)
-          req.dataset = record
-          if (publicationInfo && publicationInfo.publication && publicationInfo.publication.organization) {
-            req.publicationInfo = publicationInfo
-          }
-          next()
-        }
-    )
+    function (record, publicationInfo) {
+      if (!record) return res.sendStatus(404)
+      req.dataset = record
+      if (publicationInfo && publicationInfo.publication && publicationInfo.publication.organization) {
+        req.publicationInfo = publicationInfo
+      }
+      next()
+    }
+  )
     .catch(next)
 }
 
 exports.publish = function (req, res, next) {
   (new Dataset({ _id: req.dataset.recordId }))
-      .asyncPublish({ organizationId: req.body.organization })
-      .then(() => res.sendStatus(202))
-      .catch(next)
+    .asyncPublish({ organizationId: req.body.organization })
+    .then(() => res.sendStatus(202))
+    .catch(next)
 }
 
 exports.unpublish = function (req, res, next) {
   req.publicationInfo.asyncUnpublish()
-      .then(() => res.sendStatus(202))
-      .catch(next)
+    .then(() => res.sendStatus(202))
+    .catch(next)
 }
 
 exports.synchronizeAll = function (req, res, next) {
@@ -132,14 +132,14 @@ exports.synchronizeAll = function (req, res, next) {
 
 exports.metrics = function (req, res, next) {
   getMetrics(req.organization)
-        .then(metrics => res.send(metrics))
-        .catch(next)
+    .then(metrics => res.send(metrics))
+    .catch(next)
 }
 
 exports.globalMetrics = function (req, res, next) {
   getGlobalMetrics()
-        .then(metrics => res.send(metrics))
-        .catch(next)
+    .then(metrics => res.send(metrics))
+    .catch(next)
 }
 
 exports.notPublishedYet = function (req, res, next) {
@@ -156,6 +156,6 @@ exports.published = function (req, res, next) {
 
 exports.publishedByOthers = function (req, res, next) {
   getPublishedByOthersDatasets(req.organization)
-        .then(datasets => res.send(datasets))
-        .catch(next)
+    .then(datasets => res.send(datasets))
+    .catch(next)
 }

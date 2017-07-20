@@ -16,11 +16,11 @@ module.exports = function () {
   /* Associations */
 
   router.route('/organizations/:organizationId/producers')
-      .post(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), associate)
-      .get(listByOrganization)
+    .post(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), associate)
+    .get(listByOrganization)
 
   router.route('/organizations/:organizationId/producers/:producerId')
-      .delete(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), dissociate)
+    .delete(ensureLoggedIn, organizationIsSet, isAdminOf(req => req.params.organizationId), dissociate)
 
   return router
 }

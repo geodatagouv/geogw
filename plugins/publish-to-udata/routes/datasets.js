@@ -27,9 +27,9 @@ module.exports = function () {
   router.param('datasetId', fetch)
 
   router.route('/datasets/:datasetId/publication')
-      .all(ensureLoggedIn)
-      .put(isNotPublished, validatePublicationParams, isEditorOf(req => req.body.organization), publish)
-      .delete(isPublished, isEditorOf(req => req.publicationInfo.publication.organization.toString()), unpublish)
+    .all(ensureLoggedIn)
+    .put(isNotPublished, validatePublicationParams, isEditorOf(req => req.body.organization), publish)
+    .delete(isPublished, isEditorOf(req => req.publicationInfo.publication.organization.toString()), unpublish)
 
   router.get('/datasets/metrics', globalMetrics)
   router.get('/organizations/:organizationId/datasets/metrics', organizationIsSet, metrics)
