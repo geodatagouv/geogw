@@ -18,8 +18,8 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@turf/bbox-polygon": "^3.10.5",
-    "@turf/union": "^3.10.5",
+    "@turf/bbox-polygon": "^4.5.2",
+    "@turf/union": "^4.5.2",
     "bluebird": "^3.3.0",
     "body-parser": "^1.11.0",
     "connect-mongo": "^1.1.0",
