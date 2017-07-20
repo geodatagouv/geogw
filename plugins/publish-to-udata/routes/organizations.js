@@ -1,21 +1,21 @@
-'use strict';
+'use strict'
 
-const express = require('express');
-const { fetch, list, show, createOrUpdate, showProfile } = require('../controllers/organizations');
-const { ensureLoggedIn, isAdminOf } = require('../middlewares');
+const express = require('express')
+const { fetch, list, show, createOrUpdate, showProfile } = require('../controllers/organizations')
+const { ensureLoggedIn, isAdminOf } = require('../middlewares')
 
 module.exports = function () {
-  const router = express.Router();
+  const router = express.Router()
 
-  router.param('organizationId', fetch);
+  router.param('organizationId', fetch)
 
   router.route('/organizations/:organizationId')
       .get(show)
-      .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), createOrUpdate);
+      .put(ensureLoggedIn, isAdminOf(req => req.params.organizationId), createOrUpdate)
 
-  router.get('/organizations/:organizationId/profile', showProfile);
+  router.get('/organizations/:organizationId/profile', showProfile)
 
-  router.get('/organizations', list);
+  router.get('/organizations', list)
 
-  return router;
-};
+  return router
+}

@@ -11,9 +11,15 @@ rules:
   quotes:
     - error
     - single
+  indent:
+    - error
+    - 2
   semi:
     - error
-    - always
+    - never
+  comma-dangle:
+    - error
+    - always-multiline
   keyword-spacing:
     - error
   key-spacing:

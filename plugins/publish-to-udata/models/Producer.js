@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
-const Schema = mongoose.Schema;
-const ObjectId = Schema.Types.ObjectId;
+const Schema = mongoose.Schema
+const ObjectId = Schema.Types.ObjectId
 
 const schema = new Schema({
-    _id: String,
-    associatedTo: { type: ObjectId, ref: 'Organization', index: true }
-});
+  _id: String,
+  associatedTo: { type: ObjectId, ref: 'Organization', index: true },
+})
 
-mongoose.model('Producer', schema);
+mongoose.model('Producer', schema)

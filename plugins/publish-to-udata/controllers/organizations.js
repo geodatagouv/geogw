@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
-const mongoose = require('mongoose');
-const { pick } = require('lodash');
-const Promise = require('bluebird');
-const { getOrganization } = require('../udata');
+const mongoose = require('mongoose')
+const { pick } = require('lodash')
+const Promise = require('bluebird')
+const { getOrganization } = require('../udata')
 
-const Organization = mongoose.model('Organization');
-const Producer = mongoose.model('Producer');
+const Organization = mongoose.model('Organization')
+const Producer = mongoose.model('Producer')
 
-const EDITABLE_FIELDS = ['sourceCatalogs', 'publishAll'];
+const EDITABLE_FIELDS = ['sourceCatalogs', 'publishAll']
 
 exports.fetch = function (req, res, next, id) {
   Promise.join(
@@ -17,41 +17,41 @@ exports.fetch = function (req, res, next, id) {
 
     function (organization, producers) {
       if (!organization) {
-        req.organization = new Organization({ _id: id });
+        req.organization = new Organization({ _id: id })
       } else {
-        req.organization = organization;
-        req.organization.producers = producers;
+        req.organization = organization
+        req.organization.producers = producers
       }
-      next();
+      next()
     }
-  ).catch(next);
-};
+  ).catch(next)
+}
 
 exports.show = function (req, res) {
-  if (!req.organization) return res.sendStatus(404);
-    const organization = req.organization.toObject();
-    organization.producers = req.organization.producers;
-    res.send(organization);
-};
+  if (!req.organization) return res.sendStatus(404)
+  const organization = req.organization.toObject()
+  organization.producers = req.organization.producers
+  res.send(organization)
+}
 
 exports.createOrUpdate = function (req, res, next) {
-    req.organization
+  req.organization
         .set(pick(req.body, ...EDITABLE_FIELDS))
         .save()
         .then(() => req.organization.enable(req.user.accessToken))
         .then(() => res.send(req.organization))
-        .catch(next);
-};
+        .catch(next)
+}
 
 exports.list = function (req, res, next) {
-    Organization.find().exec(function (err, organizations) {
-        if (err) return next(err);
-        res.send(organizations);
-    });
-};
+  Organization.find().exec(function (err, organizations) {
+    if (err) return next(err)
+    res.send(organizations)
+  })
+}
 
 exports.showProfile = function (req, res, next) {
-    getOrganization(req.params.organizationId)
+  getOrganization(req.params.organizationId)
       .then(organization => res.send(organization))
-      .catch(next);
-};
+      .catch(next)
+}

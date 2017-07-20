@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-require('./models');
+require('./models')
 
-exports.synchronizeOne = require('./jobs/synchronizeOne');
-exports.synchronizeAll = require('./jobs/synchronizeAll');
+exports.synchronizeOne = require('./jobs/synchronizeOne')
+exports.synchronizeAll = require('./jobs/synchronizeAll')

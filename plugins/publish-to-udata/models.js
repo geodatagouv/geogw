@@ -1,5 +1,5 @@
-'use strict';
+'use strict'
 
-require('./models/Dataset');
-require('./models/Organization');
-require('./models/Producer');
+require('./models/Dataset')
+require('./models/Organization')
+require('./models/Producer')

@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-const Redlock = require('redlock');
+const Redlock = require('redlock')
 
 const client = require('redis').createClient(
   process.env.REDIS_PORT,
   process.env.REDIS_HOST
-);
+)
 
 const redlock = new Redlock(
   [client],
@@ -21,10 +21,10 @@ const redlock = new Redlock(
     // the time in ms between attempts
     retryDelay: 200, // time in ms
   }
-);
+)
 
 redlock.on('clientError', function (err) {
-  console.error('A redis error has occurred:', err);
-});
+  console.error('A redis error has occurred:', err)
+})
 
-module.exports = redlock;
+module.exports = redlock

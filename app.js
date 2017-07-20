@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-require('./lib/mongoose');
-require('./lib/kue');
+require('./lib/mongoose')
+require('./lib/kue')
 
-module.exports = require('./lib/express');
+module.exports = require('./lib/express')

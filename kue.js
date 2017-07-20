@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 /* eslint no-console: off */
-require('./lib/kue');
-const kueApp = require('kue').app;
-const port = process.env.PORT || 3030;
+require('./lib/kue')
+const kueApp = require('kue').app
+const port = process.env.PORT || 3030
 
-kueApp.listen(port);
-console.log(`Kue App is listening on port ${port}`);
+kueApp.listen(port)
+console.log(`Kue App is listening on port ${port}`)
