@@ -42,7 +42,7 @@
     "mongoose": "^4.4.6",
     "morgan": "^1.5.1",
     "multistream": "^2.0.2",
-    "natural": "^0.4.0",
+    "natural": "^0.5.4",
     "ogr2ogr": "jdesboeufs/ogr2ogr",
     "on-finished": "^2.3.0",
     "passport": "^0.2.1",
@@ -63,7 +63,7 @@
   "devDependencies": {
     "eslint": "^3.0.1",
     "expect.js": "^0.3.1",
-    "mocha": "^2.4.5"
+    "mocha": "^3.4.2"
   },
   "engines": {
     "node": ">= 6.0.0"
