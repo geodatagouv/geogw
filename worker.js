@@ -19,6 +19,7 @@ q.process('harvest-csw', 2, csw.harvest);
 q.process('lookup-wfs', 5, wfs.lookup);
 q.process('process-record', 5, processRecord);
 q.process('dataset:consolidate', 5, consolidateDataset);
+q.process('geogw:incoming-webhook:link-analyzer', 10, require('./lib/tasks/webhooks/incoming/linkAnalyzer'));
 
 q.process('udata:synchronizeOne', 5, pluginJobs.synchronizeOne);
 q.process('udata:synchronizeAll', 1, pluginJobs.synchronizeAll);
