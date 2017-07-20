@@ -10,8 +10,6 @@ var wfs = require('./lib/tasks/lookup-wfs');
 var processRecord = require('./lib/tasks/process-record').exec;
 var consolidateDataset = require('./lib/tasks/consolidate-dataset').exec;
 
-var RemoteResourceCheck = require('./lib/tasks/check-remote-resource');
-
 // To remove in the future
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -24,11 +22,6 @@ q.process('dataset:consolidate', 5, consolidateDataset);
 
 q.process('udata:synchronizeOne', 5, pluginJobs.synchronizeOne);
 q.process('udata:synchronizeAll', 1, pluginJobs.synchronizeAll);
-
-q.process('remote-resource:check', 5, function (kueJob, doneCallback) {
-    var job = new RemoteResourceCheck(kueJob.data);
-    job.exec().nodeify(doneCallback);
-});
 
 var gracefulShutdown = once(function () {
     q.shutdown(5000, function (err) {
