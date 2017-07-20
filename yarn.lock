@@ -2452,9 +2452,9 @@ redis@~2.6.0-2:
     redis-commands "^1.2.0"
     redis-parser "^2.0.0"
 
-redlock@^2.1.0:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/redlock/-/redlock-2.1.2.tgz#bcdb6abe48acb3c3f597ff77e5256f15da2a9f46"
+redlock@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/redlock/-/redlock-3.0.0.tgz#01d5d99ee5a19c54557d984d656c1a1ddcce0e8e"
   dependencies:
     bluebird "^3.3.3"
 
