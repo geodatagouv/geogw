@@ -1,3 +1,5 @@
+'use strict';
+
 const mongoose = require('mongoose');
 const Producer = mongoose.model('Producer');
 const Record = mongoose.model('ConsolidatedRecord');

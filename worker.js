@@ -1,3 +1,5 @@
+'use strict';
+
 const { once } = require('lodash');
 require('./lib/mongoose');
 const pluginJobs = require('./plugins/publish-to-udata/jobs');

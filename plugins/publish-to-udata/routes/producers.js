@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const organizations = require('../controllers/organizations');
 const { fetch, list, associate, dissociate, listByOrganization } = require('../controllers/producers');

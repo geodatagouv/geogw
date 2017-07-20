@@ -1,3 +1,5 @@
+'use strict';
+
 var moment = require('moment');
 var Handlebars = require('handlebars');
 const { filter, kebabCase } = require('lodash');

@@ -1,3 +1,5 @@
+'use strict';
+
 const mongoose = require('mongoose');
 const Dataset = mongoose.model('Dataset');
 const { getPublications, unsetRecordPublication } = require('../geogw');

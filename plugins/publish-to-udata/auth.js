@@ -1,3 +1,5 @@
+'use strict';
+
 const OAuth2Strategy = require('passport-oauth2').Strategy;
 const dgv = require('./udata');
 

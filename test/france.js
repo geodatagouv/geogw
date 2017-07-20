@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint-env mocha */
 const normalizeProducerNames = require('../france/normalizeProducerNames');
 const expect = require('expect.js');

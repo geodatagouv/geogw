@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const organizations = require('../controllers/organizations');
 const { fetch, publish, unpublish, globalMetrics, metrics, published, notPublishedYet, publishedByOthers, synchronizeAll } = require('../controllers/datasets');

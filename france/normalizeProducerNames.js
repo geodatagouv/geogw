@@ -1,3 +1,5 @@
+'use strict';
+
 const csvParse = require('csv-parse/lib/sync');
 const { readFileSync } = require('fs');
 const { removeDiacritics } = require('natural');

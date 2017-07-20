@@ -1,3 +1,5 @@
+'use strict';
+
 const { getUserRoleInOrganization } = require('./udata');
 
 function ensureLoggedIn(req, res, next) {

@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const { fetch, list, show, createOrUpdate, showProfile } = require('../controllers/organizations');
 const { ensureLoggedIn, isAdminOf } = require('../middlewares');

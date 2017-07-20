@@ -1,3 +1,5 @@
+'use strict';
+
 require('./lib/mongoose');
 require('./lib/kue');
 

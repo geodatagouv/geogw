@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint no-console: off */
 require('./lib/kue');
 const kueApp = require('kue').app;

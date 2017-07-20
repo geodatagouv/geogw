@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint-env mocha */
 const convertDataset = require('../lib/helpers/convertDataset');
 const { getAllContacts, getDates, getSpatialResolution } = require('../lib/helpers/convertDataset/iso19139');

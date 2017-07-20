@@ -1,3 +1,5 @@
+'use strict';
+
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const sidekick = require('../../../lib/helpers/sidekick');
