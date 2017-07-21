@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose')
-const computeMetrics = require('../helpers/computeMetrics')
+const computeMetrics = require('../lib/helpers/computeMetrics')
 const Schema = mongoose.Schema
 const ObjectId = Schema.Types.ObjectId
 const Promise = require('bluebird')

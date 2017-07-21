@@ -3,7 +3,7 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { pick } = require('lodash')
-const sidekick = require('../helpers/sidekick')
+const sidekick = require('../lib/helpers/sidekick')
 const Promise = require('bluebird')
 
 const csw = require('./serviceTypes/csw')

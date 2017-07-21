@@ -1,7 +1,7 @@
 'use strict'
 
 const { once } = require('lodash')
-require('./lib/mongoose')
+require('./config/mongoose')
 const pluginJobs = require('./plugins/publish-to-udata/jobs')
 
 var q = require('./lib/kue').jobs

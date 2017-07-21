@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/jdesboeufs/geogw",
   "scripts": {
-    "lint": "eslint *.js lib plugins france",
+    "lint": "eslint .",
     "test": "mocha"
   },
   "dependencies": {

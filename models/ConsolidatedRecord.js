@@ -3,9 +3,9 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
-const sidekick = require('../helpers/sidekick')
+const sidekick = require('../lib/helpers/sidekick')
 const DistributionSchema = require('./schemas/distribution')
-const { getHash } = require('../helpers/hash')
+const { getHash } = require('../lib/helpers/hash')
 const moment = require('moment')
 const t = require('through2')
 const Promise = require('bluebird')
