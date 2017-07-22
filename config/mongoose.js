@@ -1,15 +1,17 @@
 'use strict'
 
-const path = require('path')
 const mongoose = require('mongoose')
-const Promise = require('bluebird')
 
-const utils = require('../lib/utils')
+// Configuration
+const config = {
+  mongo: {
+    url: process.env.MONGODB_URL || 'mongodb://localhost/geogw',
+  },
+}
 
-mongoose.Promise = Promise
+// Configure mongoose
+mongoose.Promise = require('bluebird')
+mongoose.connect(config.mongo.url)
 
-mongoose.connect(process.env.MONGODB_URL)
-
-utils.walk(path.join(__dirname, '..', 'models'), null, function(path) {
-  require(path)
-})
+// Load models
+require('require-all')(__dirname + '/../models', { recursive: false })
