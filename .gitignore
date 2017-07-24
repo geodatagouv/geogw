@@ -35,4 +35,4 @@ clients.json
 
 deploy.sh
 
-data/**
+/data

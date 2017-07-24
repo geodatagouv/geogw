@@ -4,7 +4,6 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { enqueue } = require('../lib/jobs')
-const DistributionSchema = require('./schemas/distribution')
 const { getHash } = require('../lib/helpers/hash')
 const moment = require('moment')
 const t = require('through2')
@@ -12,6 +11,31 @@ const Promise = require('bluebird')
 
 const ObjectId = Schema.Types.ObjectId
 const Mixed = Schema.Types.Mixed
+
+/* Distribution */
+
+const DISTRIBUTION_TYPES = [
+  'wfs-featureType',
+  'file-package',
+]
+
+const DistributionSchema = new Schema({
+  type: { type: String, enum: DISTRIBUTION_TYPES, required: true },
+  service: { type: ObjectId, ref: 'Service' },
+
+  name: { type: String }, // distribution label
+
+  available: { type: Boolean },
+
+  /* FeatureType */
+  typeName: { type: String },
+
+  /* File package */
+  location: { type: String },
+  hashedLocation: { type: String },
+  layer: { type: String },
+  originalDistribution: Boolean,
+})
 
 
 const collectionName = 'consolidated_records'
