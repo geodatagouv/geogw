@@ -1,12 +1,11 @@
 'use strict'
 
 /* eslint-env mocha */
-const convertDataset = require('../lib/helpers/convertDataset')
-const { getAllContacts, getDates, getSpatialResolution } = require('../lib/helpers/convertDataset/iso19139')
+const { getLicenseFromLinks } = require('../lib/metadata')
+const { getAllContacts, getDates, getSpatialResolution } = require('../lib/metadata/iso19139')
 const expect = require('expect.js')
 
 describe('convertDataset.getLicenseFromLinks()', () => {
-  const getLicenseFromLinks = convertDataset.getLicenseFromLinks
 
   describe('called with an empty array', () => {
     it('should return undefined', () => {
