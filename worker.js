@@ -7,7 +7,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 require('ssl-root-cas/latest').inject()
 
 // Configure
-require('./config/mongoose')
-require('./config/jobs')
+require('./lib/config/mongoose')
+require('./lib/config/jobs')
 
-require('./lib/jobs').startProcessing()
+require('./lib/util/jobs').startProcessing()

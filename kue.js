@@ -1,7 +1,7 @@
 'use strict'
 
 /* eslint no-console: off */
-const { app } = require('./lib/jobs')
+const { app } = require('./lib/util/jobs')
 const port = process.env.PORT || 3030
 
 app.listen(port)
