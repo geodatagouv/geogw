@@ -1,7 +1,7 @@
 'use strict'
 
 /* eslint-env mocha */
-const { normalizeFeatureTypeName } = require('../lib/helpers/featureType')
+const { normalizeFeatureTypeName } = require('../lib/featureType')
 const expect = require('expect.js')
 
 describe('normalizeFeatureTypeName()', () => {

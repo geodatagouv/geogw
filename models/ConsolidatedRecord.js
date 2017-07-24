@@ -3,7 +3,7 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
-const sidekick = require('../lib/helpers/sidekick')
+const { enqueue } = require('../lib/jobs')
 const DistributionSchema = require('./schemas/distribution')
 const { getHash } = require('../lib/helpers/hash')
 const moment = require('moment')
@@ -111,7 +111,7 @@ schema.method('isFresh', function (freshness = 3600) {
 /* Statics */
 
 schema.static('triggerUpdated', function (recordId, reason) {
-  return sidekick('dataset:consolidate', { recordId, freshness: 0, reason })
+  return enqueue('dataset-consolidate', { recordId, freshness: 0, reason })
 })
 
 schema.static('markAsOutdated', function (query = {}) {
@@ -129,7 +129,7 @@ schema.static('consolidateMany', function ({ freshness = 3600, limit = 1000 }) {
       .lean()
       .cursor()
       .pipe(t.obj((record, enc, cb) => {
-        return sidekick('dataset:consolidate', { recordId: record.recordId, freshness })
+        return enqueue('dataset-consolidate', { recordId: record.recordId, freshness })
           .then(() => {
             count++
             cb()

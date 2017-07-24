@@ -3,10 +3,10 @@
 const mongoose = require('mongoose')
 const { pick, uniq, compact } = require('lodash')
 const featureTypeResolve = require('./resolvers/featureType').resolve
-const computeFacets = require('../../helpers/facets').compute
+const computeFacets = require('../../lib/helpers/facets').compute
 const Promise = require('bluebird')
-const convertDataset = require('../../helpers/convertDataset')
-const redlock = require('../../redlock')
+const convertDataset = require('../../lib/helpers/convertDataset')
+const redlock = require('../../lib/redlock')
 const { resolveLinks } = require('./links')
 
 const RecordRevision = mongoose.model('RecordRevision')
@@ -109,12 +109,11 @@ async function applyResources(record, relatedResources) {
   })
 }
 
-function exec(job, done) {
-  const { recordId, freshness } = job.data
+function exec({ data: { recordId, freshness }, log }) {
 
   return getConsolidatedRecord(recordId).then(record => {
     if (record.isFresh(freshness)) {
-      job.log('Record is fresh enough. Abording...')
+      log('Record is fresh enough. Abording...')
       return
     } else {
       return getConsolidationLock(recordId)
@@ -148,10 +147,10 @@ function exec(job, done) {
             .catch(err => clearLock(lock, err))
         })
     }
-  }).asCallback(done)
+  })
 }
 
-exports.exec = exec
+exports.handler = exec
 exports.applyResources = applyResources
 exports.applyOrganizationsFilter = applyOrganizationsFilter
 exports.applyRecordRevisionChanges = applyRecordRevisionChanges

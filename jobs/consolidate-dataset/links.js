@@ -1,7 +1,7 @@
 'use strict'
 
-const { upsertLink, getLastLinkCheck } = require('../../linkAnalyzer')
-const { OnlineResource } = require('../../helpers/convertDataset/iso19139/onlineResources')
+const { upsertLink, getLastLinkCheck } = require('../../lib/linkAnalyzer')
+const { OnlineResource } = require('../../lib/helpers/convertDataset/iso19139/onlineResources')
 const Promise = require('bluebird')
 const { invert } = require('lodash')
 

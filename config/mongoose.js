@@ -11,7 +11,7 @@ const config = {
 
 // Configure mongoose
 mongoose.Promise = require('bluebird')
-mongoose.connect(config.mongo.url)
+mongoose.connect(config.mongo.url, { useMongoClient: true })
 
 // Load models
 require('require-all')(__dirname + '/../models', { recursive: false })

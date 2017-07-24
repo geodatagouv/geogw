@@ -74,6 +74,6 @@ class WfsLookupJob extends ServiceSyncJob {
 /*
 ** Exports
 */
-exports.lookup = function(job, done) {
-  (new WfsLookupJob(job, { failsAfter: 60 })).start(done)
+exports.handler = function({ data, log, progress }) {
+  return (new WfsLookupJob({ data, log, progress }, { failsAfter: 60 })).exec()
 }

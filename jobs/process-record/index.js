@@ -3,10 +3,10 @@
 const Promise = require('bluebird')
 const debug = require('debug')('geogw:process-record')
 const mongoose = require('mongoose')
-const { OnlineResource } = require('../../helpers/convertDataset/iso19139/onlineResources')
-const hashRecordId = require('../../helpers/hash').sha1
-const { isWFSService, getWFSServiceLocation, getCoupledResources } = require('../../helpers/convertDataset/iso19139/services')
-const convertDataset = require('../../helpers/convertDataset')
+const { OnlineResource } = require('../../lib/helpers/convertDataset/iso19139/onlineResources')
+const hashRecordId = require('../../lib/helpers/hash').sha1
+const { isWFSService, getWFSServiceLocation, getCoupledResources } = require('../../lib/helpers/convertDataset/iso19139/services')
+const convertDataset = require('../../lib/helpers/convertDataset')
 
 const RecordRevision = mongoose.model('RecordRevision')
 const RelatedResource = mongoose.model('RelatedResource')
@@ -100,9 +100,7 @@ function processCoupledResources(recordRevision) {
   })
 }
 
-function exec(job, done) {
-  const { recordId, recordHash } = job.data
-
+function handler({ data: { recordId, recordHash } }) {
   return getRecordRevision(recordId, recordHash)
     .then(recordRevision => {
       return markExistingRelatedResourcesAsChecking(recordId, recordHash)
@@ -111,7 +109,6 @@ function exec(job, done) {
     })
     .then(() => removeCheckingRelatedResources(recordId, recordHash))
     .then(() => mongoose.model('ConsolidatedRecord').triggerUpdated(recordId, 'revision updated')) // Only useful for dataset records
-    .nodeify(done)
 }
 
-module.exports = { exec }
+module.exports = { handler }

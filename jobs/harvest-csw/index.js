@@ -3,8 +3,8 @@
 const through2 = require('through2')
 const { inspect } = require('util')
 const mongoose = require('mongoose')
-const ServiceSyncJob = require('../syncJob')
-const { Harvester } = require('../../helpers/CSWHarvester')
+const ServiceSyncJob = require('../../lib/syncJob')
+const { Harvester } = require('../../lib/helpers/CSWHarvester')
 
 const RecordRevision = mongoose.model('RecordRevision')
 const CatalogRecord = mongoose.model('CatalogRecord')
@@ -93,6 +93,6 @@ class CswHarvestJob extends ServiceSyncJob {
 
 }
 
-exports.harvest = function harvest(job, done) {
-  (new CswHarvestJob(job, { failsAfter: 600 })).start(done)
+exports.handler = function harvest({ data, log, progress }) {
+  return (new CswHarvestJob({ data, log, progress }, { failsAfter: 600 })).exec()
 }

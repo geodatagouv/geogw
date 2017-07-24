@@ -1,0 +1,22 @@
+- name: consolidate-dataset
+  concurrency: 5
+  options:
+    attempts: 2
+    ttl: 30000
+    backoff:
+      delay: 10000
+      type: fixed
+
+- name: process-record
+  concurrency: 5
+  options:
+    attempts: 5
+
+- name: incoming-webhook-link-analyzer
+  concurrency: 10
+
+- name: harvest-csw
+  concurrency: 2
+
+- name: lookup-wfs
+  concurrency: 5

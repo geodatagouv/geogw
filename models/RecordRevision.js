@@ -3,7 +3,7 @@
 /*eslint no-multi-spaces: 0, key-spacing: 0 */
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
-const sidekick = require('../lib/helpers/sidekick')
+const { enqueue } = require('../lib/jobs')
 const { pick } = require('lodash')
 
 const Mixed = Schema.Types.Mixed
@@ -41,7 +41,7 @@ schema.index({ recordId: 1, recordHash: 1 }, { unique: true })
 schema.statics = {
 
   triggerUnprocessed: function (recordRevision) {
-    return sidekick('process-record', pick(recordRevision, 'recordId', 'recordHash'))
+    return enqueue('process-record', pick(recordRevision, 'recordId', 'recordHash'))
   },
 
   upsert: function (recordRevision) {

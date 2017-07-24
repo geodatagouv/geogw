@@ -3,7 +3,7 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { pick } = require('lodash')
-const sidekick = require('../lib/helpers/sidekick')
+const { enqueue } = require('../lib/jobs')
 const Promise = require('bluebird')
 
 const csw = require('./serviceTypes/csw')
@@ -81,10 +81,9 @@ schema.statics = {
         if (status === 'ready') {
           return Promise.resolve()
             .then(() => mongoose.model('ServiceSync').create({ service: service._id, status: 'queued' }))
-            .then(() => sidekick(
+            .then(() => enqueue(
               syncTask,
-              { serviceId: service._id, freshness },
-              { removeOnComplete: process.env.NODE_ENV === 'production' }
+              { serviceId: service._id, freshness }
             ))
             .return('queued')
         }

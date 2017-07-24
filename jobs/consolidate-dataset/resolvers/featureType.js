@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose')
 
-const { normalizeFeatureTypeName } = require('../../../helpers/featureType')
+const { normalizeFeatureTypeName } = require('../../../lib/featureType')
 
 const FeatureType = mongoose.model('FeatureType')
 
