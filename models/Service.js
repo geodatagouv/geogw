@@ -2,14 +2,14 @@
 
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
-const { pick } = require('lodash')
+const { pick, keyBy } = require('lodash')
 const { enqueue } = require('../lib/jobs')
 const Promise = require('bluebird')
 
-const csw = require('./serviceTypes/csw')
-const wfs = require('./serviceTypes/wfs')
-
-const supportedProtocols = { csw: csw, wfs: wfs }
+const supportedProtocols = keyBy([
+  { name: 'csw', syncTask: 'harvest-csw' },
+  { name: 'wfs', syncTask: 'lookup-wfs' },
+], 'name')
 
 const SYNC_STATUSES = ['new', 'successful', 'failed']
 
