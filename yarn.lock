@@ -559,9 +559,9 @@ csv-parse@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-1.2.0.tgz#047b73868ab9a85746e885f637f9ed0fb645a425"
 
-csw-client@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.13.0.tgz#348b7657793ed10bc58e3db947b8192672a60ce4"
+csw-client@^0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.14.0.tgz#0ddedb21f0cf4c7a8494e9f62346b44a38556beb"
   dependencies:
     commander "^2.11.0"
     debug "^2.1.0"
