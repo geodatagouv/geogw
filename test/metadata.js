@@ -1,7 +1,7 @@
 'use strict'
 
 /* eslint-env mocha */
-const { getLicenseFromLinks } = require('../lib/metadata')
+const { getLicenseFromLinks } = require('../lib/metadata/common/licenses')
 const { getAllContacts } = require('../lib/metadata/iso/contacts')
 const { getDates, getSpatialResolution } = require('../lib/metadata/iso')
 const expect = require('expect.js')
