@@ -2,7 +2,7 @@
 
 /* eslint-env mocha */
 const { getLicenseFromLinks } = require('../lib/metadata')
-const { getAllContacts, getDates, getSpatialResolution } = require('../lib/metadata/iso19139')
+const { getAllContacts, getDates, getSpatialResolution } = require('../lib/metadata/iso')
 const expect = require('expect.js')
 
 describe('convertDataset.getLicenseFromLinks()', () => {
