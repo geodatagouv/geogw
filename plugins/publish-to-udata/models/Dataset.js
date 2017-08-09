@@ -5,7 +5,7 @@ const Promise = require('bluebird')
 const sidekick = require('../../../lib/helpers/sidekick')
 const dgv = require('../udata')
 const map = require('../mapping').map
-const { createHash } = require('crypto')
+const hasha = require('hasha')
 const { getRecord, setRecordPublication, unsetRecordPublication } = require('../geogw')
 const redlock = require('../redlock')
 const stringify = require('json-stable-stringify')
@@ -30,7 +30,7 @@ function getPublicationLock(recordId) {
 }
 
 function getHash(dataset) {
-  return createHash('sha1').update(stringify(dataset), 'utf8').digest('hex')
+  return hasha(stringify(dataset), { algorithm: 'sha1' })
 }
 
 
