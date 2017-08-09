@@ -12,6 +12,14 @@
   options:
     attempts: 5
 
+- name: elect-record
+  concurrency: 50
+  options:
+    attemps: 5
+    backoff:
+      delay: 10000
+      type: fixed
+
 - name: incoming-webhook-link-analyzer
   concurrency: 10
 
