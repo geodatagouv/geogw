@@ -1,10 +1,10 @@
 'use strict'
 
-var moment = require('moment')
-var Handlebars = require('handlebars')
+const moment = require('moment')
+const Handlebars = require('handlebars')
 const { filter, kebabCase } = require('lodash')
-var _s = require('underscore.string')
-var debug = require('debug')('mapping')
+const { strRight } = require('underscore.string')
+const debug = require('debug')('mapping')
 
 moment.locale('fr')
 
@@ -89,7 +89,7 @@ exports.map = function (sourceDataset) {
         rootUrl = process.env.ROOT_URL + '/api/geogw/services/' + distribution.service + '/feature-types/' + distribution.typeName + '/download'
         if (processedFeatureTypes.includes(rootUrl)) return // Cannot be added twice
         processedFeatureTypes.push(rootUrl)
-        var simplifiedTypeName = _s.strRight(distribution.typeName, ':')
+        var simplifiedTypeName = strRight(distribution.typeName, ':')
 
         out.resources.push({
           url: rootUrl + '?format=GeoJSON&projection=WGS84',
