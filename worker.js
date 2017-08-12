@@ -3,6 +3,10 @@
 // To remove in the future
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
+if (process.env.NODE_ENV !== 'production') {
+  require('longjohn')
+}
+
 // More cas
 require('ssl-root-cas/latest').inject()
 
