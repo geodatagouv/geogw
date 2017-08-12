@@ -7,11 +7,6 @@
       delay: 10000
       type: fixed
 
-- name: process-record
-  concurrency: 5
-  options:
-    attempts: 5
-
 - name: elect-record
   concurrency: 50
   options:
