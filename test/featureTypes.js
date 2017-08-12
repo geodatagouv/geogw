@@ -1,7 +1,7 @@
 'use strict'
 
 /* eslint-env mocha */
-const { normalizeFeatureTypeName } = require('../lib/featureType')
+const { normalizeTypeName } = require('../lib/jobs/consolidate-record/feature-types')
 const expect = require('expect.js')
 
 describe('normalizeFeatureTypeName()', () => {
@@ -15,7 +15,7 @@ describe('normalizeFeatureTypeName()', () => {
     }
     Object.keys(testCases).forEach(testCase => {
       it(`should normalize ${testCase} into ${testCases[testCase]}`, () => {
-        expect(normalizeFeatureTypeName(testCase)).to.be(testCases[testCase])
+        expect(normalizeTypeName(testCase)).to.be(testCases[testCase])
       })
     })
   })

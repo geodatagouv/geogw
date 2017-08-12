@@ -1,4 +1,4 @@
-- name: consolidate-dataset
+- name: consolidate-record
   concurrency: 5
   options:
     attempts: 2
