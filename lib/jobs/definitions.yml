@@ -1,14 +1,17 @@
 - name: consolidate-record
   concurrency: 5
+  uniqueKey: recordId
+  timeout: 30000
   options:
     attempts: 2
-    ttl: 30000
     backoff:
       delay: 10000
       type: fixed
 
 - name: elect-record
   concurrency: 50
+  uniqueKey: recordId
+  timeout: 5000
   options:
     attemps: 5
     backoff:
