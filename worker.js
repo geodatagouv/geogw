@@ -1,7 +1,4 @@
 'use strict'
 
-// Configure
-require('./lib/config/mongoose')
-require('./lib/config/jobs')
-
+require('./lib/init')
 require('./lib/util/jobs').startProcessing()

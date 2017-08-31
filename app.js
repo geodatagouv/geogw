@@ -1,6 +1,5 @@
 'use strict'
 
-require('./lib/config/mongoose')
-require('./lib/config/jobs')
+require('./lib/init')
 
 module.exports = require('./lib/express')
