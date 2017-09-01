@@ -18,7 +18,6 @@ const schema = new Schema({
 
   /* Configuration */
   sourceCatalogs: [ObjectId],
-  publishAll: Boolean,
 
 })
 
@@ -42,9 +41,14 @@ schema.method('disable', function (accessToken) {
 
 schema.pre('save', function (next) {
   if (this.isNew) {
+<<<<<<< HEAD
     this.createdAt = new Date()
     this.enabled = false
     this.publishAll = false
+=======
+    this.createdAt = new Date();
+    this.enabled = false;
+>>>>>>> fdcc64e... Drop publishAll behavior
   }
   this.updatedAt = new Date()
   next()

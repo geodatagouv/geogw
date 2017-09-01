@@ -8,7 +8,7 @@ const { getOrganization } = require('../udata')
 const Organization = mongoose.model('Organization')
 const Producer = mongoose.model('Producer')
 
-const EDITABLE_FIELDS = ['sourceCatalogs', 'publishAll']
+const EDITABLE_FIELDS = ['sourceCatalogs']
 
 exports.fetch = function (req, res, next, id) {
   Promise.join(

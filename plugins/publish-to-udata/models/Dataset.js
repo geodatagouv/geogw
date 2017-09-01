@@ -111,11 +111,9 @@ schema.method('selectTargetOrganization', function () {
         return currentOrganization
       }
 
-      const electedOrganization = eligibleOrganizations.find(eo => eo.publishAll)
-
       // we elected an organization
-      if (electedOrganization) {
-        return electedOrganization._id
+      if (eligibleOrganizations.length > 0) {
+        return eligibleOrganizations[0]._id
       }
 
       // we fall back to current organization
