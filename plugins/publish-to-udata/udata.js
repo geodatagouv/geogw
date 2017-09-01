@@ -127,6 +127,11 @@ function transferDataset(datasetId, recipientOrganizationId) {
     })
     .then(() => createDatasetTransferRequest(datasetId, recipientOrganizationId))
     .then(transferId => respondTransferRequest(transferId, 'accept'))
+    .catch(err => {
+      if (err.status && err.status === 400 && err.response.body.message === 'Recipient should be different than the current owner') {
+        return
+      }
+    })
 }
 
 module.exports = { getOrganization, addUserToOrganization, removeUserFromOrganization, getProfile, createDataset, updateDataset, deleteDataset, getDataset, getUserRoleInOrganization, transferDataset }
