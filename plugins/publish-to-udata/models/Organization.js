@@ -15,8 +15,7 @@ const schema = new Schema({
     enabled: Boolean,
 
     /* Configuration */
-    sourceCatalogs: [ObjectId],
-    publishAll: Boolean,
+    sourceCatalogs: [ObjectId]
 
 });
 
@@ -42,7 +41,6 @@ schema.pre('save', function (next) {
   if (this.isNew) {
     this.createdAt = new Date();
     this.enabled = false;
-    this.publishAll = false;
   }
   this.updatedAt = new Date();
   next();
