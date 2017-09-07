@@ -1,9 +1,27 @@
-version: '2'
+version: '3'
+
+volumes:
+  geogw-mongo:
+  geogw-redis:
 
 services:
+  mongo:
+    image: mongo:3
+    volumes:
+      - geogw-mongo:/data/db
+    ports:
+      - 27017:27017
+
+  mongo-express:
+    image: mongo-express:latest
+    links:
+      - mongo:mongo
+    ports:
+      - 8081:8081
 
   redis:
     image: redis:3.2
-
-  mongo:
-    image: mongo:3
+    volumes:
+      - geogw-redis:/data
+    ports:
+      - 6379:6379
