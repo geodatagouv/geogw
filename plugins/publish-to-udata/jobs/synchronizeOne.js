@@ -41,7 +41,7 @@ module.exports = function (job, jobDone) {
       .catch(err => {
         if (err.status && err.response) {
           job.log(`Error ${err.status}`);
-          job.log(err.response.body);
+          job.log(JSON.stringify(err.response.body, true, 2));
         }
         jobDone(err);
       });
