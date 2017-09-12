@@ -69,9 +69,9 @@ exports.map = function (sourceDataset) {
         resources: []
     };
 
-    if (sourceDataset.metadata.coveredTerritories) {
-        out.spatial = { zones: sourceDataset.metadata.coveredTerritories };
-    }
+    // if (sourceDataset.metadata.coveredTerritories) {
+    //     out.spatial = { zones: sourceDataset.metadata.coveredTerritories };
+    // }
 
     if (sourceDataset.metadata.keywords) {
         out.tags = sourceDataset.metadata.keywords
