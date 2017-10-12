@@ -37,7 +37,7 @@ __Liens annexes__
 {{/each}}
 
 {{/if}}
-➞ [Consulter cette fiche sur inspire.data.gouv.fr](https://inspire.data.gouv.fr/datasets/{{recordId}})`
+➞ [Consulter cette fiche sur geo.data.gouv.fr](https://geo.data.gouv.fr/datasets/{{recordId}})`
 );
 
 exports.map = function (sourceDataset) {
