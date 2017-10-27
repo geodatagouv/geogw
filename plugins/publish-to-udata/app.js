@@ -48,11 +48,11 @@ module.exports = function () {
         req.session.redirectTo = undefined;
     });
 
-    app.get('/oauth/callback', function (req, res) {
+    app.get('/oauth/callback', function (req, res, next) {
         passport.authenticate('udata', {
             successRedirect: req.session.redirectTo,
             failureRedirect: '/'
-        })(req, res);
+        })(req, res, next);
         req.session.redirectTo = undefined;
     });
 
