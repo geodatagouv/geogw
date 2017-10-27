@@ -569,13 +569,13 @@ csv-parse@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-1.2.0.tgz#047b73868ab9a85746e885f637f9ed0fb645a425"
 
-csw-client@^0.14.0:
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.14.0.tgz#0ddedb21f0cf4c7a8494e9f62346b44a38556beb"
+csw-client@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/csw-client/-/csw-client-0.15.0.tgz#d4b455cc75aeb2f5742e0126e4fc035b34e98b7f"
   dependencies:
     commander "^2.11.0"
     debug "^2.1.0"
-    inspire-parser "^0.13.0"
+    inspire-parser "^0.14.0"
     lodash "^4.0.0"
     mississippi "^1.3.0"
     progress "^2.0.0"
@@ -1266,9 +1266,9 @@ inquirer@^0.12.0:
     strip-ansi "^3.0.0"
     through "^2.3.6"
 
-inspire-parser@^0.13.0:
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/inspire-parser/-/inspire-parser-0.13.0.tgz#ad2475eed17f91a25ab47ae57a6d5b913eeaf815"
+inspire-parser@^0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/inspire-parser/-/inspire-parser-0.14.0.tgz#d7a27243a053d747552d83884d570839a253106f"
   dependencies:
     is-plain-obj "^1.1.0"
     once "^1.3.3"
