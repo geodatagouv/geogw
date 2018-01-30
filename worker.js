@@ -30,7 +30,7 @@ q.process('remote-resource:check', 5, function (kueJob, doneCallback) {
 
 var gracefulShutdown = once(function () {
     q.shutdown(5000, function (err) {
-        console.log('Job queue is shut down. ', err || '');
+        console.error('Job queue is shut down. ', err || '');
         process.exit();
     });
 });
@@ -44,7 +44,7 @@ process.on('message', function (msg) {
 process.on('SIGTERM', gracefulShutdown);
 
 process.on('uncaughtException', function (err) {
-    console.log('Uncaught exception!!');
-    console.log(err);
+    console.error('Uncaught exception!!');
+    console.error(err);
     gracefulShutdown();
 });
