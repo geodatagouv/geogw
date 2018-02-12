@@ -61,7 +61,7 @@ exports.map = function (sourceDataset) {
         title: sourceDataset.metadata.title,
         description: bodyTemplate(sourceDataset),
         extras: {
-            'inspire:identifier': sourceDataset.metadata.fileIdentifier,
+            'inspire:identifier': sourceDataset.metadata.id,
             geogw_recordId: sourceDataset.recordId
         },
         license: sourceDataset.metadata.license,
