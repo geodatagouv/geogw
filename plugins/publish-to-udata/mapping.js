@@ -1,6 +1,6 @@
 var moment = require('moment');
 var Handlebars = require('handlebars');
-const { filter, kebabCase } = require('lodash');
+const { get, filter, kebabCase } = require('lodash');
 var _s = require('underscore.string');
 var debug = require('debug')('mapping');
 
@@ -62,6 +62,7 @@ exports.map = function (sourceDataset) {
         description: bodyTemplate(sourceDataset),
         extras: {
             'inspire:identifier': sourceDataset.metadata.id,
+            'inspire:resource_identifier': get(sourceDataset, 'metadata.resourceId'),
             'geop:dataset_id': sourceDataset.recordId
         },
         license: sourceDataset.metadata.license,
